@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IT Resources Dashboard</title>
+    <title>IT Management Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4a8fe7;
-            --secondary-color: #5ce1e6;
-            --accent-color: #44d9a0;
-            --light-color: #f0f7ff;
-            --dark-color: #2c3e50;
-            --text-color: #333;
+            --primary-blue: #2c8cff;
+            --light-blue: #e6f2ff;
+            --medium-blue: #4da6ff;
+            --dark-blue: #0066cc;
+            --accent-blue: #80ccff;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --background: #f8fbff;
             --card-bg: #ffffff;
-            --shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            --border-radius: 12px;
-            --transition: all 0.3s ease;
+            --shadow: rgba(44, 140, 255, 0.15);
         }
         
         * {
@@ -27,12 +29,10 @@
         }
         
         body {
-            font-family: 'Sarabun', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-            color: var(--text-color);
+            font-family: 'Noto Sans Thai', 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--text-dark);
             line-height: 1.6;
-            min-height: 100vh;
-            padding: 20px;
         }
         
         .container {
@@ -43,161 +43,116 @@
         
         header {
             text-align: center;
-            margin-bottom: 40px;
-            padding: 20px;
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            padding: 40px 0 20px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
             color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px var(--shadow);
+            margin-bottom: 40px;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            color: var(--light-blue);
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 50%;
         }
         
         h1 {
-            font-family: 'Kanit', sans-serif;
-            font-weight: 600;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
+            font-weight: 700;
             margin-bottom: 10px;
         }
         
         .subtitle {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             opacity: 0.9;
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
         }
         
-        .search-container {
-            max-width: 600px;
-            margin: 0 auto 30px;
-            position: relative;
-        }
-        
-        .search-box {
-            width: 100%;
-            padding: 15px 20px 15px 50px;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            font-family: 'Sarabun', sans-serif;
-        }
-        
-        .search-box:focus {
-            outline: none;
-            box-shadow: 0 8px 20px rgba(74, 143, 231, 0.2);
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary-color);
-            font-size: 1.2rem;
-        }
-        
-        .dashboard {
+        .cards-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
             margin-bottom: 40px;
         }
         
         .card {
             background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            height: 100%;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(44, 140, 255, 0.1);
             display: flex;
             flex-direction: column;
+            height: 100%;
         }
         
         .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(44, 140, 255, 0.2);
         }
         
         .card-header {
-            padding: 20px;
-            color: white;
-            position: relative;
-            overflow: hidden;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-blue);
         }
         
-        .card-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            opacity: 0.9;
-            z-index: 1;
-        }
-        
-        .card-header-content {
-            position: relative;
-            z-index: 2;
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background-color: var(--light-blue);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-blue);
+            font-size: 1.8rem;
         }
         
         .card-title {
-            font-family: 'Kanit', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        
-        .card-category {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        
-        .card-body {
-            padding: 25px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark-blue);
         }
         
         .card-description {
+            color: var(--text-light);
             margin-bottom: 25px;
-            color: #555;
             flex-grow: 1;
-            line-height: 1.7;
-        }
-        
-        .card-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: auto;
-            flex-wrap: wrap;
         }
         
         .card-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 25px;
-            background-color: var(--accent-color);
+            display: inline-block;
+            background-color: var(--primary-blue);
             color: white;
             text-decoration: none;
-            border-radius: 50px;
+            padding: 12px 25px;
+            border-radius: 8px;
             font-weight: 500;
-            transition: var(--transition);
-            font-family: 'Kanit', sans-serif;
-            letter-spacing: 0.5px;
-            flex-grow: 1;
+            transition: all 0.3s ease;
             text-align: center;
-            min-width: 140px;
+            margin-top: auto;
         }
         
         .card-link:hover {
-            background-color: #3ac28f;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(68, 217, 160, 0.3);
+            background-color: var(--dark-blue);
+            transform: scale(1.05);
         }
         
         .card-link i {
@@ -205,572 +160,217 @@
             font-size: 0.9rem;
         }
         
-        .icon-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 60px;
-            height: 60px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
+        .status-container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px var(--shadow);
+            margin-top: 20px;
+            border-left: 6px solid var(--primary-blue);
+        }
+        
+        .status-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--dark-blue);
             margin-bottom: 15px;
-        }
-        
-        .card-icon {
-            font-size: 1.8rem;
-            color: white;
-        }
-        
-        .filter-container {
             display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            align-items: center;
             gap: 10px;
         }
         
-        .filter-btn {
-            padding: 8px 20px;
-            background-color: white;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            border-radius: 50px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: 'Kanit', sans-serif;
-            font-weight: 400;
+        .status-title i {
+            color: var(--primary-blue);
         }
         
-        .filter-btn:hover, .filter-btn.active {
-            background-color: var(--primary-color);
-            color: white;
+        .status-content {
+            color: var(--text-light);
+            line-height: 1.8;
         }
         
         footer {
             text-align: center;
-            padding: 20px;
-            margin-top: 30px;
-            color: #666;
+            margin-top: 60px;
+            padding: 25px;
+            color: var(--text-light);
             font-size: 0.9rem;
-            border-top: 1px solid #ddd;
+            border-top: 1px solid rgba(44, 140, 255, 0.1);
         }
         
-        .no-results {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 40px;
-            color: #777;
-            font-size: 1.2rem;
-            display: none;
+        .update-time {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--medium-blue);
+            background-color: rgba(44, 140, 255, 0.1);
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
         }
         
         @media (max-width: 768px) {
-            .dashboard {
+            .cards-container {
                 grid-template-columns: 1fr;
             }
             
+            .container {
+                padding: 15px;
+            }
+            
+            header {
+                padding: 30px 20px 20px;
+            }
+            
             h1 {
+                font-size: 1.8rem;
+            }
+            
+            .logo {
                 font-size: 2rem;
             }
-            
-            .subtitle {
-                font-size: 1rem;
-            }
-            
-            .card-actions {
-                flex-direction: column;
-            }
-            
-            .card-link {
-                width: 100%;
-            }
-        }
-        
-        .card-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            font-size: 0.8rem;
-            margin-top: 8px;
-        }
-        
-        .card-stats {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            color: #666;
-            font-size: 0.85rem;
-            flex-wrap: wrap;
-        }
-        
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .url-info-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 20px;
-            background-color: #f0f7ff;
-            color: var(--primary-color);
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 500;
-            transition: var(--transition);
-            font-family: 'Kanit', sans-serif;
-            border: 1px solid #d1e3ff;
-            min-width: 140px;
-        }
-        
-        .url-info-btn:hover {
-            background-color: #e1efff;
-            transform: translateY(-2px);
-        }
-        
-        .url-info-btn i {
-            margin-right: 8px;
-        }
-        
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .modal-content {
-            background-color: white;
-            border-radius: var(--border-radius);
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-        }
-        
-        .modal-header {
-            padding: 20px;
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .modal-title {
-            font-family: 'Kanit', sans-serif;
-            font-size: 1.3rem;
-            font-weight: 500;
-        }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        
-        .modal-close:hover {
-            transform: scale(1.1);
-        }
-        
-        .modal-body {
-            padding: 25px;
-        }
-        
-        .url-display {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            word-break: break-all;
-            border-left: 4px solid var(--accent-color);
-            font-family: monospace;
-        }
-        
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .btn-copy {
-            padding: 10px 20px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: 'Kanit', sans-serif;
-            flex-grow: 1;
-        }
-        
-        .btn-copy:hover {
-            background-color: #3a7bd5;
-        }
-        
-        .btn-close-modal {
-            padding: 10px 20px;
-            background-color: #f0f0f0;
-            color: #333;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: 'Kanit', sans-serif;
-            flex-grow: 1;
-        }
-        
-        .btn-close-modal:hover {
-            background-color: #e0e0e0;
         }
     </style>
 </head>
 <body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-laptop-code"></i>
+                <div>IT Management Portal</div>
+            </div>
+            <h1>ศูนย์กลางระบบไอที</h1>
+            <p class="subtitle">เข้าถึงระบบงานไอทีทั้งหมดผ่านจุดเดียว พร้อมคู่มือและข้อมูลครบครัน</p>
+        </div>
+    </header>
+    
     <div class="container">
-        <header>
-            <h1>IT Resources Dashboard</h1>
-            <p class="subtitle">รวมลิงก์และทรัพยากรสำคัญสำหรับงานไอทีในองค์กร จัดการและเข้าถึงข้อมูลได้จากที่เดียว</p>
-        </header>
-        
-        <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="searchInput" class="search-box" placeholder="ค้นหางานหรือทรัพยากรที่ต้องการ...">
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h2 class="card-title">สถานะงานไอที</h2>
+                </div>
+                <p class="card-description">
+                    ติดตามความคืบหน้าและสถานะการดำเนินงานของระบบไอทีทั้งหมด 
+                    รวมถึงงานที่กำลังดำเนินการและงานที่เสร็จสิ้นแล้ว
+                </p>
+                <a href="https://sarawutc6689-cpu.github.io/itusers/index-itusers.html" target="_blank" class="card-link">
+                    เปิดสถานะงาน <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h2 class="card-title">คู่มือการติดตั้ง</h2>
+                </div>
+                <p class="card-description">
+                    คู่มือและขั้นตอนการติดตั้งโปรแกรมต่างๆ 
+                    สำหรับผู้ใช้งานทั่วไปและผู้ดูแลระบบ พร้อมภาพประกอบขั้นตอนอย่างละเอียด
+                </p>
+                <a href="https://sites.google.com/view/itmouldmate-manualguide2/home" target="_blank" class="card-link">
+                    เปิดคู่มือ <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h2 class="card-title">ทรัพย์สินไอที</h2>
+                </div>
+                <p class="card-description">
+                    ระบบจัดการทรัพย์สินทางไอที (IT Asset Management) 
+                    ตรวจสอบข้อมูลครุภัณฑ์ อุปกรณ์ และซอฟต์แวร์ทั้งหมดในองค์กร
+                </p>
+                <a href="https://script.google.com/macros/s/AKfycbzLv-hojzPi3iNPF28rY83Pez5VVOsmTXle3OEadiqTY1dBKhLe4oxBeI0H01TTaUOSCA/exec" target="_blank" class="card-link">
+                    เปิดระบบทรัพย์สิน <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
         </div>
         
-        <div class="filter-container">
-            <button class="filter-btn active" data-filter="all">ทั้งหมด (4)</button>
-            <button class="filter-btn" data-filter="status">อัพเดทสถานะ (1)</button>
-            <button class="filter-btn" data-filter="manual">คู่มือการใช้งาน (1)</button>
-            <button class="filter-btn" data-filter="asset">IT Asset (2)</button>
+        <div class="status-container">
+            <h3 class="status-title">
+                <i class="fas fa-info-circle"></i>
+                ข้อมูลอัพเดตล่าสุด
+            </h3>
+            <div class="status-content">
+                <p>• สถานะงานไอที: อัพเดทข้อมูลล่าสุดเมื่อวันที่ 20 มิถุนายน 2567</p>
+                <p>• คู่มือการติดตั้ง: มีคู่มือใช้งานโปรแกรมทั้งหมด 15 รายการ</p>
+                <p>• ทรัพย์สินไอที: ระบบสามารถบันทึกและติดตามอุปกรณ์ไอทีทั้งหมดได้</p>
+                <p>• ทีมงานไอทีพร้อมให้บริการและสนับสนุนการใช้งานทุกช่องทาง</p>
+            </div>
         </div>
-        
-        <div class="dashboard" id="dashboard">
-            <!-- Cards will be generated by JavaScript -->
-        </div>
-        
-        <div class="no-results" id="noResults">
-            <i class="fas fa-search fa-2x" style="margin-bottom: 15px; color: #ccc;"></i>
-            <p>ไม่พบผลลัพธ์ที่ตรงกับการค้นหา</p>
-            <p style="font-size: 1rem; margin-top: 10px;">ลองใช้คำค้นหาอื่นหรือล้างตัวกรอง</p>
-        </div>
-        
-        <footer>
-            <p>© 2023 IT Resources Dashboard | ออกแบบเพื่อการเข้าถึงทรัพยากรไอทีอย่างมีประสิทธิภาพ</p>
-            <p style="margin-top: 5px; font-size: 0.8rem;">จำนวนทรัพยากรทั้งหมด: <span id="totalResources">4</span> รายการ</p>
-        </footer>
     </div>
     
-    <!-- Modal for URL display -->
-    <div class="modal" id="urlModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modalTitle">URL Information</h3>
-                <button class="modal-close" id="closeModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p id="modalDescription"></p>
-                <div class="url-display" id="modalUrl"></div>
-                <div class="modal-actions">
-                    <button class="btn-copy" id="copyUrlBtn">
-                        <i class="fas fa-copy"></i> คัดลอก URL
-                    </button>
-                    <button class="btn-close-modal" id="closeModalBtn">ปิด</button>
-                </div>
+    <footer>
+        <div class="container">
+            <p>IT Management Portal &copy; 2024 - ศูนย์กลางข้อมูลระบบไอที</p>
+            <p>ออกแบบเพื่อให้ใช้งานง่ายและเข้าถึงข้อมูลได้รวดเร็ว</p>
+            <div class="update-time">
+                อัพเดทล่าสุด: 20 มิถุนายน 2567
             </div>
         </div>
-    </div>
-
+    </footer>
+    
     <script>
-        // ข้อมูลลิงก์
-        const resources = [
-            {
-                id: 1,
-                title: "อัพเดทสถานะงาน",
-                category: "status",
-                description: "ระบบติดตามและอัพเดทสถานะของงานไอทีทั้งหมดในองค์กร ช่วยให้สามารถตรวจสอบความคืบหน้าได้อย่างเป็นระบบและทันที",
-                url: "https://sarawutc6689-cpu.github.io/itusers/index-itusers.html",
-                icon: "fas fa-tasks",
-                lastUpdated: "2023-09-15",
-                views: 1245
-            },
-            {
-                id: 2,
-                title: "คู่มือการติดตั้งโปรแกรม",
-                category: "manual",
-                description: "คู่มือและขั้นตอนการติดตั้งโปรแกรมต่างๆ พร้อมคำอธิบายแบบละเอียดและภาพประกอบสำหรับผู้ใช้งานทุกท่าน",
-                url: "https://sites.google.com/view/itmouldmate-manualguide2/home",
-                icon: "fas fa-book",
-                lastUpdated: "2023-09-10",
-                views: 892
-            },
-            {
-                id: 3,
-                title: "IT Asset Management",
-                category: "asset",
-                description: "ระบบจัดการทรัพย์สินไอที (IT Asset) สำหรับลงทะเบียน ติดตาม และบริหารจัดการอุปกรณ์ไอทีทั้งหมดในองค์กร",
-                url: "https://script.google.com/macros/s/AKfycbzLv-hojzPi3iNPF28rY83Pez5VVOsmTXle3OEadiqTY1dBKhLe4oxBeI0H01TTaUOSCA/exec",
-                icon: "fas fa-laptop",
-                lastUpdated: "2023-09-12",
-                views: 1567
-            },
-            {
-                id: 4,
-                title: "IT Asset Dashboard",
-                category: "asset",
-                description: "แดชบอร์ดแสดงข้อมูลทรัพย์สินไอทีแบบเรียลไทม์ พร้อมรายงานและสถิติการใช้งานอุปกรณ์ต่างๆ ในองค์กร",
-                url: "https://script.google.com/macros/s/AKfycbwG06zNHfAV4qIKEAIwaGGGQJ10aeKkMn5HXIzZm2-5ET-rc_eCAmgcwP0zFKocOrjp9A/exec",
-                icon: "fas fa-chart-line",
-                lastUpdated: "2023-09-05",
-                views: 2034
+        // เพิ่มฟังก์ชันเพื่อแสดงเวลาและวันที่ปัจจุบัน
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            
+            // สำหรับภาษาไทย
+            const thaiDateTime = now.toLocaleDateString('th-TH', options);
+            
+            // อัพเดทวันที่และเวลาใน footer
+            const updateElement = document.querySelector('.update-time');
+            if (updateElement) {
+                updateElement.textContent = `อัพเดทล่าสุด: ${thaiDateTime}`;
             }
-        ];
-
-        // DOM Elements
-        const dashboard = document.getElementById('dashboard');
-        const searchInput = document.getElementById('searchInput');
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        const noResults = document.getElementById('noResults');
-        const totalResources = document.getElementById('totalResources');
+        }
         
-        // Modal elements
-        const urlModal = document.getElementById('urlModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalDescription = document.getElementById('modalDescription');
-        const modalUrl = document.getElementById('modalUrl');
-        const copyUrlBtn = document.getElementById('copyUrlBtn');
-        const closeModal = document.getElementById('closeModal');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-
-        // ฟังก์ชันสร้างการ์ด
-        function createCard(resource) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.setAttribute('data-category', resource.category);
-            card.setAttribute('data-id', resource.id);
+        // เพิ่มเอฟเฟกต์เมื่อโหลดหน้าเว็บ
+        document.addEventListener('DOMContentLoaded', function() {
+            // อัพเดทวันที่และเวลา
+            updateDateTime();
             
-            // กำหนดสีให้กับหัวการ์ดตามหมวดหมู่
-            let headerGradient = '';
-            if (resource.category === 'status') {
-                headerGradient = 'linear-gradient(45deg, #4a8fe7, #5ce1e6)';
-            } else if (resource.category === 'manual') {
-                headerGradient = 'linear-gradient(45deg, #44d9a0, #5ce1e6)';
-            } else {
-                headerGradient = 'linear-gradient(45deg, #8a4fe7, #5ce1e6)';
-            }
-            
-            // รูปแบบวันที่
-            const lastUpdated = formatDate(resource.lastUpdated);
-            
-            card.innerHTML = `
-                <div class="card-header" style="background: ${headerGradient};">
-                    <div class="card-header-content">
-                        <div class="icon-container">
-                            <i class="${resource.icon} card-icon"></i>
-                        </div>
-                        <h3 class="card-title">${resource.title}</h3>
-                        <div class="card-category">
-                            ${getCategoryName(resource.category)}
-                            <span class="card-badge">${resource.id}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <p class="card-description">${resource.description}</p>
-                    
-                    <div class="card-stats">
-                        <div class="stat-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>อัพเดท: ${lastUpdated}</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-eye"></i>
-                            <span>เข้าชม: ${resource.views.toLocaleString()}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="card-actions">
-                        <a href="${resource.url}" target="_blank" class="card-link">
-                            <i class="fas fa-external-link-alt"></i> เข้าสู่ระบบ
-                        </a>
-                        <button class="url-info-btn" data-id="${resource.id}">
-                            <i class="fas fa-info-circle"></i> ดูรายละเอียด
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            return card;
-        }
-
-        // ฟังก์ชันแปลงรหัสหมวดหมู่เป็นชื่อภาษาไทย
-        function getCategoryName(category) {
-            switch(category) {
-                case 'status': return 'อัพเดทสถานะ';
-                case 'manual': return 'คู่มือการใช้งาน';
-                case 'asset': return 'IT Asset';
-                default: return 'อื่นๆ';
-            }
-        }
-
-        // ฟังก์ชันจัดรูปแบบวันที่
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const day = date.getDate();
-            const month = date.getMonth() + 1;
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
-        }
-
-        // ฟังก์ชันแสดงการ์ดทั้งหมด
-        function renderCards(filter = 'all', searchTerm = '') {
-            dashboard.innerHTML = '';
-            noResults.style.display = 'none';
-            
-            let filteredResources = resources;
-            
-            // กรองตามหมวดหมู่
-            if (filter !== 'all') {
-                filteredResources = resources.filter(resource => resource.category === filter);
-            }
-            
-            // กรองตามคำค้นหา
-            if (searchTerm) {
-                const lowerSearchTerm = searchTerm.toLowerCase();
-                filteredResources = filteredResources.filter(resource => 
-                    resource.title.toLowerCase().includes(lowerSearchTerm) ||
-                    resource.description.toLowerCase().includes(lowerSearchTerm) ||
-                    getCategoryName(resource.category).toLowerCase().includes(lowerSearchTerm)
-                );
-            }
-            
-            // อัพเดทตัวนับทรัพยากรทั้งหมด
-            totalResources.textContent = filteredResources.length;
-            
-            // แสดงการ์ดที่กรองแล้ว
-            if (filteredResources.length > 0) {
-                filteredResources.forEach(resource => {
-                    const card = createCard(resource);
-                    dashboard.appendChild(card);
-                });
-                
-                // เพิ่ม event listeners สำหรับปุ่มดูรายละเอียด
-                document.querySelectorAll('.url-info-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const resourceId = parseInt(this.getAttribute('data-id'));
-                        showUrlModal(resourceId);
-                    });
-                });
-            } else {
-                noResults.style.display = 'block';
-            }
-        }
-
-        // ฟังก์ชันแสดง Modal สำหรับดู URL
-        function showUrlModal(resourceId) {
-            const resource = resources.find(r => r.id === resourceId);
-            if (!resource) return;
-            
-            modalTitle.textContent = resource.title;
-            modalDescription.textContent = resource.description;
-            modalUrl.textContent = resource.url;
-            
-            urlModal.style.display = 'flex';
-        }
-
-        // ฟังก์ชันคัดลอก URL
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                // แสดงการแจ้งเตือนว่าคัดลอกสำเร็จ
-                const originalText = copyUrlBtn.innerHTML;
-                copyUrlBtn.innerHTML = '<i class="fas fa-check"></i> คัดลอกแล้ว!';
-                copyUrlBtn.style.backgroundColor = '#44d9a0';
+            // เพิ่มเอฟเฟกต์เมื่อโหลดการ์ด
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                // เพิ่มดีเลย์สำหรับแสดงการ์ดทีละอัน
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
                 
                 setTimeout(() => {
-                    copyUrlBtn.innerHTML = originalText;
-                    copyUrlBtn.style.backgroundColor = '';
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-                alert('ไม่สามารถคัดลอก URL ได้ กรุณาลองอีกครั้ง');
-            });
-        }
-
-        // กำหนด event listeners
-        function initEventListeners() {
-            // การค้นหา
-            searchInput.addEventListener('input', (e) => {
-                const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
-                renderCards(activeFilter, e.target.value);
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 * (index + 1));
             });
             
-            // การกรอง
-            filterButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    // ลบคลาส active จากปุ่มทั้งหมด
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    // เพิ่มคลาส active ให้ปุ่มที่คลิก
-                    button.classList.add('active');
-                    
-                    const filter = button.getAttribute('data-filter');
-                    renderCards(filter, searchInput.value);
+            // เพิ่มการแจ้งเตือนเมื่อคลิกลิงก์
+            const links = document.querySelectorAll('.card-link');
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // แสดงข้อความแจ้งเตือนเมื่อเปิดลิงก์ใหม่
+                    console.log(`กำลังเปิด: ${this.textContent.trim()}`);
                 });
             });
-            
-            // ล้างการค้นหา
-            searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    searchInput.value = '';
-                    const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
-                    renderCards(activeFilter, '');
-                }
-            });
-            
-            // Modal events
-            closeModal.addEventListener('click', () => {
-                urlModal.style.display = 'none';
-            });
-            
-            closeModalBtn.addEventListener('click', () => {
-                urlModal.style.display = 'none';
-            });
-            
-            // คลิกนอก Modal เพื่อปิด
-            urlModal.addEventListener('click', (e) => {
-                if (e.target === urlModal) {
-                    urlModal.style.display = 'none';
-                }
-            });
-            
-            // คัดลอก URL
-            copyUrlBtn.addEventListener('click', () => {
-                const url = modalUrl.textContent;
-                copyToClipboard(url);
-            });
-        }
-
-        // เริ่มต้นแอพพลิเคชัน
-        function initApp() {
-            renderCards();
-            initEventListeners();
-        }
-
-        // เริ่มต้นเมื่อโหลดหน้าเว็บ
-        document.addEventListener('DOMContentLoaded', initApp);
+        });
+        
+        // อัพเดทเวลาทุก 60 วินาที
+        setInterval(updateDateTime, 60000);
     </script>
 </body>
 </html>
