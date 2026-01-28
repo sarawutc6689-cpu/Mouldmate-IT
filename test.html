@@ -3,362 +3,609 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IT Management Portal</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>ระบบจัดการข้อมูลพนักงาน</title>
     <style>
-        :root {
-            --primary-blue: #2c8cff;
-            --light-blue: #e6f2ff;
-            --medium-blue: #4da6ff;
-            --dark-blue: #0066cc;
-            --accent-blue: #80ccff;
-            --text-dark: #333333;
-            --text-light: #666666;
-            --background: #f8fbff;
-            --card-bg: #ffffff;
-            --shadow: rgba(44, 140, 255, 0.15);
-        }
-        
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            font-family: 'Noto Sans Thai', 'Poppins', sans-serif;
-            background-color: var(--background);
-            color: var(--text-dark);
-            line-height: 1.6;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            text-align: center;
-            padding: 40px 0 20px;
-            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
-            color: white;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 4px 20px var(--shadow);
-            margin-bottom: 40px;
-        }
-        
-        .logo {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .logo i {
-            color: var(--light-blue);
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 50%;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
         }
         
         h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 15px;
         }
         
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            max-width: 700px;
-            margin: 0 auto;
+        .search-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
         }
         
-        .cards-container {
+        .search-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            min-width: 150px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .employee-details {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border-left: 5px solid #2ecc71;
+            display: none;
+        }
+        
+        .employee-details.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .details-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
         }
         
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 10px 25px var(--shadow);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(44, 140, 255, 0.1);
+        .detail-item {
             display: flex;
             flex-direction: column;
-            height: 100%;
         }
         
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(44, 140, 255, 0.2);
+        .detail-label {
+            font-weight: 600;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            font-size: 14px;
         }
         
-        .card-header {
+        .detail-value {
+            padding: 12px;
+            background-color: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            min-height: 45px;
             display: flex;
             align-items: center;
+        }
+        
+        .editable {
+            background-color: #fffde7;
+            cursor: pointer;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: white;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: flex-end;
+        }
+        
+        .btn-cancel {
+            background-color: #95a5a6;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .btn-save {
+            background-color: #2ecc71;
+        }
+        
+        .btn-save:hover {
+            background-color: #27ae60;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 5px;
             margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--light-blue);
+            display: none;
         }
         
-        .card-icon {
-            width: 60px;
-            height: 60px;
-            background-color: var(--light-blue);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            color: var(--primary-blue);
-            font-size: 1.8rem;
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
         }
         
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--dark-blue);
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
         }
         
-        .card-description {
-            color: var(--text-light);
-            margin-bottom: 25px;
-            flex-grow: 1;
-        }
-        
-        .card-link {
-            display: inline-block;
-            background-color: var(--primary-blue);
-            color: white;
-            text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s ease;
+        .loading {
             text-align: center;
-            margin-top: auto;
+            padding: 20px;
+            display: none;
         }
         
-        .card-link:hover {
-            background-color: var(--dark-blue);
-            transform: scale(1.05);
+        .loading.active {
+            display: block;
         }
         
-        .card-link i {
-            margin-left: 8px;
-            font-size: 0.9rem;
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
         
-        .status-container {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 10px 25px var(--shadow);
-            margin-top: 20px;
-            border-left: 6px solid var(--primary-blue);
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
-        .status-title {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--dark-blue);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .status-title i {
-            color: var(--primary-blue);
-        }
-        
-        .status-content {
-            color: var(--text-light);
-            line-height: 1.8;
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 60px;
-            padding: 25px;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(44, 140, 255, 0.1);
-        }
-        
-        .update-time {
-            margin-top: 10px;
-            font-size: 0.85rem;
-            color: var(--medium-blue);
-            background-color: rgba(44, 140, 255, 0.1);
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
+        .instructions {
+            background-color: #e8f4fc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #2c3e50;
         }
         
         @media (max-width: 768px) {
-            .cards-container {
-                grid-template-columns: 1fr;
-            }
-            
             .container {
                 padding: 15px;
             }
             
-            header {
-                padding: 30px 20px 20px;
+            .search-form {
+                flex-direction: column;
+                align-items: stretch;
             }
             
-            h1 {
-                font-size: 1.8rem;
+            .form-group {
+                min-width: 100%;
             }
             
-            .logo {
-                font-size: 2rem;
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
             }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="logo">
-                <i class="fas fa-laptop-code"></i>
-                <div>IT Management Portal</div>
-            </div>
-            <h1>ศูนย์กลางระบบไอที</h1>
-            <p class="subtitle">เข้าถึงระบบงานไอทีทั้งหมดผ่านจุดเดียว พร้อมคู่มือและข้อมูลครบครัน</p>
-        </div>
-    </header>
-    
     <div class="container">
-        <div class="cards-container">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <h2 class="card-title">สถานะงานไอที</h2>
+        <h1>ระบบจัดการข้อมูลพนักงาน</h1>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="search-section">
+            <h2>ค้นหาข้อมูลพนักงาน</h2>
+            <p>กรอกรหัสพนักงาน (Username) เพื่อค้นหาและแก้ไขสถานะการทำงาน</p>
+            
+            <form id="searchForm" class="search-form">
+                <div class="form-group">
+                    <label for="username">รหัสพนักงาน (Username)</label>
+                    <input type="text" id="username" placeholder="ระบุรหัสพนักงาน เช่น emp001, emp002" required>
                 </div>
-                <p class="card-description">
-                    ติดตามความคืบหน้าและสถานะการดำเนินงานของระบบไอทีทั้งหมด 
-                    รวมถึงงานที่กำลังดำเนินการและงานที่เสร็จสิ้นแล้ว
-                </p>
-                <a href="https://sarawutc6689-cpu.github.io/itusers/index-itusers.html" target="_blank" class="card-link">
-                    เปิดสถานะงาน <i class="fas fa-external-link-alt"></i>
-                </a>
+                <button type="submit">ค้นหาข้อมูล</button>
+            </form>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>กำลังค้นหาข้อมูลพนักงาน...</p>
+        </div>
+        
+        <div class="employee-details" id="employeeDetails">
+            <div class="details-title">รายละเอียดข้อมูลพนักงาน</div>
+            
+            <div class="details-grid">
+                <div class="detail-item">
+                    <div class="detail-label">รหัสพนักงาน (คอลัมน์ A)</div>
+                    <div id="detail-username" class="detail-value"></div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">ชื่อ-นามสกุล (คอลัมน์ B)</div>
+                    <div id="detail-name" class="detail-value"></div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">สถานะ (คอลัมน์ C)</div>
+                    <div id="detail-status" class="detail-value"></div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">การดำเนินการ (คอลัมน์ D)</div>
+                    <select id="detail-action">
+                        <option value="TRUE">TRUE (อนุมัติ)</option>
+                        <option value="FALSE">FALSE (ไม่อนุมัติ)</option>
+                    </select>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">วันที่เริ่มงาน (คอลัมน์ E)</div>
+                    <div id="detail-date" class="detail-value"></div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">รหัสผ่าน (คอลัมน์ F)</div>
+                    <div id="detail-password" class="detail-value"></div>
+                </div>
             </div>
             
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-book-open"></i>
-                    </div>
-                    <h2 class="card-title">คู่มือการติดตั้ง</h2>
-                </div>
-                <p class="card-description">
-                    คู่มือและขั้นตอนการติดตั้งโปรแกรมต่างๆ 
-                    สำหรับผู้ใช้งานทั่วไปและผู้ดูแลระบบ พร้อมภาพประกอบขั้นตอนอย่างละเอียด
-                </p>
-                <a href="https://drive.google.com/file/d/11sDHjgRhGgQD56ikyCcVTsmHurf5Csv4/view?usp=sharing" target="_blank" class="card-link">
-                    เปิดคู่มือ <i class="fas fa-external-link-alt"></i>
-                </a>
+            <div class="actions">
+                <button type="button" id="cancelBtn" class="btn-cancel">ยกเลิก</button>
+                <button type="button" id="saveBtn" class="btn-save">บันทึกการเปลี่ยนแปลง</button>
             </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-server"></i>
-                    </div>
-                    <h2 class="card-title">ทรัพย์สินไอที</h2>
-                </div>
-                <p class="card-description">
-                    ระบบจัดการทรัพย์สินทางไอที (IT Asset Management) 
-                    ตรวจสอบข้อมูลครุภัณฑ์ อุปกรณ์ และซอฟต์แวร์ทั้งหมดในองค์กร
-                </p>
-                <a href="https://script.google.com/macros/s/AKfycbzLv-hojzPi3iNPF28rY83Pez5VVOsmTXle3OEadiqTY1dBKhLe4oxBeI0H01TTaUOSCA/exec" target="_blank" class="card-link">
-                    เปิดระบบทรัพย์สิน <i class="fas fa-external-link-alt"></i>
-                </a>
-            </div>
+        </div>
+        
+        <div class="instructions">
+            <p><strong>คำอธิบายการใช้งาน:</strong></p>
+            <ul>
+                <li>กรอกรหัสพนักงานในช่องค้นหาเพื่อดึงข้อมูลจาก Google Sheets</li>
+                <li>คอลัมน์ A, B, C, E, F เป็นข้อมูลอ่านอย่างเดียว ไม่สามารถแก้ไขได้</li>
+                <li>คอลัมน์ D (การดำเนินการ) สามารถแก้ไขได้โดยเลือก TRUE หรือ FALSE</li>
+                <li>หลังจากเลือกค่าแล้วกดปุ่ม "บันทึกการเปลี่ยนแปลง" เพื่ออัปเดตข้อมูล</li>
+                <li>ข้อมูลจะถูกบันทึกลงใน Google Sheets ผ่าน Google Apps Script</li>
+            </ul>
         </div>
     </div>
-    
-    <footer>
-        <div class="container">
-            <p>IT Management Portal &copy; 2026 - ศูนย์กลางข้อมูลระบบไอที</p>
-            <p>ออกแบบเพื่อให้ใช้งานง่ายและเข้าถึงข้อมูลได้รวดเร็ว || พัฒนาระบบโดย Sarawut.C</p>
-            
-            <div class="update-time">
-                อัพเดทล่าสุด: 26 มกราคม 2569
-            </div>
-        </div>
-    </footer>
-    
+
     <script>
-        // เพิ่มฟังก์ชันเพื่อแสดงเวลาและวันที่ปัจจุบัน
-        function updateDateTime() {
-            const now = new Date();
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
+        // ตัวแปรเก็บข้อมูลพนักงานที่ค้นหา
+        let currentEmployee = null;
+        let originalActionValue = null;
+        
+        // URL ของ Google Apps Script
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbzBw22jfhyhhwtUg518Ag4YxSm81aF_dKThfwGm6qdZ1t7s1SrKnXpwNxgeolb_5ISyPg/exec';
+        
+        // DOM Elements
+        const searchForm = document.getElementById('searchForm');
+        const employeeDetails = document.getElementById('employeeDetails');
+        const loading = document.getElementById('loading');
+        const messageDiv = document.getElementById('message');
+        const saveBtn = document.getElementById('saveBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        
+        // ฟังก์ชันแสดงข้อความ
+        function showMessage(text, type = 'success') {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
             
-            // สำหรับภาษาไทย
-            const thaiDateTime = now.toLocaleDateString('th-TH', options);
-            
-            // อัพเดทวันที่และเวลาใน footer
-            const updateElement = document.querySelector('.update-time');
-            if (updateElement) {
-                updateElement.textContent = `อัพเดทล่าสุด: ${thaiDateTime}`;
+            // ลบข้อความหลังจาก 5 วินาที
+            setTimeout(() => {
+                messageDiv.textContent = '';
+                messageDiv.className = 'message';
+            }, 5000);
+        }
+        
+        // ฟังก์ชันค้นหาข้อมูลพนักงาน
+        async function searchEmployee(username) {
+            try {
+                loading.classList.add('active');
+                messageDiv.textContent = '';
+                messageDiv.className = 'message';
+                
+                // เรียก Google Apps Script เพื่อค้นหาข้อมูล
+                const response = await fetch(`${scriptUrl}?action=getEmployee&username=${encodeURIComponent(username)}`);
+                
+                if (!response.ok) {
+                    throw new Error('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+                }
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    currentEmployee = data.employee;
+                    originalActionValue = currentEmployee.action;
+                    displayEmployeeDetails();
+                    employeeDetails.classList.add('active');
+                    showMessage(`พบข้อมูลพนักงาน: ${currentEmployee.name}`, 'success');
+                } else {
+                    throw new Error(data.message || 'ไม่พบข้อมูลพนักงาน');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage(error.message || 'เกิดข้อผิดพลาดในการค้นหาข้อมูล', 'error');
+                employeeDetails.classList.remove('active');
+            } finally {
+                loading.classList.remove('active');
             }
         }
         
-        // เพิ่มเอฟเฟกต์เมื่อโหลดหน้าเว็บ
-        document.addEventListener('DOMContentLoaded', function() {
-            // อัพเดทวันที่และเวลา
-            updateDateTime();
+        // ฟังก์ชันแสดงข้อมูลพนักงาน
+        function displayEmployeeDetails() {
+            if (!currentEmployee) return;
             
-            // เพิ่มเอฟเฟกต์เมื่อโหลดการ์ด
-            const cards = document.querySelectorAll('.card');
-            cards.forEach((card, index) => {
-                // เพิ่มดีเลย์สำหรับแสดงการ์ดทีละอัน
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
+            document.getElementById('detail-username').textContent = currentEmployee.username || '-';
+            document.getElementById('detail-name').textContent = currentEmployee.name || '-';
+            document.getElementById('detail-status').textContent = currentEmployee.status || '-';
+            document.getElementById('detail-date').textContent = currentEmployee.date || '-';
+            document.getElementById('detail-password').textContent = currentEmployee.password || '-';
+            
+            // ตั้งค่าค่าเริ่มต้นสำหรับคอลัมน์ D
+            const actionSelect = document.getElementById('detail-action');
+            actionSelect.value = currentEmployee.action || 'FALSE';
+        }
+        
+        // ฟังก์ชันบันทึกการเปลี่ยนแปลง
+        async function saveChanges() {
+            if (!currentEmployee) return;
+            
+            const newActionValue = document.getElementById('detail-action').value;
+            
+            // ตรวจสอบว่ามีการเปลี่ยนแปลงหรือไม่
+            if (newActionValue === originalActionValue) {
+                showMessage('ไม่มีการเปลี่ยนแปลงข้อมูล', 'error');
+                return;
+            }
+            
+            try {
+                loading.classList.add('active');
                 
-                setTimeout(() => {
-                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, 100 * (index + 1));
-            });
-            
-            // เพิ่มการแจ้งเตือนเมื่อคลิกลิงก์
-            const links = document.querySelectorAll('.card-link');
-            links.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    // แสดงข้อความแจ้งเตือนเมื่อเปิดลิงก์ใหม่
-                    console.log(`กำลังเปิด: ${this.textContent.trim()}`);
+                // ส่งข้อมูลไปยัง Google Apps Script
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'updateEmployee',
+                        username: currentEmployee.username,
+                        newAction: newActionValue
+                    }),
                 });
-            });
+                
+                if (!response.ok) {
+                    throw new Error('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+                }
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    showMessage('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
+                    originalActionValue = newActionValue;
+                    currentEmployee.action = newActionValue;
+                } else {
+                    throw new Error(data.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage(error.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+        
+        // Event Listeners
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            
+            if (!username) {
+                showMessage('กรุณากรอกรหัสพนักงาน', 'error');
+                return;
+            }
+            
+            searchEmployee(username);
         });
         
-        // อัพเดทเวลาทุก 60 วินาที
-        setInterval(updateDateTime, 60000);
+        saveBtn.addEventListener('click', saveChanges);
+        
+        cancelBtn.addEventListener('click', function() {
+            if (currentEmployee) {
+                // ยกเลิกการเปลี่ยนแปลงโดยกลับไปใช้ค่าเดิม
+                document.getElementById('detail-action').value = originalActionValue;
+                showMessage('ยกเลิกการเปลี่ยนแปลงแล้ว', 'success');
+            }
+        });
+        
+        // ตัวอย่างข้อมูลสำหรับทดสอบ (จะใช้งานเมื่อ Google Apps Script ยังไม่พร้อม)
+        function mockDataForTesting() {
+            console.log("ใช้ข้อมูลตัวอย่างสำหรับการทดสอบ");
+            
+            // ข้อมูลตัวอย่าง
+            const mockEmployees = {
+                'emp001': {
+                    username: 'emp001',
+                    name: 'สมชาย ใจดี',
+                    status: 'ประจำการ',
+                    action: 'TRUE',
+                    date: '2023-01-15',
+                    password: '********'
+                },
+                'emp002': {
+                    username: 'emp002',
+                    name: 'สุนิสา รักงาน',
+                    status: 'ทดลองงาน',
+                    action: 'FALSE',
+                    date: '2023-03-10',
+                    password: '********'
+                },
+                'emp003': {
+                    username: 'emp003',
+                    name: 'ประยุทธ์ ทำงานดี',
+                    status: 'ประจำการ',
+                    action: 'TRUE',
+                    date: '2022-11-20',
+                    password: '********'
+                }
+            };
+            
+            // แก้ไขฟังก์ชันค้นหาข้อมูลพนักงานให้ใช้ข้อมูลตัวอย่าง
+            window.mockSearchEmployee = function(username) {
+                loading.classList.add('active');
+                
+                setTimeout(() => {
+                    if (mockEmployees[username]) {
+                        currentEmployee = mockEmployees[username];
+                        originalActionValue = currentEmployee.action;
+                        displayEmployeeDetails();
+                        employeeDetails.classList.add('active');
+                        showMessage(`พบข้อมูลพนักงาน: ${currentEmployee.name} (ข้อมูลตัวอย่าง)`, 'success');
+                    } else {
+                        showMessage(`ไม่พบข้อมูลพนักงานรหัส: ${username}`, 'error');
+                        employeeDetails.classList.remove('active');
+                    }
+                    loading.classList.remove('active');
+                }, 800);
+            };
+            
+            // แก้ไขฟังก์ชันบันทึกข้อมูล
+            window.mockSaveChanges = function() {
+                if (!currentEmployee) return;
+                
+                const newActionValue = document.getElementById('detail-action').value;
+                
+                if (newActionValue === originalActionValue) {
+                    showMessage('ไม่มีการเปลี่ยนแปลงข้อมูล', 'error');
+                    return;
+                }
+                
+                loading.classList.add('active');
+                
+                setTimeout(() => {
+                    // อัปเดตข้อมูลตัวอย่าง
+                    currentEmployee.action = newActionValue;
+                    originalActionValue = newActionValue;
+                    
+                    showMessage('บันทึกข้อมูลเรียบร้อยแล้ว (ข้อมูลตัวอย่าง)', 'success');
+                    loading.classList.remove('active');
+                }, 800);
+            };
+            
+            // เปลี่ยนการดำเนินการของฟังก์ชันหลัก
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('username').value.trim();
+                
+                if (!username) {
+                    showMessage('กรุณากรอกรหัสพนักงาน', 'error');
+                    return;
+                }
+                
+                window.mockSearchEmployee(username);
+            });
+            
+            saveBtn.addEventListener('click', window.mockSaveChanges);
+            
+            console.log("โหมดทดสอบพร้อมใช้งาน: ลองค้นหา emp001, emp002 หรือ emp003");
+        }
+        
+        // ตรวจสอบว่า Google Apps Script พร้อมใช้งานหรือไม่
+        async function checkScriptAvailability() {
+            try {
+                const response = await fetch(`${scriptUrl}?action=test`);
+                if (!response.ok) {
+                    throw new Error('Script not accessible');
+                }
+                console.log("เชื่อมต่อ Google Apps Script สำเร็จ");
+            } catch (error) {
+                console.log("ใช้โหมดทดสอบด้วยข้อมูลตัวอย่าง");
+                mockDataForTesting();
+                showMessage('ใช้งานในโหมดทดสอบด้วยข้อมูลตัวอย่าง', 'success');
+            }
+        }
+        
+        // เริ่มต้นการทำงาน
+        document.addEventListener('DOMContentLoaded', function() {
+            checkScriptAvailability();
+        });
     </script>
 </body>
 </html>
