@@ -5,40 +5,289 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบจัดการข้อมูลพนักงาน</title>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        body { background-color: #f5f7fa; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); padding: 30px; }
-        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3498db; padding-bottom: 15px; }
-        .search-section { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #3498db; }
-        .search-form { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
-        .form-group { flex: 1; min-width: 250px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; }
-        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
-        button { background: #3498db; color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: 600; }
-        button:hover { background: #2980b9; }
-        .employee-details { background: #f8f9fa; padding: 25px; border-radius: 8px; margin-top: 20px; border-left: 5px solid #2ecc71; display: none; }
-        .employee-details.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .details-title { font-size: 20px; font-weight: 600; color: #2c3e50; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
-        .details-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
-        .detail-item { display: flex; flex-direction: column; }
-        .detail-label { font-weight: 600; color: #7f8c8d; margin-bottom: 5px; font-size: 14px; }
-        .detail-value { padding: 10px; background: white; border-radius: 5px; border: 1px solid #ddd; min-height: 45px; display: flex; align-items: center; }
-        select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: white; }
-        .actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
-        .btn-cancel { background: #95a5a6; }
-        .btn-save { background: #2ecc71; }
-        .message { padding: 12px; border-radius: 5px; margin-bottom: 15px; display: none; }
-        .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
-        .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
-        .loading { text-align: center; padding: 20px; display: none; }
-        .loading.active { display: block; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .instructions { background: #e8f4fc; padding: 15px; border-radius: 5px; margin-top: 20px; font-size: 14px; }
-        .cors-bypass { background: #fff3cd; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #ffeaa7; }
-        .test-buttons { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-        .test-btn { background: #f39c12; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Sukhumvit Set', 'Kanit', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        .search-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            min-width: 150px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .employee-details {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border-left: 5px solid #2ecc71;
+            display: none;
+        }
+        
+        .employee-details.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .details-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .detail-value {
+            padding: 12px;
+            background-color: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: white;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: flex-end;
+        }
+        
+        .btn-cancel {
+            background-color: #95a5a6;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .btn-save {
+            background-color: #2ecc71;
+        }
+        
+        .btn-save:hover {
+            background-color: #27ae60;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .instructions {
+            background-color: #e8f4fc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        
+        .test-section {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .test-btn {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .test-btn:hover {
+            background-color: #d68910;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .search-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .form-group {
+                min-width: 100%;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -47,64 +296,67 @@
         
         <div id="message" class="message"></div>
         
-        <div class="cors-bypass">
-            <p><strong>⚠️ หมายเหตุ:</strong> กำลังใช้วิธีแก้ปัญหา CORS แบบพิเศษ</p>
-            <p>เนื่องจากข้อจำกัด CORS ระหว่าง GitHub Pages และ Google Apps Script</p>
+        <div class="test-section">
+            <p><strong>📊 ข้อมูลทดสอบ:</strong> กดปุ่มเพื่อทดสอบข้อมูลที่มีในระบบ</p>
+            <div class="test-buttons">
+                <button class="test-btn" onclick="loadTestData()">โหลดข้อมูลตัวอย่าง</button>
+                <button class="test-btn" onclick="viewAllEmployees()">ดูพนักงานทั้งหมด</button>
+            </div>
+            <div id="testResult" style="margin-top: 10px; font-size: 13px; display: none;"></div>
         </div>
         
         <div class="search-section">
             <h2>ค้นหาข้อมูลพนักงาน</h2>
-            <p>กรอกรหัสพนักงานจากคอลัมน์ A ใน Google Sheets</p>
+            <p>กรอกรหัสพนักงาน (คอลัมน์ A) เพื่อค้นหาและแก้ไขสถานะการทำงาน</p>
             
             <form id="searchForm" class="search-form">
                 <div class="form-group">
-                    <label for="username">รหัสพนักงาน</label>
-                    <input type="text" id="username" placeholder="เช่น 104058" required>
+                    <label for="username">รหัสพนักงาน (Username)</label>
+                    <input type="text" id="username" placeholder="เช่น 104058, EMP001" required>
                 </div>
-                <button type="submit">ค้นหา</button>
+                <button type="submit">ค้นหาข้อมูล</button>
             </form>
-            
-            <div class="test-buttons">
-                <button class="test-btn" onclick="testSearch('104058')">ทดสอบ: 104058</button>
-                <button class="test-btn" onclick="testSearch('EMP001')">ทดสอบ: EMP001</button>
-                <button class="test-btn" onclick="testSearch('test')">ทดสอบ: test</button>
-            </div>
         </div>
         
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>กำลังเชื่อมต่อกับ Google Sheets...</p>
+            <p>กำลังค้นหาข้อมูลพนักงาน...</p>
         </div>
         
         <div class="employee-details" id="employeeDetails">
-            <div class="details-title">ข้อมูลพนักงาน</div>
+            <div class="details-title">รายละเอียดข้อมูลพนักงาน</div>
             
             <div class="details-grid">
                 <div class="detail-item">
-                    <div class="detail-label">รหัสพนักงาน (A)</div>
+                    <div class="detail-label">รหัสพนักงาน (คอลัมน์ A)</div>
                     <div id="detail-username" class="detail-value">-</div>
                 </div>
+                
                 <div class="detail-item">
-                    <div class="detail-label">ชื่อ-นามสกุล (B)</div>
+                    <div class="detail-label">ชื่อ-นามสกุล (คอลัมน์ B)</div>
                     <div id="detail-name" class="detail-value">-</div>
                 </div>
+                
                 <div class="detail-item">
-                    <div class="detail-label">สถานะ (C)</div>
+                    <div class="detail-label">สถานะ (คอลัมน์ C)</div>
                     <div id="detail-status" class="detail-value">-</div>
                 </div>
+                
                 <div class="detail-item">
-                    <div class="detail-label">การดำเนินการ (D)</div>
+                    <div class="detail-label">การดำเนินการ (คอลัมน์ D)</div>
                     <select id="detail-action">
-                        <option value="TRUE">✅ TRUE (อนุมัติ)</option>
-                        <option value="FALSE">❌ FALSE (ไม่อนุมัติ)</option>
+                        <option value="TRUE">TRUE (อนุมัติ)</option>
+                        <option value="FALSE">FALSE (ไม่อนุมัติ)</option>
                     </select>
                 </div>
+                
                 <div class="detail-item">
-                    <div class="detail-label">วันที่เริ่มงาน (E)</div>
+                    <div class="detail-label">วันที่เริ่มงาน (คอลัมน์ E)</div>
                     <div id="detail-date" class="detail-value">-</div>
                 </div>
+                
                 <div class="detail-item">
-                    <div class="detail-label">รหัสผ่าน (F)</div>
+                    <div class="detail-label">รหัสผ่าน (คอลัมน์ F)</div>
                     <div id="detail-password" class="detail-value">-</div>
                 </div>
             </div>
@@ -116,22 +368,21 @@
         </div>
         
         <div class="instructions">
-            <p><strong>คำแนะนำ:</strong></p>
+            <p><strong>คำอธิบายการใช้งาน:</strong></p>
             <ul>
-                <li>กรอกรหัสพนักงานที่ตรงกับคอลัมน์ A ใน Google Sheets</li>
-                <li>เฉพาะคอลัมน์ D (TRUE/FALSE) ที่แก้ไขได้</li>
-                <li>คอลัมน์อื่นอ่านอย่างเดียว</li>
+                <li>กรอกรหัสพนักงานในช่องค้นหาเพื่อดึงข้อมูลจาก Google Sheets</li>
+                <li>คอลัมน์ A, B, C, E, F เป็นข้อมูลอ่านอย่างเดียว ไม่สามารถแก้ไขได้</li>
+                <li>คอลัมน์ D (การดำเนินการ) สามารถแก้ไขได้โดยเลือก TRUE หรือ FALSE</li>
+                <li>หลังจากเลือกค่าแล้วกดปุ่ม "บันทึกการเปลี่ยนแปลง" เพื่ออัปเดตข้อมูล</li>
+                <li>ระบบทำงานผ่าน Google Apps Script โดยตรง ไม่มีปัญหา CORS</li>
             </ul>
         </div>
     </div>
 
     <script>
-        // ตัวแปรหลัก
+        // ตัวแปรเก็บข้อมูล
         let currentEmployee = null;
         let originalActionValue = null;
-        
-        // URL Google Apps Script - เปลี่ยนเป็นของคุณ
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyu1hEnz1IvMWTrQg9hHjBtfhRoVQy0ixUAfFzHqWfHJFoIBFU0jGsdS7uwq4oKLhEaMg/exec';
         
         // DOM Elements
         const searchForm = document.getElementById('searchForm');
@@ -140,69 +391,52 @@
         const messageDiv = document.getElementById('message');
         const saveBtn = document.getElementById('saveBtn');
         const cancelBtn = document.getElementById('cancelBtn');
+        const testResultDiv = document.getElementById('testResult');
         
         // ฟังก์ชันแสดงข้อความ
         function showMessage(text, type = 'success') {
             messageDiv.textContent = text;
             messageDiv.className = `message ${type}`;
-            setTimeout(() => { messageDiv.className = 'message'; }, 5000);
+            
+            setTimeout(() => {
+                messageDiv.textContent = '';
+                messageDiv.className = 'message';
+            }, 5000);
         }
         
-        // ฟังก์ชันค้นหาด้วย JSONP (วิธีหลัก)
-        function searchWithJsonp(username) {
-            return new Promise((resolve, reject) => {
-                const callbackName = 'callback_' + Date.now();
-                
-                window[callbackName] = function(response) {
-                    delete window[callbackName];
-                    
-                    if (response.status === 'success') {
-                        currentEmployee = response.employee;
-                        originalActionValue = currentEmployee.action;
-                        displayEmployeeDetails();
-                        employeeDetails.classList.add('active');
-                        showMessage(`พบ: ${currentEmployee.name}`, 'success');
-                        resolve(response);
+        // ฟังก์ชันโหลดข้อมูลตัวอย่าง
+        function loadTestData() {
+            google.script.run
+                .withSuccessHandler(function(data) {
+                    if (data.status === 'success') {
+                        let html = '<strong>พนักงานที่มีในระบบ:</strong><ul>';
+                        data.employees.forEach(emp => {
+                            html += `<li>${emp.username}: ${emp.name} (${emp.status}) - D: ${emp.action}</li>`;
+                        });
+                        html += '</ul><p>ลองค้นหาด้วยรหัสเหล่านี้</p>';
+                        testResultDiv.innerHTML = html;
+                        testResultDiv.style.display = 'block';
+                        showMessage('โหลดข้อมูลสำเร็จ', 'success');
                     } else {
-                        showMessage(response.message || 'ไม่พบข้อมูล', 'error');
-                        reject(new Error(response.message));
+                        testResultDiv.innerHTML = 'ไม่พบข้อมูลพนักงานในระบบ';
+                        testResultDiv.style.display = 'block';
                     }
-                };
-                
-                // สร้าง script tag
-                const script = document.createElement('script');
-                const url = `${SCRIPT_URL}?action=getEmployee&username=${encodeURIComponent(username)}&callback=${callbackName}`;
-                script.src = url;
-                script.onerror = () => {
-                    delete window[callbackName];
-                    showMessage('การเชื่อมต่อล้มเหลว', 'error');
-                    reject(new Error('Connection failed'));
-                };
-                
-                document.body.appendChild(script);
-            });
+                })
+                .withFailureHandler(function(error) {
+                    testResultDiv.innerHTML = 'เกิดข้อผิดพลาด: ' + error.message;
+                    testResultDiv.style.display = 'block';
+                    showMessage('เกิดข้อผิดพลาด: ' + error.message, 'error');
+                })
+                .getAllEmployees();
         }
         
-        // ฟังก์ชันค้นหาแบบ fetch (ลองใช้ก่อน)
-        async function searchWithFetch(username) {
-            try {
-                // ใช้ no-cors mode (อ่าน response ไม่ได้ แต่รู้ว่า request สำเร็จ)
-                await fetch(`${SCRIPT_URL}?action=getEmployee&username=${encodeURIComponent(username)}`, {
-                    mode: 'no-cors'
-                });
-                
-                // ถ้า no-cors สำเร็จ แต่เราไม่สามารถอ่าน response ได้
-                // ดังนั้นให้ใช้ JSONP แทน
-                return searchWithJsonp(username);
-                
-            } catch (error) {
-                console.log('Fetch failed, using JSONP');
-                return searchWithJsonp(username);
-            }
+        // ฟังก์ชันดูพนักงานทั้งหมด
+        function viewAllEmployees() {
+            loadTestData();
         }
         
-        // ฟังก์ชันค้นหาหลัก
-        async function searchEmployee(username) {
+        // ฟังก์ชันค้นหาข้อมูลพนักงาน
+        function searchEmployee(username) {
             if (!username.trim()) {
                 showMessage('กรุณากรอกรหัสพนักงาน', 'error');
                 return;
@@ -210,20 +444,31 @@
             
             loading.classList.add('active');
             messageDiv.textContent = '';
+            employeeDetails.classList.remove('active');
             
-            try {
-                console.log('กำลังค้นหา:', username);
-                await searchWithFetch(username);
-            } catch (error) {
-                console.error('Search error:', error);
-                showMessage('ไม่สามารถค้นหาข้อมูลได้', 'error');
-                employeeDetails.classList.remove('active');
-            } finally {
-                loading.classList.remove('active');
-            }
+            google.script.run
+                .withSuccessHandler(function(data) {
+                    loading.classList.remove('active');
+                    
+                    if (data.status === 'success') {
+                        currentEmployee = data.employee;
+                        originalActionValue = currentEmployee.action;
+                        displayEmployeeDetails();
+                        employeeDetails.classList.add('active');
+                        showMessage(`พบข้อมูลพนักงาน: ${currentEmployee.name}`, 'success');
+                    } else {
+                        showMessage(data.message, 'error');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    loading.classList.remove('active');
+                    showMessage('เกิดข้อผิดพลาด: ' + error.message, 'error');
+                    console.error('Search error:', error);
+                })
+                .getEmployeeData(username);
         }
         
-        // ฟังก์ชันแสดงข้อมูล
+        // ฟังก์ชันแสดงข้อมูลพนักงาน
         function displayEmployeeDetails() {
             if (!currentEmployee) return;
             
@@ -237,7 +482,7 @@
             actionSelect.value = currentEmployee.action || 'FALSE';
         }
         
-        // ฟังก์ชันบันทึกข้อมูล (ใช้ Form submit ผ่าน iframe)
+        // ฟังก์ชันบันทึกการเปลี่ยนแปลง
         function saveChanges() {
             if (!currentEmployee) {
                 showMessage('กรุณาค้นหาพนักงานก่อน', 'error');
@@ -247,62 +492,36 @@
             const newActionValue = document.getElementById('detail-action').value;
             
             if (newActionValue === originalActionValue) {
-                showMessage('ไม่มีการเปลี่ยนแปลง', 'error');
+                showMessage('ไม่มีการเปลี่ยนแปลงข้อมูล', 'error');
                 return;
             }
             
             loading.classList.add('active');
             
-            // สร้าง hidden iframe สำหรับส่ง POST request
-            const iframe = document.createElement('iframe');
-            iframe.name = 'hiddenFrame';
-            iframe.style.display = 'none';
-            
-            // สร้าง form
-            const form = document.createElement('form');
-            form.target = 'hiddenFrame';
-            form.action = SCRIPT_URL;
-            form.method = 'POST';
-            
-            // เพิ่ม input fields
-            const addInput = (name, value) => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = name;
-                input.value = value;
-                form.appendChild(input);
-            };
-            
-            addInput('action', 'updateEmployee');
-            addInput('username', currentEmployee.username);
-            addInput('newAction', newActionValue);
-            
-            // เมื่อ iframe โหลดเสร็จ (request สำเร็จ)
-            iframe.onload = function() {
-                loading.classList.remove('active');
-                
-                // ลบ iframe และ form
-                setTimeout(() => {
-                    document.body.removeChild(iframe);
-                    document.body.removeChild(form);
-                }, 1000);
-                
-                showMessage('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
-                originalActionValue = newActionValue;
-                currentEmployee.action = newActionValue;
-            };
-            
-            // เพิ่ม iframe และ form ไปที่ body
-            document.body.appendChild(iframe);
-            document.body.appendChild(form);
-            form.submit();
+            google.script.run
+                .withSuccessHandler(function(data) {
+                    loading.classList.remove('active');
+                    
+                    if (data.status === 'success') {
+                        showMessage(data.message, 'success');
+                        originalActionValue = newActionValue;
+                        currentEmployee.action = newActionValue;
+                        
+                        // อัปเดตข้อมูลที่แสดง
+                        if (data.employee) {
+                            currentEmployee = data.employee;
+                        }
+                    } else {
+                        showMessage(data.message, 'error');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    loading.classList.remove('active');
+                    showMessage('เกิดข้อผิดพลาด: ' + error.message, 'error');
+                    console.error('Save error:', error);
+                })
+                .updateEmployeeAction(currentEmployee.username, newActionValue);
         }
-        
-        // ฟังก์ชันทดสอบ
-        window.testSearch = function(username) {
-            document.getElementById('username').value = username;
-            searchEmployee(username);
-        };
         
         // Event Listeners
         searchForm.addEventListener('submit', function(e) {
@@ -316,23 +535,17 @@
         cancelBtn.addEventListener('click', function() {
             if (currentEmployee) {
                 document.getElementById('detail-action').value = originalActionValue;
-                showMessage('ยกเลิกการเปลี่ยนแปลง', 'success');
+                showMessage('ยกเลิกการเปลี่ยนแปลงแล้ว', 'success');
             }
         });
         
-        // เริ่มต้น
+        // เริ่มต้นการทำงาน
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('ระบบพร้อมใช้งาน');
-            console.log('Script URL:', SCRIPT_URL);
-            showMessage('กรุณากรอกรหัสพนักงานเพื่อค้นหา', 'success');
+            console.log('ระบบจัดการข้อมูลพนักงานพร้อมใช้งาน');
+            showMessage('ระบบพร้อมใช้งาน กรุณากรอกรหัสพนักงานเพื่อค้นหา', 'success');
             
-            // ทดสอบ auto-fill
-            const urlParams = new URLSearchParams(window.location.search);
-            const testUser = urlParams.get('test');
-            if (testUser) {
-                document.getElementById('username').value = testUser;
-                setTimeout(() => searchEmployee(testUser), 1000);
-            }
+            // อัตโนมัติโหลดข้อมูลตัวอย่าง
+            setTimeout(loadTestData, 1000);
         });
     </script>
 </body>
