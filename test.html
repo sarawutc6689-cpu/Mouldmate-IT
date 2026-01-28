@@ -273,22 +273,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>ระบบจัดการข้อมูลพนักงาน</h1>
-        
-        <div class="deployment-info">
-            <p><strong>คำแนะนำการตั้งค่า Google Apps Script:</strong></p>
-            <ol>
-                <li>เปิด Google Apps Script Editor</li>
-                <li>ไปที่ Deploy > New deployment</li>
-                <li>เลือก Type: Web App</li>
-                <li>ตั้งค่า: Execute as: Me, Who has access: Anyone</li>
-                <li>กด Deploy และคัดลอก URL ที่ได้</li>
-                <li>เปลี่ยนค่า scriptUrl ในโค้ด JavaScript เป็น URL ของคุณ</li>
-            </ol>
-        </div>
-        
-        <div id="message" class="message"></div>
-        
+        <h1>ระบบจัดการข้อมูลพนักงาน</h1>        
         <div class="search-section">
             <h2>ค้นหาข้อมูลพนักงาน</h2>
             <p>กรอกรหัสพนักงาน (Username) เพื่อค้นหาและแก้ไขสถานะการทำงาน</p>
@@ -349,17 +334,6 @@
                 <button type="button" id="cancelBtn" class="btn-cancel">ยกเลิก</button>
                 <button type="button" id="saveBtn" class="btn-save">บันทึกการเปลี่ยนแปลง</button>
             </div>
-        </div>
-        
-        <div class="instructions">
-            <p><strong>คำอธิบายการใช้งาน:</strong></p>
-            <ul>
-                <li>กรอกรหัสพนักงานในช่องค้นหาเพื่อดึงข้อมูลจาก Google Sheets</li>
-                <li>คอลัมน์ A, B, C, E, F เป็นข้อมูลอ่านอย่างเดียว ไม่สามารถแก้ไขได้</li>
-                <li>คอลัมน์ D (การดำเนินการ) สามารถแก้ไขได้โดยเลือก TRUE หรือ FALSE</li>
-                <li>หลังจากเลือกค่าแล้วกดปุ่ม "บันทึกการเปลี่ยนแปลง" เพื่ออัปเดตข้อมูล</li>
-                <li>ข้อมูลจะถูกบันทึกลงใน Google Sheets ผ่าน Google Apps Script</li>
-            </ul>
         </div>
     </div>
 
