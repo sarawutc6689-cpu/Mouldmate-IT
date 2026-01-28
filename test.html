@@ -237,14 +237,19 @@
             color: #2c3e50;
         }
         
-        .deployment-info {
-            background-color: #fff3cd;
+        .debug-info {
+            background-color: #f8f9fa;
             padding: 15px;
             border-radius: 5px;
             margin-top: 20px;
-            font-size: 14px;
-            color: #856404;
-            border: 1px solid #ffeaa7;
+            font-size: 12px;
+            color: #6c757d;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+        
+        .debug-info.active {
+            display: block;
         }
         
         @media (max-width: 768px) {
@@ -275,18 +280,6 @@
     <div class="container">
         <h1>ระบบจัดการข้อมูลพนักงาน</h1>
         
-        <div class="deployment-info">
-            <p><strong>คำแนะนำการตั้งค่า Google Apps Script:</strong></p>
-            <ol>
-                <li>เปิด Google Apps Script Editor</li>
-                <li>ไปที่ Deploy > New deployment</li>
-                <li>เลือก Type: Web App</li>
-                <li>ตั้งค่า: Execute as: Me, Who has access: Anyone</li>
-                <li>กด Deploy และคัดลอก URL ที่ได้</li>
-                <li>เปลี่ยนค่า scriptUrl ในโค้ด JavaScript เป็น URL ของคุณ</li>
-            </ol>
-        </div>
-        
         <div id="message" class="message"></div>
         
         <div class="search-section">
@@ -300,6 +293,9 @@
                 </div>
                 <button type="submit">ค้นหาข้อมูล</button>
             </form>
+            <div style="margin-top: 10px;">
+                <label><input type="checkbox" id="useMockData"> ใช้ข้อมูลตัวอย่างสำหรับทดสอบ</label>
+            </div>
         </div>
         
         <div class="loading" id="loading">
@@ -351,6 +347,11 @@
             </div>
         </div>
         
+        <div class="debug-info" id="debugInfo">
+            <strong>ข้อมูล Debug:</strong>
+            <div id="debugContent"></div>
+        </div>
+        
         <div class="instructions">
             <p><strong>คำอธิบายการใช้งาน:</strong></p>
             <ul>
@@ -358,7 +359,7 @@
                 <li>คอลัมน์ A, B, C, E, F เป็นข้อมูลอ่านอย่างเดียว ไม่สามารถแก้ไขได้</li>
                 <li>คอลัมน์ D (การดำเนินการ) สามารถแก้ไขได้โดยเลือก TRUE หรือ FALSE</li>
                 <li>หลังจากเลือกค่าแล้วกดปุ่ม "บันทึกการเปลี่ยนแปลง" เพื่ออัปเดตข้อมูล</li>
-                <li>ข้อมูลจะถูกบันทึกลงใน Google Sheets ผ่าน Google Apps Script</li>
+                <li>ติ๊ก checkbox "ใช้ข้อมูลตัวอย่างสำหรับทดสอบ" เพื่อทดสอบโดยไม่ต้องเชื่อมต่อ Google Sheets</li>
             </ul>
         </div>
     </div>
@@ -367,10 +368,10 @@
         // ตัวแปรเก็บข้อมูลพนักงานที่ค้นหา
         let currentEmployee = null;
         let originalActionValue = null;
+        let useMockData = false;
         
-        // URL ของ Google Apps Script (เปลี่ยนเป็น URL ของคุณหลังจาก Deploy)
-        // หากต้องการทดสอบด้วยข้อมูลตัวอย่าง ให้ตั้งค่าเป็น 'mock'
-        let scriptUrl = 'https://script.google.com/macros/s/AKfycbyUjpdoshewtLirlnSlBLiMyNnx5LYR5QbMbQRGoCstnJCwcM9vrNk5GwwO5Q6OJhQu8A/exec'; // เปลี่ยนเป็น URL Web App ของคุณ
+        // URL ของ Google Apps Script
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyUjpdoshewtLirlnSlBLiMyNnx5LYR5QbMbQRGoCstnJCwcM9vrNk5GwwO5Q6OJhQu8A/exec';
         
         // DOM Elements
         const searchForm = document.getElementById('searchForm');
@@ -379,6 +380,9 @@
         const messageDiv = document.getElementById('message');
         const saveBtn = document.getElementById('saveBtn');
         const cancelBtn = document.getElementById('cancelBtn');
+        const useMockDataCheckbox = document.getElementById('useMockData');
+        const debugInfo = document.getElementById('debugInfo');
+        const debugContent = document.getElementById('debugContent');
         
         // ฟังก์ชันแสดงข้อความ
         function showMessage(text, type = 'success') {
@@ -392,6 +396,45 @@
             }, 5000);
         }
         
+        // ฟังก์ชันแสดงข้อมูล debug
+        function showDebugInfo(info) {
+            debugContent.textContent = JSON.stringify(info, null, 2);
+            debugInfo.classList.add('active');
+        }
+        
+        // ฟังก์ชันค้นหาข้อมูลพนักงานจาก Google Apps Script
+        async function searchEmployeeFromAPI(username) {
+            try {
+                // ใช้ GET request กับ query parameters
+                const url = `${scriptUrl}?action=getEmployee&username=${encodeURIComponent(username)}&timestamp=${Date.now()}`;
+                
+                showDebugInfo({ method: 'GET', url: url });
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const text = await response.text();
+                showDebugInfo({ responseText: text });
+                
+                // พยายาม parse เป็น JSON
+                try {
+                    const data = JSON.parse(text);
+                    return data;
+                } catch (jsonError) {
+                    // ถ้าไม่ใช่ JSON อาจเป็น HTML error page
+                    throw new Error('Server returned non-JSON response');
+                }
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                showDebugInfo({ apiError: error.message });
+                throw error;
+            }
+        }
+        
         // ฟังก์ชันค้นหาข้อมูลพนักงาน
         async function searchEmployee(username) {
             try {
@@ -399,31 +442,35 @@
                 messageDiv.textContent = '';
                 messageDiv.className = 'message';
                 
-                // ใช้ข้อมูลตัวอย่างถ้า scriptUrl เป็น 'mock'
-                if (scriptUrl === 'mock') {
+                // ตรวจสอบว่าต้องการใช้ข้อมูลตัวอย่างหรือไม่
+                if (useMockData) {
                     return mockSearchEmployee(username);
                 }
                 
-                // เรียก Google Apps Script ด้วยวิธี POST เพื่อหลีกเลี่ยง CORS issues
-                const formData = new FormData();
-                formData.append('action', 'getEmployee');
-                formData.append('username', username);
+                // เรียก Google Apps Script
+                const data = await searchEmployeeFromAPI(username);
                 
-                const response = await fetch(scriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors', // ใช้ no-cors mode
-                    body: formData
-                });
-                
-                // เนื่องจากเราใช้ no-cors เราไม่สามารถอ่าน response ได้โดยตรง
-                // วิธีที่ดีกว่าคือใช้ JSONP หรือตั้งค่า CORS ใน Google Apps Script
-                // สำหรับตอนนี้เราจะใช้ข้อมูลตัวอย่าง
-                mockSearchEmployee(username);
-                
+                if (data.status === 'success') {
+                    currentEmployee = data.employee;
+                    originalActionValue = currentEmployee.action;
+                    displayEmployeeDetails();
+                    employeeDetails.classList.add('active');
+                    showMessage(`พบข้อมูลพนักงาน: ${currentEmployee.name}`, 'success');
+                } else {
+                    throw new Error(data.message || 'ไม่พบข้อมูลพนักงาน');
+                }
             } catch (error) {
-                console.error('Error:', error);
-                // หากเกิดข้อผิดพลาด ให้ใช้ข้อมูลตัวอย่าง
-                mockSearchEmployee(username);
+                console.error('Search Error:', error);
+                
+                // ถ้า API ล้มเหลว ให้ถามผู้ใช้ว่าต้องการใช้ข้อมูลตัวอย่างหรือไม่
+                if (!useMockData && confirm('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้\nต้องการใช้ข้อมูลตัวอย่างสำหรับทดสอบหรือไม่?')) {
+                    useMockDataCheckbox.checked = true;
+                    useMockData = true;
+                    mockSearchEmployee(username);
+                } else {
+                    showMessage(`เกิดข้อผิดพลาด: ${error.message}`, 'error');
+                    employeeDetails.classList.remove('active');
+                }
             } finally {
                 loading.classList.remove('active');
             }
@@ -444,6 +491,38 @@
             actionSelect.value = currentEmployee.action || 'FALSE';
         }
         
+        // ฟังก์ชันบันทึกการเปลี่ยนแปลงไปยัง API
+        async function saveChangesToAPI(username, newAction) {
+            try {
+                // ใช้ GET request แบบง่ายสำหรับการอัปเดต
+                const url = `${scriptUrl}?action=updateEmployee&username=${encodeURIComponent(username)}&newAction=${encodeURIComponent(newAction)}&timestamp=${Date.now()}`;
+                
+                showDebugInfo({ saveMethod: 'GET', saveUrl: url });
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const text = await response.text();
+                showDebugInfo({ saveResponse: text });
+                
+                try {
+                    const data = JSON.parse(text);
+                    return data;
+                } catch (jsonError) {
+                    // ถ้าไม่ใช่ JSON
+                    return { status: 'success', message: 'Updated successfully' };
+                }
+                
+            } catch (error) {
+                console.error('Save API Error:', error);
+                showDebugInfo({ saveError: error.message });
+                throw error;
+            }
+        }
+        
         // ฟังก์ชันบันทึกการเปลี่ยนแปลง
         async function saveChanges() {
             if (!currentEmployee) return;
@@ -456,8 +535,8 @@
                 return;
             }
             
-            // ใช้ข้อมูลตัวอย่างถ้า scriptUrl เป็น 'mock'
-            if (scriptUrl === 'mock') {
+            // ถ้าใช้ข้อมูลตัวอย่าง
+            if (useMockData) {
                 return mockSaveChanges(newActionValue);
             }
             
@@ -465,29 +544,18 @@
                 loading.classList.add('active');
                 
                 // ส่งข้อมูลไปยัง Google Apps Script
-                const formData = new FormData();
-                formData.append('action', 'updateEmployee');
-                formData.append('username', currentEmployee.username);
-                formData.append('newAction', newActionValue);
+                const data = await saveChangesToAPI(currentEmployee.username, newActionValue);
                 
-                const response = await fetch(scriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: formData
-                });
-                
-                // เนื่องจากเราใช้ no-cors เราไม่สามารถอ่าน response ได้
-                // ในทางปฏิบัติ คุณควรใช้ JSONP หรือตั้งค่า proper CORS headers
-                // สำหรับตอนนี้เราจะสมมติว่าสำเร็จ
-                showMessage('บันทึกข้อมูลเรียบร้อยแล้ว (ส่งคำร้องไปยังเซิร์ฟเวอร์)', 'success');
-                originalActionValue = newActionValue;
-                currentEmployee.action = newActionValue;
-                
+                if (data.status === 'success') {
+                    showMessage('บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
+                    originalActionValue = newActionValue;
+                    currentEmployee.action = newActionValue;
+                } else {
+                    throw new Error(data.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                }
             } catch (error) {
-                console.error('Error:', error);
-                showMessage('ส่งคำร้องบันทึกข้อมูลแล้ว (โหมดออฟไลน์)', 'success');
-                originalActionValue = newActionValue;
-                currentEmployee.action = newActionValue;
+                console.error('Save Error:', error);
+                showMessage(`ไม่สามารถบันทึกข้อมูล: ${error.message}`, 'error');
             } finally {
                 loading.classList.remove('active');
             }
@@ -496,50 +564,68 @@
         // ข้อมูลตัวอย่างสำหรับทดสอบ
         function mockSearchEmployee(username) {
             setTimeout(() => {
-                // ข้อมูลตัวอย่าง
+                // ข้อมูลตัวอย่างที่สมจริงมากขึ้น
                 const mockEmployees = {
                     'emp001': {
                         username: 'emp001',
                         name: 'สมชาย ใจดี',
                         status: 'ประจำการ',
                         action: 'TRUE',
-                        date: '2023-01-15',
-                        password: '********'
+                        date: '15/01/2023',
+                        password: 'pass001'
                     },
                     'emp002': {
                         username: 'emp002',
                         name: 'สุนิสา รักงาน',
                         status: 'ทดลองงาน',
                         action: 'FALSE',
-                        date: '2023-03-10',
-                        password: '********'
+                        date: '10/03/2023',
+                        password: 'pass002'
                     },
                     'emp003': {
                         username: 'emp003',
                         name: 'ประยุทธ์ ทำงานดี',
                         status: 'ประจำการ',
                         action: 'TRUE',
-                        date: '2022-11-20',
-                        password: '********'
+                        date: '20/11/2022',
+                        password: 'pass003'
                     },
                     'emp004': {
                         username: 'emp004',
                         name: 'กนกวรรณ ขยันดี',
                         status: 'ลาพักงาน',
                         action: 'FALSE',
-                        date: '2023-05-22',
-                        password: '********'
+                        date: '22/05/2023',
+                        password: 'pass004'
+                    },
+                    'test001': {
+                        username: 'test001',
+                        name: 'ทดสอบ ระบบ',
+                        status: 'ทดลองงาน',
+                        action: 'TRUE',
+                        date: '01/01/2024',
+                        password: 'test001'
                     }
                 };
                 
-                if (mockEmployees[username]) {
-                    currentEmployee = mockEmployees[username];
+                if (mockEmployees[username.toLowerCase()]) {
+                    currentEmployee = mockEmployees[username.toLowerCase()];
                     originalActionValue = currentEmployee.action;
                     displayEmployeeDetails();
                     employeeDetails.classList.add('active');
                     showMessage(`พบข้อมูลพนักงาน: ${currentEmployee.name} (โหมดทดสอบ)`, 'success');
                 } else {
-                    showMessage(`ไม่พบข้อมูลพนักงานรหัส: ${username}`, 'error');
+                    // ตรวจสอบว่ามีข้อมูลที่ใกล้เคียงหรือไม่
+                    const similarUsernames = Object.keys(mockEmployees).filter(key => 
+                        key.includes(username.toLowerCase()) || 
+                        username.toLowerCase().includes(key)
+                    );
+                    
+                    if (similarUsernames.length > 0) {
+                        showMessage(`ไม่พบ "${username}" ลองใช้: ${similarUsernames.join(', ')}`, 'error');
+                    } else {
+                        showMessage(`ไม่พบข้อมูลพนักงานรหัส: "${username}"`, 'error');
+                    }
                     employeeDetails.classList.remove('active');
                 }
                 loading.classList.remove('active');
@@ -579,8 +665,7 @@
                 return;
             }
             
-            const newActionValue = document.getElementById('detail-action').value;
-            saveChanges(newActionValue);
+            saveChanges();
         });
         
         cancelBtn.addEventListener('click', function() {
@@ -591,37 +676,25 @@
             }
         });
         
-        // ฟังก์ชันตั้งค่า URL จากผู้ใช้
-        function setupScriptUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const customUrl = urlParams.get('scriptUrl');
-            
-            if (customUrl) {
-                scriptUrl = customUrl;
-                showMessage(`ใช้ Google Apps Script URL: ${customUrl}`, 'success');
-            } else {
-                // ถ้าไม่มี URL ที่กำหนด ให้ใช้โหมดทดสอบ
-                scriptUrl = 'mock';
+        useMockDataCheckbox.addEventListener('change', function() {
+            useMockData = this.checked;
+            if (useMockData) {
                 showMessage('ใช้โหมดทดสอบด้วยข้อมูลตัวอย่าง', 'success');
+            } else {
+                showMessage('ใช้โหมดเชื่อมต่อกับ Google Sheets', 'success');
             }
-        }
+        });
         
         // เริ่มต้นการทำงาน
         document.addEventListener('DOMContentLoaded', function() {
-            setupScriptUrl();
-            
-            // เพิ่มฟังก์ชันสำหรับเปลี่ยน URL ของ Google Apps Script
-            window.updateScriptUrl = function(newUrl) {
-                if (newUrl && newUrl.trim() !== '') {
-                    scriptUrl = newUrl.trim();
-                    showMessage(`เปลี่ยน Google Apps Script URL เป็น: ${newUrl}`, 'success');
-                    return true;
-                }
-                return false;
-            };
-            
             console.log('ระบบพร้อมใช้งาน');
-            console.log('คำสั่ง: updateScriptUrl("URL_ของคุณ") เพื่อเปลี่ยน Google Apps Script URL');
+            console.log('Google Apps Script URL:', scriptUrl);
+            console.log('ลองค้นหา: emp001, emp002, emp003, emp004, test001');
+            
+            // ตั้งค่าเริ่มต้นให้ใช้ข้อมูลตัวอย่าง
+            useMockDataCheckbox.checked = true;
+            useMockData = true;
+            showMessage('กำลังใช้โหมดทดสอบด้วยข้อมูลตัวอย่าง', 'success');
         });
     </script>
 </body>
