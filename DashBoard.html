@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* รักษา CSS เดิมทั้งหมด */
         * {
             margin: 0;
             padding: 0;
@@ -327,6 +328,25 @@
             100% { transform: rotate(360deg); }
         }
         
+        .error-message {
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .demo-notice {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+        
         @media (max-width: 768px) {
             .dashboard-content {
                 grid-template-columns: 1fr;
@@ -359,6 +379,16 @@
 </head>
 <body>
     <div class="container">
+        <div class="error-message" id="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="error-text"></span>
+        </div>
+        
+        <div class="demo-notice" id="demo-notice">
+            <i class="fas fa-info-circle"></i>
+            <span>กำลังแสดงข้อมูลตัวอย่าง เนื่องจากไม่สามารถเชื่อมต่อกับ Google Apps Script ได้</span>
+        </div>
+        
         <header>
             <div>
                 <h1><i class="fas fa-chart-line"></i> ระบบ Dashboard งานและอุปกรณ์</h1>
@@ -406,6 +436,9 @@
                 </button>
                 <button class="btn-secondary" id="refresh-data">
                     <i class="fas fa-sync-alt"></i> รีเฟรชข้อมูล
+                </button>
+                <button class="btn-secondary" id="use-demo-data">
+                    <i class="fas fa-desktop"></i> ใช้ข้อมูลตัวอย่าง
                 </button>
             </div>
         </div>
@@ -494,18 +527,27 @@
         
         <footer>
             <p>ระบบ Dashboard งานและอุปกรณ์ | พัฒนาโดยใช้ Google Apps Script และ HTML/JavaScript</p>
-            <p>ข้อมูลจาก: https://script.google.com/macros/s/AKfycbxN2vGcqSrJfewlFrrs4exRdqThudSiPr3HqEuujVdYcGn5PAodX4ai_LoCiL2-9KwKgw/exec</p>
+            <p>ข้อมูลจาก: https://script.google.com/macros/s/AKfycbzI92_ZhiXaFhJ9u8SovnWxSdGVWPfyg4GCOEOFeSM6P_32l2Z_MX0Kjf6G7E7OgU_U-A/exec</p>
+            <p id="data-source-info">กำลังโหลดข้อมูล...</p>
         </footer>
     </div>
 
     <script>
         // URL ของ Google Apps Script
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxN2vGcqSrJfewlFrrs4exRdqThudSiPr3HqEuujVdYcGn5PAodX4ai_LoCiL2-9KwKgw/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzI92_ZhiXaFhJ9u8SovnWxSdGVWPfyg4GCOEOFeSM6P_32l2Z_MX0Kjf6G7E7OgU_U-A/exec';
+        
+        // ใช้ CORS Proxy (เลือกอันใดอันหนึ่ง)
+        const CORS_PROXIES = [
+            'https://api.allorigins.win/raw?url=',
+            'https://corsproxy.io/?',
+            'https://cors-anywhere.herokuapp.com/'
+        ];
         
         // ตัวแปรสำหรับเก็บข้อมูล
         let allData = [];
         let filteredData = [];
         let departmentChart, statusChart;
+        let usingDemoData = false;
         
         // ตัวแปรสำหรับตัวกรอง
         let selectedDepartment = 'all';
@@ -520,45 +562,208 @@
         const applyFiltersBtn = document.getElementById('apply-filters');
         const resetFiltersBtn = document.getElementById('reset-filters');
         const refreshDataBtn = document.getElementById('refresh-data');
+        const useDemoDataBtn = document.getElementById('use-demo-data');
         const tableLoadingEl = document.getElementById('table-loading');
         const tableContentEl = document.getElementById('table-content');
         const tableBodyEl = document.getElementById('table-body');
+        const errorMessageEl = document.getElementById('error-message');
+        const errorTextEl = document.getElementById('error-text');
+        const demoNoticeEl = document.getElementById('demo-notice');
+        const dataSourceInfoEl = document.getElementById('data-source-info');
         
-        // ฟังก์ชันโหลดข้อมูลจาก Google Apps Script
+        // ฟังก์ชันแสดงข้อผิดพลาด
+        function showError(message) {
+            errorTextEl.textContent = message;
+            errorMessageEl.style.display = 'block';
+        }
+        
+        // ฟังก์ชันซ่อนข้อผิดพลาด
+        function hideError() {
+            errorMessageEl.style.display = 'none';
+        }
+        
+        // ฟังก์ชันแสดง/ซ่อนการแจ้งเตือนข้อมูลตัวอย่าง
+        function toggleDemoNotice(show) {
+            demoNoticeEl.style.display = show ? 'block' : 'none';
+        }
+        
+        // ฟังก์ชันโหลดข้อมูลจาก Google Apps Script ด้วย CORS Proxy
         async function loadData() {
             try {
                 showLoading();
-                const response = await fetch(SCRIPT_URL);
+                hideError();
+                
+                if (usingDemoData) {
+                    loadDemoData();
+                    return;
+                }
+                
+                // ลองใช้ CORS Proxy อันแรก
+                const proxyUrl = CORS_PROXIES[0] + encodeURIComponent(SCRIPT_URL);
+                const response = await fetch(proxyUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                    mode: 'cors'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data && data.length > 0) {
-                    allData = data;
-                    filteredData = [...data];
-                    
-                    // อัปเดตวันที่ล่าสุด
-                    const now = new Date();
-                    lastUpdateEl.textContent = now.toLocaleTimeString('th-TH') + ' ' + now.toLocaleDateString('th-TH');
-                    
-                    // โหลดตัวกรอง
-                    populateFilters();
-                    
-                    // อัปเดตข้อมูลสรุป
-                    updateSummary();
-                    
-                    // สร้างกราฟ
-                    createCharts();
-                    
-                    // แสดงตาราง
-                    renderTable();
-                    
-                    hideLoading();
+                    processData(data, 'Google Apps Script (ผ่าน Proxy)');
                 } else {
                     throw new Error('ไม่พบข้อมูลหรือข้อมูลว่างเปล่า');
                 }
             } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', error);
-                showError('ไม่สามารถโหลดข้อมูลได้ โปรดลองใหม่อีกครั้ง');
+                console.warn('ไม่สามารถโหลดข้อมูลผ่าน Proxy ได้:', error);
+                
+                // ลองวิธีที่สอง: ใช้ fetch แบบตรง (อาจจะใช้ไม่ได้เนื่องจาก CORS)
+                try {
+                    const response = await fetch(SCRIPT_URL);
+                    const data = await response.json();
+                    
+                    if (data && data.length > 0) {
+                        processData(data, 'Google Apps Script (โดยตรง)');
+                    } else {
+                        throw new Error('ไม่พบข้อมูลหรือข้อมูลว่างเปล่า');
+                    }
+                } catch (directError) {
+                    console.warn('ไม่สามารถโหลดข้อมูลโดยตรงได้:', directError);
+                    
+                    // แสดงข้อมูลตัวอย่าง
+                    showError('ไม่สามารถเชื่อมต่อกับ Google Apps Script ได้ กำลังแสดงข้อมูลตัวอย่าง');
+                    loadDemoData();
+                }
             }
+        }
+        
+        // ฟังก์ชันประมวลผลข้อมูล
+        function processData(data, source) {
+            allData = data;
+            filteredData = [...data];
+            
+            // อัปเดตวันที่ล่าสุด
+            const now = new Date();
+            lastUpdateEl.textContent = now.toLocaleTimeString('th-TH') + ' ' + now.toLocaleDateString('th-TH');
+            
+            // อัปเดตข้อมูลแหล่งที่มา
+            dataSourceInfoEl.textContent = `ข้อมูลจาก: ${source}`;
+            
+            // โหลดตัวกรอง
+            populateFilters();
+            
+            // อัปเดตข้อมูลสรุป
+            updateSummary();
+            
+            // สร้างกราฟ
+            createCharts();
+            
+            // แสดงตาราง
+            renderTable();
+            
+            hideLoading();
+            toggleDemoNotice(false);
+        }
+        
+        // ฟังก์ชันโหลดข้อมูลตัวอย่าง
+        function loadDemoData() {
+            usingDemoData = true;
+            
+            // สร้างข้อมูลตัวอย่างตามโครงสร้างของคุณ
+            const demoData = [
+                {
+                    "ผู้ดำเนินการ": "สมชาย ใจดี",
+                    "จำนวนงาน": "5",
+                    "แผนก": "ไอที",
+                    "จำนวนแผนก": "15",
+                    "ประเภท": "ซ่อมบำรุง",
+                    "จำนวนประเภท": "8",
+                    "อุปกรณ์": "คอมพิวเตอร์",
+                    "จำนวนอุปกรณ์": "25",
+                    "สถานะ": "เสร็จสิ้น",
+                    "จำนวนสถานะ": "12"
+                },
+                {
+                    "ผู้ดำเนินการ": "สายใจ ตั้งใจ",
+                    "จำนวนงาน": "3",
+                    "แผนก": "บัญชี",
+                    "จำนวนแผนก": "10",
+                    "ประเภท": "ตรวจสอบ",
+                    "จำนวนประเภท": "5",
+                    "อุปกรณ์": "เครื่องคิดเลข",
+                    "จำนวนอุปกรณ์": "8",
+                    "สถานะ": "กำลังดำเนินการ",
+                    "จำนวนสถานะ": "7"
+                },
+                {
+                    "ผู้ดำเนินการ": "วิษณุ เก่งงาน",
+                    "จำนวนงาน": "7",
+                    "แผนก": "ผลิต",
+                    "จำนวนแผนก": "20",
+                    "ประเภท": "ผลิต",
+                    "จำนวนประเภท": "12",
+                    "อุปกรณ์": "เครื่องจักร",
+                    "จำนวนอุปกรณ์": "15",
+                    "สถานะ": "รอดำเนินการ",
+                    "จำนวนสถานะ": "5"
+                },
+                {
+                    "ผู้ดำเนินการ": "พรทิพย์ ทำงาน",
+                    "จำนวนงาน": "4",
+                    "แผนก": "ทรัพยากรบุคคล",
+                    "จำนวนแผนก": "8",
+                    "ประเภท": "สัมภาษณ์",
+                    "จำนวนประเภท": "6",
+                    "อุปกรณ์": "เอกสาร",
+                    "จำนวนอุปกรณ์": "30",
+                    "สถานะ": "เสร็จสิ้น",
+                    "จำนวนสถานะ": "10"
+                },
+                {
+                    "ผู้ดำเนินการ": "สมชาย ใจดี",
+                    "จำนวนงาน": "2",
+                    "แผนก": "ไอที",
+                    "จำนวนแผนก": "15",
+                    "ประเภท": "ติดตั้ง",
+                    "จำนวนประเภท": "4",
+                    "อุปกรณ์": "โน้ตบุ๊ค",
+                    "จำนวนอุปกรณ์": "12",
+                    "สถานะ": "ยกเลิก",
+                    "จำนวนสถานะ": "3"
+                },
+                {
+                    "ผู้ดำเนินการ": "อนุชา แข็งแรง",
+                    "จำนวนงาน": "6",
+                    "แผนก": "คลังสินค้า",
+                    "จำนวนแผนก": "18",
+                    "ประเภท": "จัดส่ง",
+                    "จำนวนประเภท": "9",
+                    "อุปกรณ์": "รถโฟล์คลิฟท์",
+                    "จำนวนอุปกรณ์": "5",
+                    "สถานะ": "กำลังดำเนินการ",
+                    "จำนวนสถานะ": "8"
+                },
+                {
+                    "ผู้ดำเนินการ": "กนกวรรณ สวยงาม",
+                    "จำนวนงาน": "3",
+                    "แผนก": "การตลาด",
+                    "จำนวนแผนก": "12",
+                    "ประเภท": "ประชาสัมพันธ์",
+                    "จำนวนประเภท": "7",
+                    "อุปกรณ์": "กล้อง",
+                    "จำนวนอุปกรณ์": "6",
+                    "สถานะ": "เสร็จสิ้น",
+                    "จำนวนสถานะ": "9"
+                }
+            ];
+            
+            processData(demoData, 'ข้อมูลตัวอย่าง (Demo)');
+            toggleDemoNotice(true);
         }
         
         // ฟังก์ชันแสดงสถานะกำลังโหลด
@@ -571,11 +776,6 @@
         function hideLoading() {
             tableLoadingEl.style.display = 'none';
             tableContentEl.style.display = 'block';
-        }
-        
-        // ฟังก์ชันแสดงข้อผิดพลาด
-        function showError(message) {
-            tableLoadingEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
         }
         
         // ฟังก์ชันโหลดข้อมูลตัวกรอง
@@ -649,12 +849,12 @@
             const departmentCounts = {};
             filteredData.forEach(item => {
                 const dept = item['แผนก'] || 'ไม่ระบุ';
-                const count = item['จำนวนแผนก'] || 1;
+                const count = parseInt(item['จำนวนแผนก']) || 1;
                 
                 if (departmentCounts[dept]) {
-                    departmentCounts[dept] += parseInt(count) || 1;
+                    departmentCounts[dept] += count;
                 } else {
-                    departmentCounts[dept] = parseInt(count) || 1;
+                    departmentCounts[dept] = count;
                 }
             });
             
@@ -716,12 +916,12 @@
             const statusCounts = {};
             filteredData.forEach(item => {
                 const status = item['สถานะ'] || 'ไม่ระบุ';
-                const count = item['จำนวนสถานะ'] || 1;
+                const count = parseInt(item['จำนวนสถานะ']) || 1;
                 
                 if (statusCounts[status]) {
-                    statusCounts[status] += parseInt(count) || 1;
+                    statusCounts[status] += count;
                 } else {
-                    statusCounts[status] = parseInt(count) || 1;
+                    statusCounts[status] = count;
                 }
             });
             
@@ -863,6 +1063,7 @@
         
         // ฟังก์ชันรีเฟรชข้อมูล
         function refreshData() {
+            usingDemoData = false;
             loadData();
         }
         
@@ -870,6 +1071,7 @@
         applyFiltersBtn.addEventListener('click', applyFilters);
         resetFiltersBtn.addEventListener('click', resetFilters);
         refreshDataBtn.addEventListener('click', refreshData);
+        useDemoDataBtn.addEventListener('click', loadDemoData);
         
         // โหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
         document.addEventListener('DOMContentLoaded', loadData);
