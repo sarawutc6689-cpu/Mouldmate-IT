@@ -2,19 +2,264 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>PM Calendar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM Calendar - ระบบปฏิทินจัดการงานซ่อมบำรุง</title>
 
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&family=IBM+Plex+Sans+Thai:wght@300;400;500&display=swap" rel="stylesheet">
+
 <style>
+:root {
+  --primary-color: #4361ee;
+  --primary-dark: #3a56d4;
+  --secondary-color: #7209b7;
+  --accent-color: #4cc9f0;
+  --success-color: #4ade80;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --light-color: #f8fafc;
+  --dark-color: #1e293b;
+  --gray-color: #64748b;
+  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --radius: 12px;
+  --transition: all 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-  font-family: Arial;
-  margin: 20px;
+  font-family: 'IBM Plex Sans Thai', 'Kanit', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: var(--dark-color);
+  min-height: 100vh;
+  padding: 20px;
 }
-#mode-selector {
-  margin-bottom: 10px;
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
 }
+
+/* Header Styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px 25px;
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border-left: 6px solid var(--primary-color);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-title i {
+  font-size: 32px;
+  color: var(--primary-color);
+}
+
+.header-title h1 {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  font-size: 28px;
+  color: var(--dark-color);
+}
+
+.header-title span {
+  color: var(--primary-color);
+}
+
+/* Control Panel Styles */
+.control-panel {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 25px;
+  margin-bottom: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.mode-selector {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.mode-label {
+  font-weight: 500;
+  color: var(--dark-color);
+  font-size: 16px;
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper i {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-color);
+  pointer-events: none;
+}
+
+#mode {
+  padding: 12px 45px 12px 20px;
+  font-size: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: white;
+  color: var(--dark-color);
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-weight: 400;
+  cursor: pointer;
+  appearance: none;
+  min-width: 200px;
+  transition: var(--transition);
+}
+
+#mode:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+#mode option {
+  padding: 10px;
+}
+
+.mode-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.mode-status.user {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.mode-status.admin {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.mode-status i {
+  font-size: 18px;
+}
+
+.stats-container {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-box {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 10px;
+  padding: 15px 20px;
+  min-width: 140px;
+  border-left: 4px solid var(--primary-color);
+  box-shadow: var(--shadow-light);
+}
+
+.stat-box h3 {
+  font-size: 14px;
+  color: var(--gray-color);
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.stat-box p {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+/* Calendar Container */
+.calendar-container {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 25px;
+  margin-bottom: 30px;
+  overflow: hidden;
+}
+
+#calendar {
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+}
+
+/* Event Edit Controls */
+.event-edit-controls {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: none;
+  gap: 5px;
+  z-index: 100;
+}
+
+.fc-event:hover .event-edit-controls {
+  display: flex;
+}
+
+.edit-btn, .delete-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: white;
+  border: none;
+  transition: var(--transition);
+}
+
+.edit-btn {
+  background-color: var(--warning-color);
+}
+
+.edit-btn:hover {
+  background-color: #d97706;
+  transform: scale(1.1);
+}
+
+.delete-btn {
+  background-color: var(--danger-color);
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+  transform: scale(1.1);
+}
+
+/* Modal Styles */
 #password-modal {
   display: none;
   position: fixed;
@@ -22,52 +267,366 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
   z-index: 1000;
   justify-content: center;
   align-items: center;
+  animation: fadeIn 0.3s ease;
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .modal-content {
   background: white;
-  padding: 20px;
-  border-radius: 8px;
+  padding: 40px;
+  border-radius: var(--radius);
   text-align: center;
-  min-width: 300px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: modalSlideIn 0.4s ease;
+  border-top: 6px solid var(--primary-color);
 }
-.modal-content input {
-  width: 80%;
-  padding: 8px;
-  margin: 10px 0;
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-icon {
+  font-size: 48px;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+.modal-content h3 {
+  font-family: 'Kanit', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--dark-color);
+  margin-bottom: 10px;
+}
+
+.modal-content p {
+  color: var(--gray-color);
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.password-input-container {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.password-input-container i {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-color);
+  font-size: 18px;
+}
+
+#admin-password {
+  width: 100%;
+  padding: 16px 20px 16px 50px;
   font-size: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  transition: var(--transition);
+  font-family: 'IBM Plex Sans Thai', sans-serif;
 }
-.modal-content button {
-  padding: 8px 16px;
-  margin: 5px;
+
+#admin-password:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+.button-group {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn {
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
   cursor: pointer;
+  transition: var(--transition);
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+}
+
+.btn-secondary {
+  background-color: #f1f5f9;
+  color: var(--dark-color);
+}
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+  transform: translateY(-2px);
+}
+
+.btn i {
+  font-size: 18px;
+}
+
+#password-error {
+  color: var(--danger-color);
+  margin-top: 15px;
+  font-size: 14px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  color: var(--gray-color);
+  font-size: 14px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.footer a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  
+  .control-panel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .stats-container {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-title h1 {
+    font-size: 24px;
+  }
+  
+  .stats-container {
+    flex-wrap: wrap;
+  }
+  
+  .stat-box {
+    flex: 1;
+    min-width: calc(50% - 10px);
+  }
+  
+  .modal-content {
+    padding: 30px 25px;
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .header {
+    padding: 20px;
+  }
+  
+  .control-panel, .calendar-container {
+    padding: 20px;
+  }
+  
+  .mode-selector {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+  
+  .select-wrapper {
+    width: 100%;
+  }
+  
+  #mode {
+    width: 100%;
+  }
+  
+  .stat-box {
+    min-width: 100%;
+  }
 }
 </style>
 </head>
 <body>
+<div class="container">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-title">
+      <i class="fas fa-calendar-alt"></i>
+      <h1>PM <span>Calendar</span> - ระบบปฏิทินจัดการงานซ่อมบำรุง</h1>
+    </div>
+    <div class="current-date">
+      <p id="current-date">วันนี้: กำลังโหลด...</p>
+    </div>
+  </header>
 
-<div id="mode-selector">
-  <select id="mode">
-    <option value="user">User (ดูอย่างเดียว)</option>
-    <option value="admin">Admin (แก้ไขได้)</option>
-  </select>
-  <span id="mode-status" style="margin-left: 10px; color: #666;">โหมด: User</span>
+  <!-- Control Panel -->
+  <section class="control-panel">
+    <div class="mode-selector">
+      <div class="mode-label">
+        <i class="fas fa-user-cog"></i> เลือกโหมดการใช้งาน:
+      </div>
+      <div class="select-wrapper">
+        <select id="mode">
+          <option value="user">User - โหมดผู้ใช้งาน (ดูอย่างเดียว)</option>
+          <option value="admin">Admin - โหมดผู้ดูแลระบบ (แก้ไขได้)</option>
+        </select>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div id="mode-status" class="mode-status user">
+        <i class="fas fa-eye"></i>
+        <span>โหมด: ผู้ใช้งาน</span>
+      </div>
+    </div>
+    
+    <div class="stats-container">
+      <div class="stat-box">
+        <h3>งาน PM ทั้งหมด</h3>
+        <p id="total-pm">5</p>
+      </div>
+      <div class="stat-box">
+        <h3>งานเดือนนี้</h3>
+        <p id="month-pm">5</p>
+      </div>
+      <div class="stat-box">
+        <h3>สถานะ</h3>
+        <p id="edit-status">ดูอย่างเดียว</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calendar -->
+  <section class="calendar-container">
+    <div id="calendar"></div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>PM Calendar System &copy; 2026 | 
+      <a href="#" id="help-link"><i class="fas fa-question-circle"></i> ความช่วยเหลือ</a> | 
+      <a href="#" id="export-link"><i class="fas fa-download"></i> ส่งออกข้อมูล</a>
+    </p>
+  </footer>
 </div>
 
-<div id="calendar"></div>
-
+<!-- Password Modal -->
 <div id="password-modal">
   <div class="modal-content">
-    <h3>กรุณากรอกรหัสผ่าน Admin</h3>
-    <input type="password" id="admin-password" placeholder="รหัสผ่าน">
-    <div>
-      <button id="password-submit">ตกลง</button>
-      <button id="password-cancel">ยกเลิก</button>
+    <div class="modal-icon">
+      <i class="fas fa-lock"></i>
     </div>
-    <p id="password-error" style="color: red; display: none;">รหัสผ่านไม่ถูกต้อง</p>
+    <h3>กรุณากรอกรหัสผ่านผู้ดูแลระบบ</h3>
+    <p>เพื่อเข้าสู่โหมดผู้ดูแลระบบ กรุณากรอกรหัสผ่านที่ได้รับอนุญาต</p>
+    
+    <div class="password-input-container">
+      <i class="fas fa-key"></i>
+      <input type="password" id="admin-password" placeholder="ป้อนรหัสผ่านที่นี่...">
+    </div>
+    
+    <div class="button-group">
+      <button id="password-submit" class="btn btn-primary">
+        <i class="fas fa-check"></i> ยืนยัน
+      </button>
+      <button id="password-cancel" class="btn btn-secondary">
+        <i class="fas fa-times"></i> ยกเลิก
+      </button>
+    </div>
+    
+    <p id="password-error">
+      <i class="fas fa-exclamation-triangle"></i> รหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง
+    </p>
+  </div>
+</div>
+
+<!-- Help Modal -->
+<div id="help-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1001; justify-content: center; align-items: center;">
+  <div class="modal-content">
+    <div class="modal-icon">
+      <i class="fas fa-question-circle" style="color: #f59e0b;"></i>
+    </div>
+    <h3>คู่มือการใช้งานระบบ</h3>
+    <div style="text-align: left; margin-top: 20px;">
+      <p><strong>โหมดผู้ใช้งาน (User):</strong></p>
+      <ul style="margin-left: 20px; margin-bottom: 15px;">
+        <li>ดูข้อมูลงาน Preventive Maintenance (PM) ได้อย่างเดียว</li>
+        <li>คลิกที่งานเพื่อดูรายละเอียด</li>
+      </ul>
+      
+      <p><strong>โหมดผู้ดูแลระบบ (Admin):</strong></p>
+      <ul style="margin-left: 20px; margin-bottom: 15px;">
+        <li><strong>เพิ่มงาน:</strong> คลิกเลือกวันที่ในปฏิทิน</li>
+        <li><strong>แก้ไขงาน:</strong> คลิกที่งานแล้วเลือกไอคอนดินสอ</li>
+        <li><strong>ลบงาน:</strong> คลิกที่งานแล้วเลือกไอคอนถังขยะ</li>
+        <li><strong>ย้ายงาน:</strong> ลากงานไปยังวันที่ใหม่</li>
+        <li>ต้องกรอกรหัสผ่านเพื่อเข้าสู่โหมดนี้</li>
+      </ul>
+      
+      <p style="color: var(--gray-color); font-size: 14px;"><i class="fas fa-info-circle"></i> รหัสผ่านเริ่มต้น: <code>admin123</code></p>
+    </div>
+    <button id="close-help" class="btn btn-primary" style="margin-top: 20px;">
+      <i class="fas fa-times"></i> ปิด
+    </button>
   </div>
 </div>
 
@@ -78,45 +637,409 @@ const ADMIN_PASSWORD = "admin123";
 let mode = 'user';
 let calendar;
 
+// แสดงวันที่ปัจจุบัน
+function updateCurrentDate() {
+  const now = new Date();
+  const options = { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  };
+  const dateString = now.toLocaleDateString('th-TH', options);
+  document.getElementById('current-date').textContent = `วันนี้: ${dateString}`;
+}
+
+// อัพเดทสถิติ
+function updateStats() {
+  const events = calendar.getEvents();
+  document.getElementById('total-pm').textContent = events.length;
+  
+  const now = new Date();
+  const currentMonthEvents = events.filter(event => {
+    const eventDate = event.start;
+    return eventDate.getMonth() === now.getMonth() && 
+           eventDate.getFullYear() === now.getFullYear();
+  });
+  
+  document.getElementById('month-pm').textContent = currentMonthEvents.length;
+  document.getElementById('edit-status').textContent = mode === 'admin' ? 'แก้ไขได้' : 'ดูอย่างเดียว';
+}
+
+// สร้างปุ่มแก้ไขและลบบน event
+function addEventControls(event) {
+  const eventEl = event.el;
+  
+  // สร้าง container สำหรับปุ่ม
+  const controlsContainer = document.createElement('div');
+  controlsContainer.className = 'event-edit-controls';
+  
+  // สร้างปุ่มแก้ไข (แสดงเฉพาะโหมด admin)
+  if (mode === 'admin') {
+    const editBtn = document.createElement('button');
+    editBtn.className = 'edit-btn';
+    editBtn.innerHTML = '<i class="fas fa-pen"></i>';
+    editBtn.title = 'แก้ไขงานนี้';
+    editBtn.onclick = (e) => {
+      e.stopPropagation();
+      editEvent(event);
+    };
+    controlsContainer.appendChild(editBtn);
+    
+    // สร้างปุ่มลบ
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+    deleteBtn.title = 'ลบงานนี้';
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteEvent(event);
+    };
+    controlsContainer.appendChild(deleteBtn);
+  }
+  
+  // เพิ่ม container ลงใน event element
+  eventEl.appendChild(controlsContainer);
+}
+
+// แก้ไข event
+function editEvent(event) {
+  if (mode !== 'admin') return;
+  
+  const eventDate = event.start.toLocaleDateString('th-TH', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  
+  const description = event.extendedProps.description || '';
+  
+  // ใช้ dialog สำหรับแก้ไข
+  const editHTML = `
+    <div style="text-align: left; margin-bottom: 15px;">
+      <p><strong>วันที่:</strong> ${eventDate}</p>
+    </div>
+    <input type="text" id="edit-title" class="swal2-input" placeholder="ชื่องาน PM" value="${event.title}">
+    <textarea id="edit-description" class="swal2-textarea" placeholder="รายละเอียดงาน...">${description}</textarea>
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+      <div style="flex: 1;">
+        <label for="edit-color" style="display: block; margin-bottom: 5px; font-size: 14px;">สีของงาน:</label>
+        <input type="color" id="edit-color" value="${event.backgroundColor || '#4361ee'}" style="width: 100%; height: 40px; border-radius: 5px; border: 1px solid #ddd;">
+      </div>
+      <div style="flex: 1;">
+        <label for="edit-date" style="display: block; margin-bottom: 5px; font-size: 14px;">วันที่:</label>
+        <input type="date" id="edit-date" value="${event.startStr.split('T')[0]}" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+      </div>
+    </div>
+  `;
+  
+  Swal.fire({
+    title: 'แก้ไขงาน PM',
+    html: editHTML,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'บันทึกการแก้ไข',
+    cancelButtonText: 'ยกเลิก',
+    confirmButtonColor: '#4361ee',
+    cancelButtonColor: '#64748b',
+    preConfirm: () => {
+      const title = document.getElementById('edit-title').value;
+      const description = document.getElementById('edit-description').value;
+      const color = document.getElementById('edit-color').value;
+      const date = document.getElementById('edit-date').value;
+      
+      if (!title) {
+        Swal.showValidationMessage('กรุณากรอกชื่องาน PM');
+        return false;
+      }
+      
+      if (!date) {
+        Swal.showValidationMessage('กรุณาเลือกวันที่');
+        return false;
+      }
+      
+      return { title, description, color, date };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // อัพเดทข้อมูล event
+      event.setProp('title', result.value.title);
+      event.setExtendedProp('description', result.value.description);
+      event.setProp('color', result.value.color);
+      
+      // อัพเดทวันที่หากมีการเปลี่ยนแปลง
+      if (event.startStr.split('T')[0] !== result.value.date) {
+        event.setDates(result.value.date, result.value.date);
+      }
+      
+      updateStats();
+      
+      Swal.fire({
+        title: 'แก้ไขเรียบร้อย!',
+        text: 'งาน PM ถูกแก้ไขเรียบร้อยแล้ว',
+        icon: 'success',
+        confirmButtonColor: '#4361ee',
+        timer: 1500
+      });
+    }
+  });
+}
+
+// ลบ event
+function deleteEvent(event) {
+  if (mode !== 'admin') return;
+  
+  Swal.fire({
+    title: 'ยืนยันการลบงาน',
+    html: `คุณต้องการลบงาน <strong>"${event.title}"</strong> วันที่ ${event.start.toLocaleDateString('th-TH')} ใช่หรือไม่?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'ใช่, ลบออก',
+    cancelButtonText: 'ยกเลิก',
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#64748b',
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      event.remove();
+      updateStats();
+      
+      Swal.fire({
+        title: 'ลบเรียบร้อย!',
+        text: 'งาน PM ถูกลบออกจากระบบแล้ว',
+        icon: 'success',
+        confirmButtonColor: '#4361ee',
+        timer: 1500
+      });
+    }
+  });
+}
+
 // สร้าง calendar
 calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
   initialView: 'dayGridMonth',
   editable: false,
   selectable: false,
-
+  headerToolbar: {
+    left: 'prev,next today',
+    center: 'title',
+    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+  },
+  buttonText: {
+    today: 'วันนี้',
+    month: 'เดือน',
+    week: 'สัปดาห์',
+    day: 'วัน'
+  },
+  locale: 'th',
+  firstDay: 1, // เริ่มต้นวันจันทร์
+  
   events: [
     {
+      id: '1',
       title: 'PM Generator',
       start: '2026-02-05',
-      color: '#1a73e8'
+      color: '#4361ee',
+      description: 'บำรุงรักษาเครื่องกำเนิดไฟฟ้าตามรอบกำหนด'
     },
     {
+      id: '2',
       title: 'PM Aircon',
       start: '2026-02-10',
-      color: '#34a853'
+      color: '#4cc9f0',
+      description: 'บำรุงรักษาระบบปรับอากาศ'
+    },
+    {
+      id: '3',
+      title: 'PM Fire System',
+      start: '2026-02-15',
+      color: '#ef4444',
+      description: 'ตรวจสอบระบบดับเพลิง'
+    },
+    {
+      id: '4',
+      title: 'PM Electrical',
+      start: '2026-02-20',
+      color: '#f59e0b',
+      description: 'ตรวจสอบระบบไฟฟ้า'
+    },
+    {
+      id: '5',
+      title: 'PM Elevator',
+      start: '2026-02-25',
+      color: '#4ade80',
+      description: 'บำรุงรักษาลิฟต์'
     }
   ],
 
-  eventClick(info) {
-    alert(
-      `PM: ${info.event.title}\nDate: ${info.event.start.toLocaleDateString()}`
-    );
+  eventDidMount: function(info) {
+    addEventControls(info.event);
   },
 
-  select(info) {
-    if (mode !== 'admin') return;
-    const title = prompt('PM Title');
-    if (title) {
-      calendar.addEvent({
-        title,
-        start: info.startStr,
-        allDay: true
+  eventClick: function(info) {
+    const eventDate = info.event.start.toLocaleDateString('th-TH', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    const description = info.event.extendedProps.description || 'ไม่มีรายละเอียดเพิ่มเติม';
+    const eventColor = info.event.backgroundColor;
+    
+    // สำหรับโหมด admin ให้แสดงตัวเลือกเพิ่มเติม
+    if (mode === 'admin') {
+      Swal.fire({
+        title: info.event.title,
+        html: `
+          <p><strong>วันที่:</strong> ${eventDate}</p>
+          <p><strong>รายละเอียด:</strong> ${description}</p>
+          <p><strong>สี:</strong> <span style="color: ${eventColor}">${eventColor}</span></p>
+          <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button id="edit-event-btn" class="btn btn-primary" style="flex: 1; padding: 10px;">
+              <i class="fas fa-edit"></i> แก้ไขงาน
+            </button>
+            <button id="delete-event-btn" class="btn" style="flex: 1; padding: 10px; background-color: #ef4444; color: white;">
+              <i class="fas fa-trash"></i> ลบงาน
+            </button>
+          </div>
+        `,
+        icon: 'info',
+        showConfirmButton: false,
+        showCloseButton: true,
+        background: '#fff',
+        color: '#1e293b',
+        didOpen: () => {
+          document.getElementById('edit-event-btn').onclick = () => {
+            Swal.close();
+            editEvent(info.event);
+          };
+          
+          document.getElementById('delete-event-btn').onclick = () => {
+            Swal.close();
+            deleteEvent(info.event);
+          };
+        }
+      });
+    } else {
+      // สำหรับโหมด user ให้แสดงข้อมูลอย่างเดียว
+      Swal.fire({
+        title: info.event.title,
+        html: `
+          <p><strong>วันที่:</strong> ${eventDate}</p>
+          <p><strong>รายละเอียด:</strong> ${description}</p>
+          <p><strong>สี:</strong> <span style="color: ${eventColor}">${eventColor}</span></p>
+        `,
+        icon: 'info',
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#4361ee',
+        background: '#fff',
+        color: '#1e293b'
       });
     }
+  },
+
+  select: function(info) {
+    if (mode !== 'admin') return;
+    
+    const selectedDate = new Date(info.startStr).toLocaleDateString('th-TH', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    Swal.fire({
+      title: 'เพิ่มงาน PM ใหม่',
+      html: `
+        <p style="text-align: left; margin-bottom: 15px; color: #666;">วันที่: ${selectedDate}</p>
+        <input type="text" id="pm-title" class="swal2-input" placeholder="ชื่องาน PM" autofocus>
+        <textarea id="pm-description" class="swal2-textarea" placeholder="รายละเอียดงาน..."></textarea>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <div style="flex: 1;">
+            <label for="pm-color" style="display: block; margin-bottom: 5px; font-size: 14px;">เลือกสี:</label>
+            <input type="color" id="pm-color" value="#4361ee" style="width: 100%; height: 40px; border-radius: 5px; border: 1px solid #ddd;">
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'บันทึกงาน',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#4361ee',
+      cancelButtonColor: '#64748b',
+      preConfirm: () => {
+        const title = document.getElementById('pm-title').value;
+        const description = document.getElementById('pm-description').value;
+        const color = document.getElementById('pm-color').value;
+        
+        if (!title) {
+          Swal.showValidationMessage('กรุณากรอกชื่องาน PM');
+          return false;
+        }
+        
+        return { title, description, color };
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const newEvent = {
+          id: 'event-' + Date.now(),
+          title: result.value.title,
+          start: info.startStr,
+          allDay: true,
+          color: result.value.color,
+          description: result.value.description
+        };
+        
+        calendar.addEvent(newEvent);
+        updateStats();
+        
+        Swal.fire({
+          title: 'เพิ่มงานเรียบร้อย!',
+          text: 'งาน PM ใหม่ถูกเพิ่มเข้าสู่ระบบแล้ว',
+          icon: 'success',
+          confirmButtonColor: '#4361ee',
+          timer: 1500
+        });
+      }
+    });
+  },
+  
+  eventDrop: function(info) {
+    if (mode !== 'admin') {
+      info.revert();
+      return;
+    }
+    
+    updateStats();
+    
+    Swal.fire({
+      title: 'ย้ายงานเรียบร้อย!',
+      text: `งาน "${info.event.title}" ถูกย้ายไปวันที่ ${info.event.start.toLocaleDateString('th-TH')}`,
+      icon: 'success',
+      confirmButtonColor: '#4361ee',
+      timer: 1500
+    });
+  },
+  
+  eventResize: function(info) {
+    if (mode !== 'admin') {
+      info.revert();
+      return;
+    }
+    
+    updateStats();
+  },
+  
+  datesSet: function(info) {
+    updateStats();
   }
 });
 
 calendar.render();
+updateCurrentDate();
+updateStats();
 
 // อ้างอิง DOM elements
 const modeSelect = document.getElementById('mode');
@@ -126,6 +1049,15 @@ const adminPasswordInput = document.getElementById('admin-password');
 const passwordSubmit = document.getElementById('password-submit');
 const passwordCancel = document.getElementById('password-cancel');
 const passwordError = document.getElementById('password-error');
+const helpLink = document.getElementById('help-link');
+const helpModal = document.getElementById('help-modal');
+const closeHelp = document.getElementById('close-help');
+const exportLink = document.getElementById('export-link');
+
+// เพิ่ม SweetAlert2
+const swalScript = document.createElement('script');
+swalScript.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+document.head.appendChild(swalScript);
 
 // เมื่อเปลี่ยนโหมด
 modeSelect.onchange = e => {
@@ -158,10 +1090,29 @@ function switchToAdminMode() {
   mode = 'admin';
   calendar.setOption('editable', true);
   calendar.setOption('selectable', true);
-  modeStatus.textContent = 'โหมด: Admin';
-  modeStatus.style.color = '#d32f2f';
+  
+  // อัพเดท UI โหมด
+  modeStatus.className = 'mode-status admin';
+  modeStatus.innerHTML = '<i class="fas fa-user-shield"></i><span>โหมด: ผู้ดูแลระบบ</span>';
   modeSelect.value = 'admin';
+  
   hidePasswordModal();
+  
+  // เพิ่มปุ่มควบคุมใน event ที่มีอยู่
+  calendar.getEvents().forEach(event => {
+    addEventControls(event);
+  });
+  
+  // แจ้งเตือน
+  Swal.fire({
+    title: 'เข้าสู่โหมดผู้ดูแลระบบแล้ว!',
+    text: 'ตอนนี้คุณสามารถเพิ่ม แก้ไข และลบงาน PM ได้',
+    icon: 'success',
+    confirmButtonColor: '#4361ee',
+    timer: 2000
+  });
+  
+  updateStats();
 }
 
 // เปลี่ยนเป็นโหมด user
@@ -169,10 +1120,20 @@ function switchToUserMode() {
   mode = 'user';
   calendar.setOption('editable', false);
   calendar.setOption('selectable', false);
-  modeStatus.textContent = 'โหมด: User';
-  modeStatus.style.color = '#666';
+  
+  // อัพเดท UI โหมด
+  modeStatus.className = 'mode-status user';
+  modeStatus.innerHTML = '<i class="fas fa-eye"></i><span>โหมด: ผู้ใช้งาน</span>';
   modeSelect.value = 'user';
+  
   hidePasswordModal();
+  
+  // ลบปุ่มควบคุมจาก event ที่มีอยู่
+  document.querySelectorAll('.event-edit-controls').forEach(el => {
+    el.remove();
+  });
+  
+  updateStats();
 }
 
 // ตรวจสอบรหัสผ่าน
@@ -182,32 +1143,83 @@ function checkPassword() {
   if (enteredPassword === ADMIN_PASSWORD) {
     switchToAdminMode();
   } else {
-    passwordError.style.display = 'block';
+    passwordError.style.display = 'flex';
     adminPasswordInput.value = '';
     adminPasswordInput.focus();
+    
+    // เอฟเฟกต์สั่น
+    adminPasswordInput.style.animation = 'shake 0.5s';
+    setTimeout(() => {
+      adminPasswordInput.style.animation = '';
+    }, 500);
   }
+}
+
+// ส่งออกข้อมูล
+function exportData() {
+  const events = calendar.getEvents();
+  const exportData = events.map(event => ({
+    id: event.id,
+    title: event.title,
+    date: event.start.toISOString().split('T')[0],
+    description: event.extendedProps.description || '',
+    color: event.backgroundColor
+  }));
+  
+  const dataStr = JSON.stringify(exportData, null, 2);
+  const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+  
+  const exportFileDefaultName = `pm-calendar-data-${new Date().toISOString().split('T')[0]}.json`;
+  
+  const linkElement = document.createElement('a');
+  linkElement.setAttribute('href', dataUri);
+  linkElement.setAttribute('download', exportFileDefaultName);
+  linkElement.click();
+  
+  Swal.fire({
+    title: 'ส่งออกข้อมูลเรียบร้อย!',
+    text: `ข้อมูล ${events.length} งานถูกส่งออกเป็นไฟล์ JSON แล้ว`,
+    icon: 'success',
+    confirmButtonColor: '#4361ee'
+  });
 }
 
 // Event listeners
 passwordSubmit.onclick = checkPassword;
-
-passwordCancel.onclick = () => {
-  switchToUserMode();
-};
-
+passwordCancel.onclick = () => switchToUserMode();
 adminPasswordInput.onkeypress = (e) => {
-  if (e.key === 'Enter') {
-    checkPassword();
-  }
+  if (e.key === 'Enter') checkPassword();
+};
+exportLink.onclick = (e) => {
+  e.preventDefault();
+  exportData();
 };
 
 // ปิด modal เมื่อคลิกภายนอก
 passwordModal.onclick = (e) => {
-  if (e.target === passwordModal) {
-    switchToUserMode();
-  }
+  if (e.target === passwordModal) switchToUserMode();
 };
-</script>
 
+// ความช่วยเหลือ
+helpLink.onclick = (e) => {
+  e.preventDefault();
+  helpModal.style.display = 'flex';
+};
+closeHelp.onclick = () => helpModal.style.display = 'none';
+helpModal.onclick = (e) => {
+  if (e.target === helpModal) helpModal.style.display = 'none';
+};
+
+// เพิ่มสไตล์สำหรับเอฟเฟกต์สั่น
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes shake {
+    0%, 100% {transform: translateX(0);}
+    10%, 30%, 50%, 70%, 90% {transform: translateX(-5px);}
+    20%, 40%, 60%, 80% {transform: translateX(5px);}
+  }
+`;
+document.head.appendChild(style);
+</script>
 </body>
 </html>
