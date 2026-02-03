@@ -1,135 +1,463 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<title>PM Calendar + Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouldmate Helpdesk</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
 
-<style>
-body {
-  font-family: Arial;
-  margin: 20px;
-}
-#loginBox {
-  max-width: 300px;
-  margin: 100px auto;
-  border: 1px solid #ddd;
-  padding: 20px;
-}
-#calendarBox {
-  display: none;
-}
-input, button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 8px;
-}
-.role {
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-</style>
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .logo-icon i {
+            font-size: 28px;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #60a5fa, #c4b5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .helpdesk-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.4s, box-shadow 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .helpdesk-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .helpdesk-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #f1f5f9;
+        }
+
+        .card-description {
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .icon-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .helpdesk-icon {
+            width: 140px;
+            height: 140px;
+            background: linear-gradient(135deg, #1e40af, #7c3aed);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
+            transition: all 0.4s;
+            cursor: pointer;
+        }
+
+        .helpdesk-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.6);
+        }
+
+        .helpdesk-icon i {
+            font-size: 60px;
+            color: white;
+        }
+
+        .icon-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            filter: blur(15px);
+            opacity: 0.5;
+            z-index: -1;
+            animation: pulse 3s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        .helpdesk-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .helpdesk-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.5);
+            background: linear-gradient(45deg, #2563eb, #7c3aed);
+        }
+
+        .helpdesk-btn:active {
+            transform: translateY(0);
+        }
+
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .feature {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 18px;
+            padding: 25px;
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .feature:hover {
+            transform: translateY(-8px);
+            background: rgba(30, 41, 59, 0.8);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #10b981, #06b6d4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .feature-icon i {
+            font-size: 28px;
+            color: white;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #f1f5f9;
+        }
+
+        .feature-desc {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            color: #64748b;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+            width: 100%;
+        }
+
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(45deg, #059669, #0d9488);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            display: flex;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .logo-text {
+                font-size: 2.2rem;
+            }
+            
+            .helpdesk-card {
+                padding: 30px 25px;
+            }
+            
+            .helpdesk-icon {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .helpdesk-icon i {
+                font-size: 50px;
+            }
+            
+            .features {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <div class="logo-text">Mouldmate Helpdesk</div>
+            </div>
+            <p class="tagline">ระบบช่วยเหลือและสนับสนุนลูกค้าแบบครบวงจร พร้อมให้บริการคุณด้วยความรวดเร็วและมีประสิทธิภาพสูงสุด</p>
+        </div>
 
-<!-- LOGIN -->
-<div id="loginBox">
-  <h3>Login</h3>
-  <input id="username" placeholder="username">
-  <input id="password" type="password" placeholder="password">
-  <button onclick="login()">Login</button>
-  <p id="error" style="color:red"></p>
-</div>
+        <div class="main-content">
+            <div class="helpdesk-card">
+                <h2 class="card-title">ศูนย์ช่วยเหลือ Mouldmate</h2>
+                <p class="card-description">เข้าสู่ระบบช่วยเหลือของเราเพื่อรับการสนับสนุนด้านเทคนิค คำแนะนำการใช้งาน และแก้ไขปัญหาต่างๆ โดยทีมงานผู้เชี่ยวชาญของเรา</p>
+                
+                <div class="icon-container">
+                    <div class="helpdesk-icon" id="helpdeskIcon">
+                        <i class="fas fa-headset"></i>
+                        <div class="icon-glow"></div>
+                    </div>
+                </div>
+                
+                <button class="helpdesk-btn" id="helpdeskBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    เข้าสู่ Mouldmate Helpdesk
+                </button>
+            </div>
+        </div>
 
-<!-- CALENDAR -->
-<div id="calendarBox">
-  <div class="role" id="roleText"></div>
-  <button onclick="logout()">Logout</button>
-  <hr>
-  <div id="calendar"></div>
-</div>
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 class="feature-title">บริการ 24/7</h3>
+                <p class="feature-desc">ให้บริการตลอด 24 ชั่วโมง ทุกวัน ไม่มีวันหยุด</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="feature-title">ทีมงานมืออาชีพ</h3>
+                <p class="feature-desc">ทีมงานผู้เชี่ยวชาญพร้อมให้คำแนะนำและแก้ไขปัญหา</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">รักษาความปลอดภัย</h3>
+                <p class="feature-desc">ระบบรักษาความปลอดภัยมาตรฐานสูง ข้อมูลของคุณจะปลอดภัย</p>
+            </div>
+        </div>
+    </div>
 
-<script>
-/* ===== MOCK USER DATABASE ===== */
-const users = {
-  admin: { password: '1234', role: 'admin' },
-  user:  { password: '1234', role: 'user' }
-};
+    <div class="footer">
+        <p>© 2023 Mouldmate Helpdesk. All rights reserved.</p>
+        <p>ติดต่อ: support@mouldmate.com | โทร: 02-123-4567</p>
+    </div>
 
-let currentUser = null;
-let calendar;
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle fa-2x"></i>
+        <div>
+            <h4>กำลังเข้าสู่ระบบ Helpdesk</h4>
+            <p>คุณกำลังถูกนำไปยังหน้า Mouldmate Helpdesk</p>
+        </div>
+    </div>
 
-/* ===== LOGIN ===== */
-function login() {
-  const u = username.value;
-  const p = password.value;
-
-  if (!users[u] || users[u].password !== p) {
-    error.textContent = 'username หรือ password ไม่ถูกต้อง';
-    return;
-  }
-
-  currentUser = { username: u, role: users[u].role };
-  loginBox.style.display = 'none';
-  calendarBox.style.display = 'block';
-
-  roleText.textContent = `Login as: ${currentUser.role.toUpperCase()}`;
-
-  initCalendar();
-}
-
-/* ===== LOGOUT ===== */
-function logout() {
-  location.reload();
-}
-
-/* ===== CALENDAR ===== */
-function initCalendar() {
-  calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay'
-    },
-
-    editable: currentUser.role === 'admin',
-    selectable: currentUser.role === 'admin',
-
-    events: [
-      { title: 'PM Generator', start: '2026-02-05', color: '#1a73e8' },
-      { title: 'PM Aircon', start: '2026-02-10', color: '#34a853' }
-    ],
-
-    select(info) {
-      if (currentUser.role !== 'admin') return;
-
-      const title = prompt('PM Title');
-      if (title) {
-        calendar.addEvent({
-          title,
-          start: info.startStr,
-          allDay: true
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const helpdeskBtn = document.getElementById('helpdeskBtn');
+            const helpdeskIcon = document.getElementById('helpdeskIcon');
+            const notification = document.getElementById('notification');
+            
+            // เพิ่มเอฟเฟกต์เมื่อคลิกปุ่ม
+            helpdeskBtn.addEventListener('click', function() {
+                // แสดง notification
+                notification.classList.add('show');
+                
+                // เพิ่มเอฟเฟกต์ animation บนปุ่ม
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังเข้าสู่ระบบ...';
+                this.style.background = 'linear-gradient(45deg, #059669, #0d9488)';
+                
+                // จำลองการโหลดและเปลี่ยนหน้า
+                setTimeout(() => {
+                    // ในความเป็นจริงจะเปลี่ยนไปยังลิงก์จริง
+                    // window.location.href = 'https://helpdesk.mouldmate.com';
+                    
+                    // แสดงข้อความสำเร็จ
+                    notification.innerHTML = `
+                        <i class="fas fa-check-circle fa-2x"></i>
+                        <div>
+                            <h4>เข้าสู่ระบบสำเร็จ!</h4>
+                            <p>คุณกำลังถูกนำไปยังหน้า Mouldmate Helpdesk</p>
+                        </div>
+                    `;
+                    
+                    // รีเซ็ตปุ่มหลังจาก 2 วินาที
+                    setTimeout(() => {
+                        helpdeskBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> เข้าสู่ Mouldmate Helpdesk';
+                        helpdeskBtn.style.background = 'linear-gradient(45deg, #3b82f6, #8b5cf6)';
+                        notification.classList.remove('show');
+                        
+                        // จำลองการเปลี่ยนหน้า (ในเว็บจริงจะใช้การ redirect)
+                        alert('ในเว็บไซต์จริง คุณจะถูกนำไปยังหน้า Mouldmate Helpdesk');
+                    }, 2000);
+                }, 1500);
+            });
+            
+            // เพิ่มเอฟเฟกต์เมื่อคลิกที่ไอคอน
+            helpdeskIcon.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1.05)';
+                }, 150);
+                
+                // เรียกใช้การคลิกปุ่ม
+                helpdeskBtn.click();
+            });
+            
+            // เพิ่มเอฟเฟกต์ hover บนการ์ดและฟีเจอร์
+            const cards = document.querySelectorAll('.helpdesk-card, .feature');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.zIndex = '10';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.zIndex = '1';
+                });
+            });
         });
-      }
-    },
-
-    eventClick(info) {
-      if (currentUser.role === 'admin') {
-        if (confirm('ลบ PM นี้?')) {
-          info.event.remove();
-        }
-      } else {
-        alert(info.event.title);
-      }
-    }
-  });
-
-  calendar.render();
-}
-</script>
-
+    </script>
 </body>
 </html>
