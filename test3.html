@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ปฏิทินแผนกไอที - โหมดดูอย่างเดียว</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            background-color: #4fc3f7;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .logo i {
+            font-size: 24px;
+            color: #0d47a1;
+        }
+        
+        .header-text h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .header-text p {
+            color: #e3f2fd;
+            font-size: 0.95rem;
+        }
+        
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .mode-toggle {
+            display: flex;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 5px;
+            margin-right: 10px;
+        }
+        
+        .mode-btn {
+            background: none;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn.active {
+            background-color: white;
+            color: #1a237e;
+        }
+        
+        .mode-btn:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .month-year {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 10px;
+        }
+        
+        .nav-buttons button {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-buttons button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .today-btn {
+            background-color: #00c853;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .today-btn:hover {
+            background-color: #00b248;
+        }
+        
+        .calendar-container {
+            background-color: white;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background-color: #e8eaf6;
+            padding: 15px 0;
+            font-weight: 600;
+            color: #1a237e;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .weekdays div {
+            padding: 10px;
+        }
+        
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            min-height: 700px;
+        }
+        
+        .day {
+            border-right: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 12px;
+            position: relative;
+            min-height: 120px;
+            transition: background-color 0.2s;
+        }
+        
+        .day:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .day:nth-child(7n) {
+            border-right: none;
+        }
+        
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .date {
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: #333;
+        }
+        
+        .day-of-week {
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        .add-day-event {
+            background: none;
+            border: none;
+            color: #2196f3;
+            cursor: pointer;
+            font-size: 1rem;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .add-day-event:hover {
+            opacity: 1;
+        }
+        
+        .view-mode .add-day-event {
+            display: none;
+        }
+        
+        .events {
+            margin-top: 5px;
+        }
+        
+        .event {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 6px 8px;
+            margin-bottom: 6px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+        
+        .event:hover {
+            transform: translateX(3px);
+        }
+        
+        .event.important {
+            background-color: #ffebee;
+            border-left-color: #f44336;
+        }
+        
+        .event.maintenance {
+            background-color: #f3e5f5;
+            border-left-color: #9c27b0;
+        }
+        
+        .event.meeting {
+            background-color: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+        
+        .event-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .event-time {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .delete-event {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .event:hover .delete-event {
+            opacity: 1;
+        }
+        
+        .delete-event:hover {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .view-mode .delete-event {
+            display: none;
+        }
+        
+        .other-month {
+            background-color: #f9f9f9;
+            color: #aaa;
+        }
+        
+        .today {
+            background-color: #e8f5e9;
+        }
+        
+        .today .date {
+            color: #2e7d32;
+            font-weight: 700;
+        }
+        
+        .weekend {
+            background-color: #f8f9fa;
+        }
+        
+        .selected-day {
+            background-color: #e3f2fd;
+            border: 2px solid #2196f3;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .mode-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #1a237e;
+        }
+        
+        .mode-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .mode-icon.edit {
+            background-color: #4caf50;
+        }
+        
+        .mode-icon.view {
+            background-color: #2196f3;
+        }
+        
+        .event-legend {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #555;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 6px;
+        }
+        
+        .legend-normal {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .legend-important {
+            background-color: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        
+        .legend-maintenance {
+            background-color: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+        
+        .legend-meeting {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .current-time {
+            font-weight: 600;
+            color: #1a237e;
+        }
+        
+        .form-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-top: 20px;
+            transition: all 0.3s;
+            max-height: 500px;
+            overflow: hidden;
+        }
+        
+        .view-mode .form-container {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            border: none;
+            box-shadow: none;
+        }
+        
+        .form-container h2 {
+            color: #1a237e;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e8eaf6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-container h2 i {
+            color: #2196f3;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .radio-option input {
+            margin-right: 5px;
+        }
+        
+        .radio-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+        
+        .btn-submit {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn-submit:hover {
+            background-color: #3d8b40;
+        }
+        
+        .btn-clear {
+            background-color: #f5f5f5;
+            color: #666;
+            border: 1px solid #ddd;
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn-clear:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .events-list {
+            margin-top: 30px;
+        }
+        
+        .events-list h3 {
+            color: #1a237e;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e8eaf6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .events-list-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .events-list-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .events-list-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .events-list-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+        
+        .events-list-item {
+            background-color: #f9f9f9;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #2196f3;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        
+        .events-list-item:hover {
+            transform: translateX(5px);
+            background-color: #f0f0f0;
+        }
+        
+        .events-list-item.important {
+            border-left-color: #f44336;
+        }
+        
+        .events-list-item.maintenance {
+            border-left-color: #9c27b0;
+        }
+        
+        .events-list-item.meeting {
+            border-left-color: #4caf50;
+        }
+        
+        .list-event-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .list-event-details {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .no-events-message {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+            font-style: italic;
+        }
+        
+        .view-instruction {
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+            color: #2e7d32;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 1100px) {
+            .calendar {
+                min-height: 600px;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .mode-toggle {
+                order: 1;
+            }
+            
+            .nav-buttons {
+                order: 2;
+            }
+            
+            .month-year {
+                order: 3;
+            }
+            
+            .today-btn {
+                order: 4;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .controls {
+                margin-top: 15px;
+                width: 100%;
+            }
+            
+            .calendar {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+            
+            .weekdays {
+                display: none;
+            }
+            
+            .day {
+                border-right: none;
+                min-height: auto;
+            }
+            
+            .day-header {
+                position: sticky;
+                top: 0;
+                background-color: white;
+                z-index: 10;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .event-legend {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app-container">
+        <header>
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div class="header-text">
+                        <h1>แผนกไอที - ปฏิทินงานประจำสัปดาห์</h1>
+                        <p id="mode-description">โหมดดูอย่างเดียว - สามารถดูตารางงานได้แต่ไม่สามารถแก้ไข</p>
+                    </div>
+                </div>
+                <div class="controls">
+                    <div class="mode-toggle">
+                        <button class="mode-btn active" id="view-mode-btn"><i class="fas fa-eye"></i> ดูอย่างเดียว</button>
+                        <button class="mode-btn" id="edit-mode-btn"><i class="fas fa-edit"></i> โหมดแก้ไข</button>
+                    </div>
+                    <div class="nav-buttons">
+                        <button id="prev-week"><i class="fas fa-chevron-left"></i></button>
+                        <button id="next-week"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="month-year" id="month-year">กรกฎาคม 2023</div>
+                    <button class="today-btn" id="today-btn"><i class="fas fa-calendar-day"></i> วันนี้</button>
+                </div>
+            </div>
+        </header>
+        
+        <div class="calendar-container">
+            <div class="weekdays">
+                <div>อาทิตย์</div>
+                <div>จันทร์</div>
+                <div>อังคาร</div>
+                <div>พุธ</div>
+                <div>พฤหัสบดี</div>
+                <div>ศุกร์</div>
+                <div>เสาร์</div>
+            </div>
+            
+            <div class="calendar" id="calendar">
+                <!-- วันจะถูกสร้างด้วย JavaScript -->
+            </div>
+            
+            <div class="status-bar">
+                <div class="mode-indicator">
+                    <div class="mode-icon view"></div>
+                    <span id="current-mode-text">โหมดดูอย่างเดียว</span>
+                </div>
+                <div class="event-legend">
+                    <div class="legend-item">
+                        <div class="legend-color legend-normal"></div>
+                        <span>งานปกติ</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-important"></div>
+                        <span>งานสำคัญ</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-maintenance"></div>
+                        <span>บำรุงรักษา</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-meeting"></div>
+                        <span>ประชุม</span>
+                    </div>
+                </div>
+                <div class="current-time" id="current-time"></div>
+            </div>
+        </div>
+        
+        <div class="form-container" id="form-container">
+            <h2><i class="fas fa-calendar-plus"></i> เพิ่มงานใหม่</h2>
+            
+            <form id="event-form">
+                <div class="form-group">
+                    <label for="event-title"><i class="fas fa-heading"></i> ชื่องาน</label>
+                    <input type="text" id="event-title" class="form-control" placeholder="เช่น ประชุมทีมไอที, อัพเดทระบบ..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="event-date"><i class="fas fa-calendar-alt"></i> วันที่</label>
+                    <input type="date" id="event-date" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="event-time"><i class="fas fa-clock"></i> เวลา</label>
+                    <input type="time" id="event-time" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="event-description"><i class="fas fa-file-alt"></i> รายละเอียด</label>
+                    <textarea id="event-description" class="form-control" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> ประเภทงาน</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="event-type" value="normal" checked>
+                            <div class="radio-color legend-normal"></div>
+                            งานปกติ
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="event-type" value="important">
+                            <div class="radio-color legend-important"></div>
+                            งานสำคัญ
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="event-type" value="maintenance">
+                            <div class="radio-color legend-maintenance"></div>
+                            บำรุงรักษา
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="event-type" value="meeting">
+                            <div class="radio-color legend-meeting"></div>
+                            ประชุม
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-submit"><i class="fas fa-save"></i> บันทึกงาน</button>
+                <button type="button" id="clear-form" class="btn-clear"><i class="fas fa-broom"></i> ล้างฟอร์ม</button>
+            </form>
+            
+            <div class="events-list">
+                <h3><i class="fas fa-list"></i> รายการงานทั้งหมด</h3>
+                <div class="events-list-container" id="events-list-container">
+                    <!-- รายการงานจะแสดงที่นี่ -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="view-instruction" id="view-instruction">
+            <i class="fas fa-info-circle"></i> โหมดดูอย่างเดียว: คุณสามารถดูตารางงานได้ แต่ไม่สามารถเพิ่มหรือลบงานได้
+        </div>
+    </div>
+
+    <script>
+        // ข้อมูลตัวอย่างสำหรับงานในแผนกไอที
+        let itEvents = [
+            { id: 1, date: "2023-07-16", title: "สำรองข้อมูลเซิร์ฟเวอร์", time: "02:00", type: "maintenance", description: "สำรองข้อมูลเซิร์ฟเวอร์หลักทุกๆ สัปดาห์" },
+            { id: 2, date: "2023-07-17", title: "ประชุมทีมไอทีประจำสัปดาห์", time: "09:30", type: "meeting", description: "ประชุมรายงานความคืบหน้าและวางแผนงานสัปดาห์ใหม่" },
+            { id: 3, date: "2023-07-17", title: "อัพเดทระบบความปลอดภัย", time: "14:00", type: "important", description: "ติดตั้งแพตช์ความปลอดภัยล่าสุดสำหรับระบบทั้งหมด" },
+            { id: 4, date: "2023-07-18", title: "ติดตั้งซอฟต์แวร์ใหม่", time: "10:00", type: "normal", description: "ติดตั้งซอฟต์แวร์ Office 365 ให้กับแผนกการเงิน" },
+            { id: 5, date: "2023-07-19", title: "ตรวจสอบเครือข่าย", time: "13:00", type: "normal", description: "ตรวจสอบประสิทธิภาพและความเสถียรของเครือข่ายองค์กร" },
+            { id: 6, date: "2023-07-20", title: "ซ่อมคอมพิวเตอร์ผู้ใช้", time: "11:00", type: "normal", description: "ซ่อมคอมพิวเตอร์ของพนักงานแผนกขายที่แสดงอาการช้า" },
+            { id: 7, date: "2023-07-21", title: "อัพเดทระบบฐานข้อมูล", time: "16:00", type: "important", description: "อัพเดท schema ฐานข้อมูลสำหรับระบบ ERP" },
+            { id: 8, date: "2023-07-22", title: "ตรวจสอบเซิร์ฟเวอร์", time: "10:00", type: "maintenance", description: "ตรวจสอบสภาพและทำความสะอาดเซิร์ฟเวอร์หลัก" },
+            { id: 9, date: "2023-07-23", title: "สำรองข้อมูลคลาวด์", time: "03:00", type: "maintenance", description: "สำรองข้อมูลสำคัญไปยังคลาวด์สตอเรจ" },
+            { id: 10, date: "2023-07-24", title: "ประชุมกับทีมพัฒนาซอฟต์แวร์", time: "13:30", type: "meeting", description: "ประชุมเพื่อกำหนด requirement สำหรับระบบใหม่" },
+            { id: 11, date: "2023-07-25", title: "อบรมพนักงานเรื่องความปลอดภัย", time: "09:00", type: "important", description: "อบรมพนักงานเรื่องการป้องกันภัยคุกคามทางไซเบอร์" },
+        ];
+        
+        let currentDate = new Date();
+        let currentWeekStart = new Date(currentDate);
+        let nextEventId = 12;
+        let isViewMode = true; // เริ่มต้นด้วยโหมดดูอย่างเดียว
+        
+        // หาวันอาทิตย์ของสัปดาห์ปัจจุบัน
+        currentWeekStart.setDate(currentDate.getDate() - currentDate.getDay());
+        
+        // ฟังก์ชันจัดการโหมด
+        function setViewMode(viewMode) {
+            isViewMode = viewMode;
+            const container = document.getElementById('app-container');
+            const viewModeBtn = document.getElementById('view-mode-btn');
+            const editModeBtn = document.getElementById('edit-mode-btn');
+            const modeDescription = document.getElementById('mode-description');
+            const currentModeText = document.getElementById('current-mode-text');
+            const modeIcon = document.querySelector('.mode-icon');
+            const viewInstruction = document.getElementById('view-instruction');
+            
+            if (viewMode) {
+                // โหมดดูอย่างเดียว
+                container.classList.add('view-mode');
+                viewModeBtn.classList.add('active');
+                editModeBtn.classList.remove('active');
+                modeDescription.textContent = 'โหมดดูอย่างเดียว - สามารถดูตารางงานได้แต่ไม่สามารถแก้ไข';
+                currentModeText.textContent = 'โหมดดูอย่างเดียว';
+                modeIcon.className = 'mode-icon view';
+                viewInstruction.style.display = 'block';
+            } else {
+                // โหมดแก้ไข
+                container.classList.remove('view-mode');
+                viewModeBtn.classList.remove('active');
+                editModeBtn.classList.add('active');
+                modeDescription.textContent = 'โหมดแก้ไข - สามารถเพิ่ม ลบ และแก้ไขงานได้';
+                currentModeText.textContent = 'โหมดแก้ไข';
+                modeIcon.className = 'mode-icon edit';
+                viewInstruction.style.display = 'none';
+            }
+            
+            updateCalendar();
+        }
+        
+        function formatDate(date) {
+            const options = { year: 'numeric', month: 'long' };
+            return date.toLocaleDateString('th-TH', options);
+        }
+        
+        function formatDay(date) {
+            const options = { weekday: 'long' };
+            return date.toLocaleDateString('th-TH', options);
+        }
+        
+        function formatDateForEvent(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        function getEventsForDate(dateStr) {
+            return itEvents.filter(event => event.date === dateStr);
+        }
+        
+        function updateCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            const monthYearEl = document.getElementById('month-year');
+            
+            // อัปเดตเดือน/ปี
+            monthYearEl.textContent = formatDate(currentWeekStart);
+            
+            // ล้างปฏิทิน
+            calendarEl.innerHTML = '';
+            
+            // อัปเดตฟอร์มวันที่ (เฉพาะโหมดแก้ไข)
+            if (!isViewMode) {
+                const todayStr = formatDateForEvent(new Date());
+                document.getElementById('event-date').value = todayStr;
+            }
+            
+            // สร้างวันในสัปดาห์
+            for (let i = 0; i < 7; i++) {
+                const dayDate = new Date(currentWeekStart);
+                dayDate.setDate(currentWeekStart.getDate() + i);
+                
+                const dateStr = formatDateForEvent(dayDate);
+                const dayOfWeek = formatDay(dayDate);
+                const dayEvents = getEventsForDate(dateStr);
+                
+                const dayEl = document.createElement('div');
+                dayEl.className = 'day';
+                dayEl.dataset.date = dateStr;
+                
+                // ตรวจสอบว่าเป็นวันนี้หรือไม่
+                const today = new Date();
+                if (dayDate.toDateString() === today.toDateString()) {
+                    dayEl.classList.add('today');
+                }
+                
+                // ตรวจสอบว่าเป็นวันเสาร์หรืออาทิตย์หรือไม่
+                if (i === 0 || i === 6) {
+                    dayEl.classList.add('weekend');
+                }
+                
+                // ตรวจสอบว่าเป็นเดือนปัจจุบันหรือไม่
+                if (dayDate.getMonth() !== currentWeekStart.getMonth()) {
+                    dayEl.classList.add('other-month');
+                }
+                
+                // เพิ่มส่วนหัวของวัน
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.innerHTML = `
+                    <div class="date">${dayDate.getDate()}</div>
+                    <div class="day-of-week">${dayOfWeek}</div>
+                `;
+                
+                // เพิ่มปุ่มเพิ่มงานสำหรับวันนี้ (เฉพาะโหมดแก้ไข)
+                if (!isViewMode) {
+                    const addBtn = document.createElement('button');
+                    addBtn.className = 'add-day-event';
+                    addBtn.innerHTML = '<i class="fas fa-plus"></i>';
+                    addBtn.title = 'เพิ่มงานสำหรับวันนี้';
+                    addBtn.addEventListener('click', function() {
+                        document.getElementById('event-date').value = dateStr;
+                        document.getElementById('event-form').scrollIntoView({ behavior: 'smooth' });
+                        document.getElementById('event-title').focus();
+                    });
+                    
+                    dayHeader.appendChild(addBtn);
+                }
+                
+                dayEl.appendChild(dayHeader);
+                
+                // เพิ่มกิจกรรม
+                const eventsEl = document.createElement('div');
+                eventsEl.className = 'events';
+                
+                dayEvents.forEach(event => {
+                    const eventEl = document.createElement('div');
+                    eventEl.className = `event ${event.type}`;
+                    eventEl.dataset.id = event.id;
+                    eventEl.innerHTML = `
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-time">${event.time} น.</div>
+                        ${!isViewMode ? `<button class="delete-event" data-id="${event.id}" title="ลบงานนี้"><i class="fas fa-times"></i></button>` : ''}
+                    `;
+                    
+                    // เพิ่ม tooltip รายละเอียด
+                    eventEl.title = event.description || event.title;
+                    
+                    eventsEl.appendChild(eventEl);
+                });
+                
+                dayEl.appendChild(eventsEl);
+                calendarEl.appendChild(dayEl);
+            }
+            
+            // เพิ่ม event listener สำหรับปุ่มลบ (เฉพาะโหมดแก้ไข)
+            if (!isViewMode) {
+                document.querySelectorAll('.delete-event').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const eventId = parseInt(this.dataset.id);
+                        deleteEvent(eventId);
+                    });
+                });
+            }
+            
+            // อัปเดตรายการงาน
+            updateEventsList();
+        }
+        
+        function updateEventsList() {
+            const listContainer = document.getElementById('events-list-container');
+            listContainer.innerHTML = '';
+            
+            // เรียงลำดับงานตามวันที่และเวลา
+            const sortedEvents = [...itEvents].sort((a, b) => {
+                const dateCompare = a.date.localeCompare(b.date);
+                if (dateCompare !== 0) return dateCompare;
+                return a.time.localeCompare(b.time);
+            });
+            
+            if (sortedEvents.length === 0) {
+                listContainer.innerHTML = '<div class="no-events-message">ยังไม่มีงานที่บันทึก</div>';
+                return;
+            }
+            
+            sortedEvents.forEach(event => {
+                const eventDate = new Date(event.date);
+                const dateStr = eventDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+                
+                const eventEl = document.createElement('div');
+                eventEl.className = `events-list-item ${event.type}`;
+                eventEl.innerHTML = `
+                    <div class="list-event-title">${event.title}</div>
+                    <div class="list-event-details">
+                        <div><i class="far fa-calendar"></i> ${dateStr} | <i class="far fa-clock"></i> ${event.time} น.</div>
+                        <div>${event.description || 'ไม่มีรายละเอียดเพิ่มเติม'}</div>
+                    </div>
+                `;
+                
+                eventEl.addEventListener('click', function() {
+                    // เลื่อนไปยังวันที่มีงานนี้
+                    const eventDateObj = new Date(event.date);
+                    currentWeekStart = new Date(eventDateObj);
+                    currentWeekStart.setDate(eventDateObj.getDate() - eventDateObj.getDay());
+                    updateCalendar();
+                    
+                    // ไฮไลต์งาน
+                    setTimeout(() => {
+                        const eventElement = document.querySelector(`.event[data-id="${event.id}"]`);
+                        if (eventElement) {
+                            eventElement.style.backgroundColor = '#fff9c4';
+                            eventElement.style.borderLeft = '4px solid #ff9800';
+                            
+                            setTimeout(() => {
+                                eventElement.style.backgroundColor = '';
+                                eventElement.style.borderLeft = '';
+                            }, 2000);
+                        }
+                    }, 100);
+                });
+                
+                listContainer.appendChild(eventEl);
+            });
+        }
+        
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            const timeString = now.toLocaleDateString('th-TH', options);
+            document.getElementById('current-time').textContent = `อัปเดตล่าสุด: ${timeString}`;
+        }
+        
+        function addEvent(eventData) {
+            const newEvent = {
+                id: nextEventId++,
+                date: eventData.date,
+                title: eventData.title,
+                time: eventData.time,
+                type: eventData.type,
+                description: eventData.description || ''
+            };
+            
+            itEvents.push(newEvent);
+            updateCalendar();
+            
+            // แจ้งเตือน
+            alert(`เพิ่มงาน "${eventData.title}" เรียบร้อยแล้ว`);
+            
+            // รีเซ็ตฟอร์ม
+            document.getElementById('event-form').reset();
+            document.getElementById('event-date').value = eventData.date;
+        }
+        
+        function deleteEvent(eventId) {
+            if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบงานนี้?')) {
+                itEvents = itEvents.filter(event => event.id !== eventId);
+                updateCalendar();
+                alert('ลบงานเรียบร้อยแล้ว');
+            }
+        }
+        
+        // ตั้งค่าปุ่มควบคุม
+        document.getElementById('prev-week').addEventListener('click', function() {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            updateCalendar();
+        });
+        
+        document.getElementById('next-week').addEventListener('click', function() {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            updateCalendar();
+        });
+        
+        document.getElementById('today-btn').addEventListener('click', function() {
+            currentDate = new Date();
+            currentWeekStart = new Date(currentDate);
+            currentWeekStart.setDate(currentDate.getDate() - currentDate.getDay());
+            updateCalendar();
+        });
+        
+        // จัดการโหมด
+        document.getElementById('view-mode-btn').addEventListener('click', function() {
+            setViewMode(true);
+        });
+        
+        document.getElementById('edit-mode-btn').addEventListener('click', function() {
+            setViewMode(false);
+        });
+        
+        // จัดการฟอร์มเพิ่มงาน
+        document.getElementById('event-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('event-title').value.trim();
+            const date = document.getElementById('event-date').value;
+            const time = document.getElementById('event-time').value;
+            const description = document.getElementById('event-description').value.trim();
+            const type = document.querySelector('input[name="event-type"]:checked').value;
+            
+            if (!title) {
+                alert('กรุณากรอกชื่องาน');
+                return;
+            }
+            
+            addEvent({
+                title,
+                date,
+                time,
+                type,
+                description
+            });
+        });
+        
+        document.getElementById('clear-form').addEventListener('click', function() {
+            document.getElementById('event-form').reset();
+            const todayStr = formatDateForEvent(new Date());
+            document.getElementById('event-date').value = todayStr;
+            document.getElementById('event-title').focus();
+        });
+        
+        // ตั้งค่าวันที่ในฟอร์มเป็นวันนี้
+        const todayStr = formatDateForEvent(new Date());
+        document.getElementById('event-date').value = todayStr;
+        
+        // อัปเดตเวลาปัจจุบันทุกวินาที
+        setInterval(updateCurrentTime, 1000);
+        
+        // เริ่มต้นแสดงปฏิทิน
+        setViewMode(true); // เริ่มต้นด้วยโหมดดูอย่างเดียว
+        updateCalendar();
+        updateCurrentTime();
+    </script>
+</body>
+</html>
