@@ -1410,38 +1410,40 @@
         let selectedYear = currentDate.getFullYear();
         
         // ฟังก์ชันตั้งค่า dropdown เดือนและปี
-        function initMonthYearDropdowns() {
-            const monthSelect = document.getElementById('month-select');
-            const yearSelect = document.getElementById('year-select');
-            
-            // ตั้งค่าเดือนปัจจุบัน
-            monthSelect.value = selectedMonth;
-            
-            // เติมข้อมูลปี (จากปีปัจจุบัน -5 ถึง +5)
-            const currentYear = new Date().getFullYear();
-            yearSelect.innerHTML = '';
-            
-            for (let year = currentYear - 5; year <= currentYear + 5; year++) {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year + 543; // แปลงเป็น พ.ศ.
-                if (year === selectedYear) {
-                    option.selected = true;
-                }
-                yearSelect.appendChild(option);
-            }
-            
-            // เมื่อเลือกเดือนหรือปีใหม่
-            monthSelect.addEventListener('change', function() {
-                selectedMonth = parseInt(this.value);
-                updateCalendarForMonthYear();
-            });
-            
-            yearSelect.addEventListener('change', function() {
-                selectedYear = parseInt(this.value);
-                updateCalendarForMonthYear();
-            });
+       // ฟังก์ชันตั้งค่า dropdown เดือนและปี
+function initMonthYearDropdowns() {
+    const monthSelect = document.getElementById('month-select');
+    const yearSelect = document.getElementById('year-select');
+    
+    // ตั้งค่าเดือนปัจจุบัน
+    monthSelect.value = selectedMonth;
+    
+    // เติมข้อมูลปี (จากปีปัจจุบัน -2 ถึง +10)
+    const currentYear = new Date().getFullYear();
+    yearSelect.innerHTML = '';
+    
+    // แก้ไขเป็น: ปีปัจจุบัน -2 ถึง ปีปัจจุบัน +10
+    for (let year = currentYear - 2; year <= currentYear + 10; year++) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year + 543; // แปลงเป็น พ.ศ.
+        if (year === selectedYear) {
+            option.selected = true;
         }
+        yearSelect.appendChild(option);
+    }
+    
+    // เมื่อเลือกเดือนหรือปีใหม่
+    monthSelect.addEventListener('change', function() {
+        selectedMonth = parseInt(this.value);
+        updateCalendarForMonthYear();
+    });
+    
+    yearSelect.addEventListener('change', function() {
+        selectedYear = parseInt(this.value);
+        updateCalendarForMonthYear();
+    });
+}
         
         // ฟังก์ชันอัปเดตปฏิทินตามเดือนและปีที่เลือก
         function updateCalendarForMonthYear() {
