@@ -853,17 +853,16 @@
             </div>
             <div class="modal-body">
                 <div class="modal-message">
-                    เฉพาะเจ้าหน้าที่ไอทีที่ได้รับอนุญาตเท่านั้นที่สามารถเข้าสู่โหมดแก้ไขได้
+                    เฉพาะเจ้าหน้าที่ไอทีเท่านั้น
                 </div>
                 <div class="password-input-group">
                     <div style="position: relative;">
-                        <input type="password" id="password-input" class="password-input" placeholder="กรอกรหัสผ่าน" maxlength="6">
+                        <input type="password" id="password-input" class="password-input" placeholder="" maxlength="6">
                         <button type="button" class="password-toggle" id="password-toggle">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
                     <div class="error-message" id="password-error"></div>
-                    <div class="password-hint">รหัสผ่านคือ: <strong id="password-hint">IT2023</strong> (สำหรับการทดสอบ)</div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-modal btn-cancel" id="cancel-password">ยกเลิก</button>
@@ -1026,7 +1025,7 @@
         ];
         
         // ตั้งรหัสผ่าน (สำหรับการทดสอบ: IT2023)
-        const EDIT_PASSWORD = "IT2023";
+        const EDIT_PASSWORD = "mm169Moo4";
         let currentDate = new Date();
         let currentWeekStart = new Date(currentDate);
         let nextEventId = 12;
