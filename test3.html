@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Support Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- ใช้ Chart.js เวอร์ชัน 3.9.1 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
         :root {
             --primary: #2c3e50;
@@ -518,6 +519,9 @@
             assignees: []
         };
 
+        // เก็บ instance ของ charts เพื่อทำลายทิ้งเมื่ออัพเดตใหม่
+        let charts = {};
+
         // DOM Elements
         const refreshBtn = document.getElementById('refresh-btn');
         const updateTimeEl = document.getElementById('update-time');
@@ -874,20 +878,43 @@
 
         // ฟังก์ชันอัพเดตแผนภูมิ
         function updateCharts() {
-            // Department Chart
+            // ทำลายแผนภูมิเดิมถ้ามี
+            if (charts.departmentChart) charts.departmentChart.destroy();
+            if (charts.deviceChart) charts.deviceChart.destroy();
+            if (charts.issueTypeChart) charts.issueTypeChart.destroy();
+
+            // Department Chart - แนวตั้ง
             const deptCtx = document.getElementById('department-chart').getContext('2d');
             const deptLabels = dashboardData.departments.slice(0, 8).map(d => d.name);
             const deptData = dashboardData.departments.slice(0, 8).map(d => d.count);
             
-            new Chart(deptCtx, {
+            charts.departmentChart = new Chart(deptCtx, {
                 type: 'bar',
                 data: {
                     labels: deptLabels,
                     datasets: [{
                         label: 'จำนวน',
                         data: deptData,
-                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
-                        borderColor: 'rgba(52, 152, 219, 1)',
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(241, 196, 15, 0.7)',
+                            'rgba(230, 126, 34, 0.7)',
+                            'rgba(231, 76, 60, 0.7)',
+                            'rgba(149, 165, 166, 0.7)',
+                            'rgba(52, 73, 94, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(155, 89, 182, 1)',
+                            'rgba(46, 204, 113, 1)',
+                            'rgba(241, 196, 15, 1)',
+                            'rgba(230, 126, 34, 1)',
+                            'rgba(231, 76, 60, 1)',
+                            'rgba(149, 165, 166, 1)',
+                            'rgba(52, 73, 94, 1)'
+                        ],
                         borderWidth: 1
                     }]
                 },
@@ -900,19 +927,29 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: { stepSize: 100 }
+                            ticks: { stepSize: 100 },
+                            title: {
+                                display: true,
+                                text: 'จำนวน Ticket'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'แผนก'
+                            }
                         }
                     }
                 }
             });
             
-            // Device Chart
+            // Device Chart - แนวนอน (ใช้ bar + indexAxis: 'y')
             const deviceCtx = document.getElementById('device-chart').getContext('2d');
             const deviceLabels = dashboardData.devices.slice(0, 8).map(d => d.name);
             const deviceData = dashboardData.devices.slice(0, 8).map(d => d.count);
             
-            new Chart(deviceCtx, {
-                type: 'horizontalBar',
+            charts.deviceChart = new Chart(deviceCtx, {
+                type: 'bar',
                 data: {
                     labels: deviceLabels,
                     datasets: [{
@@ -924,13 +961,20 @@
                     }]
                 },
                 options: {
+                    indexAxis: 'y', // แก้ไขตรงนี้ - ทำให้เป็นแนวนอน
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false }
                     },
                     scales: {
-                        x: { beginAtZero: true }
+                        x: { 
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'จำนวน Ticket'
+                            }
+                        }
                     }
                 }
             });
@@ -940,7 +984,7 @@
             const issueLabels = dashboardData.issueTypes.map(i => i.name);
             const issueData = dashboardData.issueTypes.map(i => i.count);
             
-            new Chart(issueCtx, {
+            charts.issueTypeChart = new Chart(issueCtx, {
                 type: 'pie',
                 data: {
                     labels: issueLabels,
@@ -949,7 +993,9 @@
                         backgroundColor: [
                             '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
                             '#9966FF', '#FF9F40', '#8AC926', '#1982C4'
-                        ]
+                        ],
+                        borderWidth: 1,
+                        borderColor: '#fff'
                     }]
                 },
                 options: {
@@ -958,7 +1004,13 @@
                     plugins: {
                         legend: {
                             position: 'right',
-                            labels: { font: { size: 11 } }
+                            labels: { 
+                                font: { 
+                                    size: 12,
+                                    family: "'Kanit', 'Segoe UI', sans-serif"
+                                },
+                                padding: 15
+                            }
                         }
                     }
                 }
