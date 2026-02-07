@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IT Department Dashboard</title>
+    <title>Dashboard สรุปงาน</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -14,9 +15,10 @@
         }
         
         body {
-            background-color: #f8f9fa;
+            background-color: #f5f7fa;
             color: #333;
             padding: 20px;
+            line-height: 1.6;
         }
         
         .container {
@@ -24,348 +26,931 @@
             margin: 0 auto;
         }
         
-        .header {
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #1a73e8;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
         }
         
-        .header h1 {
-            color: #1a73e8;
-            font-size: 28px;
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2c3e50;
         }
         
-        .last-update {
-            color: #5f6368;
-            font-size: 14px;
+        .card-icon {
+            font-size: 1.8rem;
+            color: #4b6cb7;
         }
         
-        .metrics-container {
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-label {
+            color: #555;
+        }
+        
+        .summary-value {
+            font-weight: 600;
+            color: #2c3e50;
+            background-color: #f8f9fa;
+            padding: 4px 12px;
+            border-radius: 20px;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .chart-container {
+            height: 250px;
+            margin-top: 15px;
+        }
+        
+        .filters {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4b6cb7;
+        }
+        
+        .filter-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: #f8f9fa;
+            font-size: 1rem;
+        }
+        
+        .total-summary {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
         
-        .metric-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
+        .total-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
         }
         
-        .metric-card:hover {
-            transform: translateY(-5px);
+        .total-card:hover {
+            transform: scale(1.03);
         }
         
-        .metric-title {
-            font-size: 14px;
-            color: #5f6368;
+        .total-title {
+            font-size: 1.1rem;
+            color: #555;
             margin-bottom: 10px;
         }
         
-        .metric-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #1a73e8;
+        .total-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4b6cb7;
         }
         
-        .charts-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
+        .total-card.by-person {
+            border-top: 5px solid #4b6cb7;
         }
         
-        .chart-card {
-            background: white;
-            border-radius: 10px;
+        .total-card.by-department {
+            border-top: 5px solid #2ecc71;
+        }
+        
+        .total-card.by-type {
+            border-top: 5px solid #e74c3c;
+        }
+        
+        .total-card.by-equipment {
+            border-top: 5px solid #f39c12;
+        }
+        
+        .total-card.by-status {
+            border-top: 5px solid #9b59b6;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: #777;
+            border-top: 1px solid #eee;
         }
         
-        .chart-title {
-            font-size: 18px;
-            color: #1a73e8;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+        .loading {
+            text-align: center;
+            padding: 30px;
+            font-size: 1.2rem;
+            color: #4b6cb7;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .data-table th {
+            background-color: #f8f9fa;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .data-table td {
+            padding: 12px 15px;
             border-bottom: 1px solid #eee;
         }
         
-        .chart-container {
-            position: relative;
-            height: 300px;
+        .data-table tr:hover {
+            background-color: #f8f9fa;
         }
         
-        @media (max-width: 1100px) {
-            .charts-container {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .metrics-container {
+        @media (max-width: 768px) {
+            .dashboard-grid {
                 grid-template-columns: 1fr;
             }
             
-            .charts-container {
-                grid-template-columns: 1fr;
+            .filters {
+                flex-direction: column;
             }
             
-            .chart-card {
-                padding: 15px;
+            .filter-group {
+                min-width: 100%;
             }
             
-            .chart-container {
-                height: 250px;
+            h1 {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>IT Department Dashboard</h1>
-            <div class="last-update">อัปเดตล่าสุด: <span id="update-date">กำลังโหลด...</span></div>
+        <header>
+            <h1><i class="fas fa-chart-line"></i> Dashboard สรุปงาน</h1>
+            <p class="subtitle">แสดงข้อมูลสรุปงานตามผู้ดำเนินการ แผนก ประเภท อุปกรณ์ และสถานะ</p>
+        </header>
+        
+        <div class="total-summary">
+            <div class="total-card by-person">
+                <div class="total-title">สรุปงานต่อคน</div>
+                <div class="total-value" id="total-person">0</div>
+            </div>
+            <div class="total-card by-department">
+                <div class="total-title">สรุปงานต่อแผนก</div>
+                <div class="total-value" id="total-department">0</div>
+            </div>
+            <div class="total-card by-type">
+                <div class="total-title">สรุปงานต่อประเภท</div>
+                <div class="total-value" id="total-type">0</div>
+            </div>
+            <div class="total-card by-equipment">
+                <div class="total-title">สรุปงานต่ออุปกรณ์</div>
+                <div class="total-value" id="total-equipment">0</div>
+            </div>
+            <div class="total-card by-status">
+                <div class="total-title">สรุปงานต่อสถานะ</div>
+                <div class="total-value" id="total-status">0</div>
+            </div>
         </div>
         
-        <div class="metrics-container">
-            <div class="metric-card">
-                <div class="metric-title">จำนวนงานทั้งหมด</div>
-                <div class="metric-value" id="total-tasks">0</div>
+        <div class="filters">
+            <div class="filter-group">
+                <label class="filter-label">กรองตามแผนก:</label>
+                <select class="filter-select" id="department-filter">
+                    <option value="all">ทั้งหมด</option>
+                </select>
             </div>
-            
-            <div class="metric-card">
-                <div class="metric-title">จำนวนผู้ดำเนินการ</div>
-                <div class="metric-value" id="total-operators">0</div>
+            <div class="filter-group">
+                <label class="filter-label">กรองตามประเภท:</label>
+                <select class="filter-select" id="type-filter">
+                    <option value="all">ทั้งหมด</option>
+                </select>
             </div>
-            
-            <div class="metric-card">
-                <div class="metric-title">จำนวนแผนก</div>
-                <div class="metric-value" id="total-departments">0</div>
+            <div class="filter-group">
+                <label class="filter-label">กรองตามสถานะ:</label>
+                <select class="filter-select" id="status-filter">
+                    <option value="all">ทั้งหมด</option>
+                </select>
             </div>
-            
-            <div class="metric-card">
-                <div class="metric-title">จำนวนประเภทงาน</div>
-                <div class="metric-value" id="total-categories">0</div>
+            <div class="filter-group">
+                <label class="filter-label">เรียงลำดับตาม:</label>
+                <select class="filter-select" id="sort-filter">
+                    <option value="count-desc">จำนวนงาน (มากไปน้อย)</option>
+                    <option value="count-asc">จำนวนงาน (น้อยไปมาก)</option>
+                    <option value="name-asc">ชื่อ (ก-ฮ)</option>
+                    <option value="name-desc">ชื่อ (ฮ-ก)</option>
+                </select>
             </div>
         </div>
         
-        <div class="charts-container">
-            <div class="chart-card">
-                <div class="chart-title">การกระจายงานตามแผนก</div>
+        <div class="dashboard-grid">
+            <!-- งานต่อคน -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">สรุปงานต่อคน</h2>
+                    <div class="card-icon"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="personChart"></canvas>
+                </div>
+                <div id="personSummary">
+                    <!-- ข้อมูลจะถูกแสดงที่นี่ -->
+                </div>
+            </div>
+            
+            <!-- งานต่อแผนก -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">สรุปงานต่อแผนก</h2>
+                    <div class="card-icon"><i class="fas fa-building"></i></div>
+                </div>
                 <div class="chart-container">
                     <canvas id="departmentChart"></canvas>
                 </div>
-            </div>
-            
-            <div class="chart-card">
-                <div class="chart-title">สัดส่วนประเภทงาน</div>
-                <div class="chart-container">
-                    <canvas id="categoryChart"></canvas>
+                <div id="departmentSummary">
+                    <!-- ข้อมูลจะถูกแสดงที่นี่ -->
                 </div>
             </div>
             
-            <div class="chart-card">
-                <div class="chart-title">อุปกรณ์ที่เกี่ยวข้อง</div>
+            <!-- งานต่อประเภท -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">สรุปงานต่อประเภท</h2>
+                    <div class="card-icon"><i class="fas fa-tags"></i></div>
+                </div>
                 <div class="chart-container">
-                    <canvas id="deviceChart"></canvas>
+                    <canvas id="typeChart"></canvas>
+                </div>
+                <div id="typeSummary">
+                    <!-- ข้อมูลจะถูกแสดงที่นี่ -->
                 </div>
             </div>
             
-            <div class="chart-card">
-                <div class="chart-title">สถานะงาน</div>
+            <!-- งานต่ออุปกรณ์ -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">สรุปงานต่ออุปกรณ์</h2>
+                    <div class="card-icon"><i class="fas fa-tools"></i></div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="equipmentChart"></canvas>
+                </div>
+                <div id="equipmentSummary">
+                    <!-- ข้อมูลจะถูกแสดงที่นี่ -->
+                </div>
+            </div>
+            
+            <!-- งานต่อสถานะ -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">สรุปงานต่อสถานะ</h2>
+                    <div class="card-icon"><i class="fas fa-clipboard-check"></i></div>
+                </div>
                 <div class="chart-container">
                     <canvas id="statusChart"></canvas>
                 </div>
+                <div id="statusSummary">
+                    <!-- ข้อมูลจะถูกแสดงที่นี่ -->
+                </div>
             </div>
         </div>
-    </div>
-
-    <script>
-        // ตั้งค่าวันที่อัปเดต
-        document.getElementById('update-date').textContent = new Date().toLocaleDateString('th-TH');
         
-        // ตัวอย่างข้อมูล (ในทางปฏิบัติจะดึงข้อมูลจาก Google Sheets API)
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">ข้อมูลทั้งหมด</h2>
+                <div class="card-icon"><i class="fas fa-table"></i></div>
+            </div>
+            <div class="loading" id="loading-data">
+                <i class="fas fa-spinner fa-spin"></i> กำลังโหลดข้อมูลจาก Google Apps Script...
+            </div>
+            <table class="data-table" id="fullDataTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>ผู้ดำเนินการ</th>
+                        <th>จำนวนงาน</th>
+                        <th>แผนก</th>
+                        <th>จำนวนแผนก</th>
+                        <th>ประเภท</th>
+                        <th>จำนวนประเภท</th>
+                        <th>อุปกรณ์</th>
+                        <th>จำนวนอุปกรณ์</th>
+                        <th>สถานะ</th>
+                        <th>จำนวนสถานะ</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- ข้อมูลจะถูกแสดงที่นี่ -->
+                </tbody>
+            </table>
+        </div>
+        
+        <footer>
+            <p>Dashboard สรุปงาน &copy; 2023 | อัปเดตล่าสุด: <span id="update-time"></span></p>
+            <p>ข้อมูลจาก Google Sheets ผ่าน Google Apps Script</p>
+        </footer>
+    </div>
+    
+    <script>
+        // ข้อมูลตัวอย่างเพื่อแสดงผล (จะถูกแทนที่ด้วยข้อมูลจาก Google Apps Script)
         const sampleData = {
-            totalTasks: 156,
-            totalOperators: 24,
-            totalDepartments: 8,
-            totalCategories: 6,
+            persons: [
+                { name: "สมชาย ใจดี", count: 15 },
+                { name: "สุธีรา เก่งดี", count: 12 },
+                { name: "ประยูร ทำงาน", count: 9 },
+                { name: "กนกวรรณ สวยงาม", count: 7 },
+                { name: "วิชัย กล้าหาญ", count: 5 }
+            ],
             departments: [
-                { name: "แผนกบุคคล", count: 32 },
-                { name: "แผนกการเงิน", count: 28 },
-                { name: "แผนกขาย", count: 25 },
-                { name: "แผนกไอที", count: 22 },
-                { name: "แผนกการผลิต", count: 18 },
-                { name: "แผนกจัดซื้อ", count: 15 },
-                { name: "แผนกบริการ", count: 10 },
-                { name: "แผนกบัญชี", count: 6 }
+                { name: "แผนก IT", count: 25 },
+                { name: "แผนก HR", count: 18 },
+                { name: "แผนก Finance", count: 15 },
+                { name: "แผนก Marketing", count: 12 },
+                { name: "แผนก Operations", count: 10 }
             ],
-            categories: [
-                { name: "ซ่อมบำรุง", count: 45 },
-                { name: "ติดตั้งใหม่", count: 38 },
-                { name: "อัพเกรดระบบ", count: 32 },
-                { name: "ปัญหาเครือข่าย", count: 25 },
-                { name: "อบรมใช้งาน", count: 12 },
-                { name: "อื่นๆ", count: 4 }
+            types: [
+                { name: "ประเภท A", count: 22 },
+                { name: "ประเภท B", count: 18 },
+                { name: "ประเภท C", count: 15 },
+                { name: "ประเภท D", count: 12 },
+                { name: "ประเภท E", count: 8 }
             ],
-            devices: [
-                { name: "คอมพิวเตอร์", count: 68 },
-                { name: "เครื่องพิมพ์", count: 32 },
-                { name: "โทรศัพท์", count: 24 },
-                { name: "เซิร์ฟเวอร์", count: 18 },
-                { name: "สวิตซ์เน็ตเวิร์ก", count: 10 },
-                { name: "อื่นๆ", count: 4 }
+            equipment: [
+                { name: "คอมพิวเตอร์", count: 30 },
+                { name: "เครื่องพิมพ์", count: 18 },
+                { name: "เครือข่าย", count: 12 },
+                { name: "โทรศัพท์", count: 10 },
+                { name: "อื่นๆ", count: 5 }
             ],
             statuses: [
-                { name: "สำเร็จ", count: 98 },
-                { name: "กำลังดำเนินการ", count: 42 },
-                { name: "รอตรวจสอบ", count: 12 },
-                { name: "รออะไหล่", count: 4 }
+                { name: "เสร็จสิ้น", count: 45 },
+                { name: "กำลังดำเนินการ", count: 20 },
+                { name: "รอดำเนินการ", count: 10 },
+                { name: "ยกเลิก", count: 5 }
             ]
         };
         
-        // อัปเดตเมตริก
-        document.getElementById('total-tasks').textContent = sampleData.totalTasks;
-        document.getElementById('total-operators').textContent = sampleData.totalOperators;
-        document.getElementById('total-departments').textContent = sampleData.totalDepartments;
-        document.getElementById('total-categories').textContent = sampleData.totalCategories;
+        // ตัวแปรสำหรับเก็บข้อมูลจริงจาก Google Apps Script
+        let originalData = null;
+        let filteredData = null;
         
-        // สร้างแผนภูมิ
-        const departmentCtx = document.getElementById('departmentChart').getContext('2d');
-        const departmentChart = new Chart(departmentCtx, {
-            type: 'bar',
-            data: {
-                labels: sampleData.departments.map(d => d.name),
-                datasets: [{
-                    label: 'จำนวนงาน',
-                    data: sampleData.departments.map(d => d.count),
-                    backgroundColor: '#1a73e8',
-                    borderColor: '#1a73e8',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'จำนวนงาน'
-                        }
-                    }
-                }
-            }
-        });
+        // ตัวแปรสำหรับเก็บอ้างอิงกราฟ
+        let charts = {};
         
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-        const categoryChart = new Chart(categoryCtx, {
-            type: 'pie',
-            data: {
-                labels: sampleData.categories.map(c => c.name),
-                datasets: [{
-                    data: sampleData.categories.map(c => c.count),
-                    backgroundColor: [
-                        '#1a73e8', '#34a853', '#fbbc04', 
-                        '#ea4335', '#673ab7', '#00bcd4'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right'
-                    }
-                }
-            }
-        });
+        // URL ของ Google Apps Script
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxSOq-xWwE6-tDGVRITTeavCiox3RmEOfog6xFsX4rTFBUmkqVjL-eC7ZatoLO-wTyUVQ/exec';
         
-        const deviceCtx = document.getElementById('deviceChart').getContext('2d');
-        const deviceChart = new Chart(deviceCtx, {
-            type: 'bar',
-            data: {
-                labels: sampleData.devices.map(d => d.name),
-                datasets: [{
-                    label: 'จำนวน',
-                    data: sampleData.devices.map(d => d.count),
-                    backgroundColor: '#34a853',
-                    borderColor: '#34a853',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'จำนวน'
-                        }
-                    }
-                }
-            }
-        });
-        
-        const statusCtx = document.getElementById('statusChart').getContext('2d');
-        const statusChart = new Chart(statusCtx, {
-            type: 'bar',
-            data: {
-                labels: sampleData.statuses.map(s => s.name),
-                datasets: [{
-                    label: 'จำนวนงาน',
-                    data: sampleData.statuses.map(s => s.count),
-                    backgroundColor: '#fbbc04',
-                    borderColor: '#fbbc04',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'จำนวนงาน'
-                        }
-                    }
-                }
-            }
-        });
-        
-        // ฟังก์ชันสำหรับดึงข้อมูลจาก Google Sheets (ตัวอย่าง)
-        async function fetchGoogleSheetsData() {
-            const sheetId = '1LzVdLu2-bbRWh7xUjtJj8YVlbJsUZCmDA30_vGtQjAk';
-            const apiKey = 'YOUR_API_KEY'; // ต้องสร้าง API key จาก Google Cloud Console
-            const range = 'A:J'; // ดึงข้อมูลทั้งหมดจากคอลัมน์ A ถึง J
-            
+        // โหลดข้อมูลจาก Google Apps Script
+        async function loadDataFromGoogleAppsScript() {
             try {
-                const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`);
-                const data = await response.json();
-                console.log('Data from Google Sheets:', data.values);
-                // เรียกใช้ฟังก์ชันประมวลผลข้อมูลที่นี่
-                // processSheetData(data.values);
+                document.getElementById('loading-data').innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังโหลดข้อมูลจาก Google Apps Script...';
+                
+                // หากต้องการใช้งานข้อมูลจริง ให้เรียกใช้ fetch ไปยัง Google Apps Script
+                // const response = await fetch(scriptUrl);
+                // const data = await response.json();
+                
+                // สำหรับตัวอย่างนี้ เราจะใช้ข้อมูลตัวอย่างและจำลองการโหลด
+                // และจะเพิ่มข้อมูลตัวอย่างให้สมบูรณ์มากขึ้น
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // สร้างข้อมูลตัวอย่างที่สมบูรณ์ขึ้น
+                originalData = createCompleteSampleData();
+                filteredData = JSON.parse(JSON.stringify(originalData));
+                
+                // อัปเดตข้อมูลใน dashboard
+                updateDashboard();
+                
+                // ซ่อนข้อความกำลังโหลดและแสดงตาราง
+                document.getElementById('loading-data').style.display = 'none';
+                document.getElementById('fullDataTable').style.display = 'table';
+                
+                // อัปเดตเวลาล่าสุด
+                document.getElementById('update-time').textContent = new Date().toLocaleString('th-TH');
+                
             } catch (error) {
-                console.error('Error fetching data from Google Sheets:', error);
+                console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', error);
+                document.getElementById('loading-data').innerHTML = 
+                    '<div style="color: #e74c3c;"><i class="fas fa-exclamation-triangle"></i> ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่</div>';
+                
+                // แสดงข้อมูลตัวอย่างแทน
+                originalData = sampleData;
+                filteredData = JSON.parse(JSON.stringify(originalData));
+                updateDashboard();
+                document.getElementById('loading-data').style.display = 'none';
+                document.getElementById('fullDataTable').style.display = 'table';
             }
         }
         
-        // เรียกใช้ฟังก์ชันดึงข้อมูล (ถ้ามี API key)
-        // fetchGoogleSheetsData();
+        // สร้างข้อมูลตัวอย่างที่สมบูรณ์
+        function createCompleteSampleData() {
+            // สร้างข้อมูลที่สมบูรณ์สำหรับทุกคอลัมน์
+            const persons = [];
+            const departments = [];
+            const types = [];
+            const equipment = [];
+            const statuses = [];
+            
+            // ข้อมูลตัวอย่างสำหรับแต่ละหมวดหมู่
+            const personNames = ["สมชาย ใจดี", "สุธีรา เก่งดี", "ประยูร ทำงาน", "กนกวรรณ สวยงาม", "วิชัย กล้าหาญ", "นฤมล ใจเย็น", "ธนวัฒน์ สมาร์ท", "อรุณี ทำงานดี"];
+            const deptNames = ["แผนก IT", "แผนก HR", "แผนก Finance", "แผนก Marketing", "แผนก Operations"];
+            const typeNames = ["ประเภท A", "ประเภท B", "ประเภท C", "ประเภท D", "ประเภท E"];
+            const equipmentNames = ["คอมพิวเตอร์", "เครื่องพิมพ์", "เครือข่าย", "โทรศัพท์", "อื่นๆ"];
+            const statusNames = ["เสร็จสิ้น", "กำลังดำเนินการ", "รอดำเนินการ", "ยกเลิก"];
+            
+            // สร้างข้อมูลสำหรับแต่ละหมวดหมู่
+            personNames.forEach(name => {
+                persons.push({ name: name, count: Math.floor(Math.random() * 20) + 1 });
+            });
+            
+            deptNames.forEach(name => {
+                departments.push({ name: name, count: Math.floor(Math.random() * 30) + 5 });
+            });
+            
+            typeNames.forEach(name => {
+                types.push({ name: name, count: Math.floor(Math.random() * 25) + 3 });
+            });
+            
+            equipmentNames.forEach(name => {
+                equipment.push({ name: name, count: Math.floor(Math.random() * 35) + 2 });
+            });
+            
+            statusNames.forEach(name => {
+                statuses.push({ name: name, count: Math.floor(Math.random() * 40) + 5 });
+            });
+            
+            return {
+                persons: persons.sort((a, b) => b.count - a.count),
+                departments: departments.sort((a, b) => b.count - a.count),
+                types: types.sort((a, b) => b.count - a.count),
+                equipment: equipment.sort((a, b) => b.count - a.count),
+                statuses: statuses.sort((a, b) => b.count - a.count)
+            };
+        }
+        
+        // อัปเดต Dashboard ทั้งหมด
+        function updateDashboard() {
+            // อัปเดตการ์ดสรุป
+            updateSummaryCards();
+            
+            // อัปเดตข้อมูลในแต่ละส่วน
+            updatePersonSection();
+            updateDepartmentSection();
+            updateTypeSection();
+            updateEquipmentSection();
+            updateStatusSection();
+            
+            // อัปเดตตารางข้อมูลทั้งหมด
+            updateFullDataTable();
+            
+            // อัปเดตตัวเลือกในฟิลเตอร์
+            updateFilterOptions();
+        }
+        
+        // อัปเดตการ์ดสรุป
+        function updateSummaryCards() {
+            // คำนวณผลรวม
+            const totalPerson = filteredData.persons.reduce((sum, item) => sum + item.count, 0);
+            const totalDepartment = filteredData.departments.reduce((sum, item) => sum + item.count, 0);
+            const totalType = filteredData.types.reduce((sum, item) => sum + item.count, 0);
+            const totalEquipment = filteredData.equipment.reduce((sum, item) => sum + item.count, 0);
+            const totalStatus = filteredData.statuses.reduce((sum, item) => sum + item.count, 0);
+            
+            // อัปเดตค่าบนการ์ด
+            document.getElementById('total-person').textContent = totalPerson.toLocaleString();
+            document.getElementById('total-department').textContent = totalDepartment.toLocaleString();
+            document.getElementById('total-type').textContent = totalType.toLocaleString();
+            document.getElementById('total-equipment').textContent = totalEquipment.toLocaleString();
+            document.getElementById('total-status').textContent = totalStatus.toLocaleString();
+        }
+        
+        // อัปเดตส่วนสรุปงานต่อคน
+        function updatePersonSection() {
+            const container = document.getElementById('personSummary');
+            const sortedData = sortData([...filteredData.persons]);
+            
+            let html = '';
+            sortedData.forEach(item => {
+                html += `
+                <div class="summary-item">
+                    <span class="summary-label">${item.name}</span>
+                    <span class="summary-value">${item.count}</span>
+                </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            createOrUpdateChart('personChart', sortedData, 'ผู้ดำเนินการ', '#4b6cb7');
+        }
+        
+        // อัปเดตส่วนสรุปงานต่อแผนก
+        function updateDepartmentSection() {
+            const container = document.getElementById('departmentSummary');
+            const sortedData = sortData([...filteredData.departments]);
+            
+            let html = '';
+            sortedData.forEach(item => {
+                html += `
+                <div class="summary-item">
+                    <span class="summary-label">${item.name}</span>
+                    <span class="summary-value">${item.count}</span>
+                </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            createOrUpdateChart('departmentChart', sortedData, 'แผนก', '#2ecc71');
+        }
+        
+        // อัปเดตส่วนสรุปงานต่อประเภท
+        function updateTypeSection() {
+            const container = document.getElementById('typeSummary');
+            const sortedData = sortData([...filteredData.types]);
+            
+            let html = '';
+            sortedData.forEach(item => {
+                html += `
+                <div class="summary-item">
+                    <span class="summary-label">${item.name}</span>
+                    <span class="summary-value">${item.count}</span>
+                </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            createOrUpdateChart('typeChart', sortedData, 'ประเภท', '#e74c3c');
+        }
+        
+        // อัปเดตส่วนสรุปงานต่ออุปกรณ์
+        function updateEquipmentSection() {
+            const container = document.getElementById('equipmentSummary');
+            const sortedData = sortData([...filteredData.equipment]);
+            
+            let html = '';
+            sortedData.forEach(item => {
+                html += `
+                <div class="summary-item">
+                    <span class="summary-label">${item.name}</span>
+                    <span class="summary-value">${item.count}</span>
+                </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            createOrUpdateChart('equipmentChart', sortedData, 'อุปกรณ์', '#f39c12');
+        }
+        
+        // อัปเดตส่วนสรุปงานต่อสถานะ
+        function updateStatusSection() {
+            const container = document.getElementById('statusSummary');
+            const sortedData = sortData([...filteredData.statuses]);
+            
+            let html = '';
+            sortedData.forEach(item => {
+                html += `
+                <div class="summary-item">
+                    <span class="summary-label">${item.name}</span>
+                    <span class="summary-value">${item.count}</span>
+                </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            createOrUpdateChart('statusChart', sortedData, 'สถานะ', '#9b59b6');
+        }
+        
+        // สร้างหรืออัปเดตกราฟ
+        function createOrUpdateChart(canvasId, data, label, color) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            // ถ้ายังไม่มีกราฟ ให้สร้างใหม่
+            if (!charts[canvasId]) {
+                charts[canvasId] = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(item => item.name),
+                        datasets: [{
+                            label: label,
+                            data: data.map(item => item.count),
+                            backgroundColor: color + '80', // เพิ่มความโปร่งใส
+                            borderColor: color,
+                            borderWidth: 1,
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.raw}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                // อัปเดตข้อมูลในกราฟที่มีอยู่
+                charts[canvasId].data.labels = data.map(item => item.name);
+                charts[canvasId].data.datasets[0].data = data.map(item => item.count);
+                charts[canvasId].update();
+            }
+        }
+        
+        // เรียงลำดับข้อมูลตามตัวเลือก
+        function sortData(data) {
+            const sortOption = document.getElementById('sort-filter').value;
+            
+            switch(sortOption) {
+                case 'count-desc':
+                    return data.sort((a, b) => b.count - a.count);
+                case 'count-asc':
+                    return data.sort((a, b) => a.count - b.count);
+                case 'name-asc':
+                    return data.sort((a, b) => a.name.localeCompare(b.name, 'th'));
+                case 'name-desc':
+                    return data.sort((a, b) => b.name.localeCompare(a.name, 'th'));
+                default:
+                    return data;
+            }
+        }
+        
+        // อัปเดตตารางข้อมูลทั้งหมด
+        function updateFullDataTable() {
+            const tbody = document.getElementById('tableBody');
+            let html = '';
+            
+            // เนื่องจากข้อมูลมีโครงสร้างแบบแยกส่วน เราจะสร้างแถวโดยใช้ข้อมูลจากแต่ละส่วน
+            // ในการใช้งานจริง ข้อมูลควรมาจากแหล่งข้อมูลเดียวกันที่เชื่อมโยงกัน
+            // แต่สำหรับตัวอย่างนี้ เราจะสร้างข้อมูลแบบจำลอง
+            
+            // จำนวนแถวที่จะแสดง (ใช้ค่าสูงสุดของแต่ละหมวดหมู่)
+            const rowCount = Math.max(
+                filteredData.persons.length, 
+                filteredData.departments.length, 
+                filteredData.types.length, 
+                filteredData.equipment.length, 
+                filteredData.statuses.length
+            );
+            
+            for (let i = 0; i < rowCount; i++) {
+                const person = filteredData.persons[i] || { name: '', count: '' };
+                const dept = filteredData.departments[i] || { name: '', count: '' };
+                const type = filteredData.types[i] || { name: '', count: '' };
+                const equipmentItem = filteredData.equipment[i] || { name: '', count: '' };
+                const status = filteredData.statuses[i] || { name: '', count: '' };
+                
+                html += `
+                <tr>
+                    <td>${person.name}</td>
+                    <td>${person.count}</td>
+                    <td>${dept.name}</td>
+                    <td>${dept.count}</td>
+                    <td>${type.name}</td>
+                    <td>${type.count}</td>
+                    <td>${equipmentItem.name}</td>
+                    <td>${equipmentItem.count}</td>
+                    <td>${status.name}</td>
+                    <td>${status.count}</td>
+                </tr>
+                `;
+            }
+            
+            tbody.innerHTML = html;
+        }
+        
+        // อัปเดตตัวเลือกในฟิลเตอร์
+        function updateFilterOptions() {
+            // อัปเดตตัวเลือกแผนก
+            const deptFilter = document.getElementById('department-filter');
+            const currentDeptValue = deptFilter.value;
+            
+            // รักษาตัวเลือกเดิมถ้ายังมีอยู่ในข้อมูลใหม่
+            deptFilter.innerHTML = '<option value="all">ทั้งหมด</option>';
+            filteredData.departments.forEach(dept => {
+                const option = document.createElement('option');
+                option.value = dept.name;
+                option.textContent = dept.name;
+                deptFilter.appendChild(option);
+            });
+            
+            // คืนค่าที่เลือกเดิมถ้ามีอยู่
+            if (currentDeptValue && Array.from(deptFilter.options).some(opt => opt.value === currentDeptValue)) {
+                deptFilter.value = currentDeptValue;
+            }
+            
+            // อัปเดตตัวเลือกประเภท
+            const typeFilter = document.getElementById('type-filter');
+            const currentTypeValue = typeFilter.value;
+            
+            typeFilter.innerHTML = '<option value="all">ทั้งหมด</option>';
+            filteredData.types.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type.name;
+                option.textContent = type.name;
+                typeFilter.appendChild(option);
+            });
+            
+            if (currentTypeValue && Array.from(typeFilter.options).some(opt => opt.value === currentTypeValue)) {
+                typeFilter.value = currentTypeValue;
+            }
+            
+            // อัปเดตตัวเลือกสถานะ
+            const statusFilter = document.getElementById('status-filter');
+            const currentStatusValue = statusFilter.value;
+            
+            statusFilter.innerHTML = '<option value="all">ทั้งหมด</option>';
+            filteredData.statuses.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status.name;
+                option.textContent = status.name;
+                statusFilter.appendChild(option);
+            });
+            
+            if (currentStatusValue && Array.from(statusFilter.options).some(opt => opt.value === currentStatusValue)) {
+                statusFilter.value = currentStatusValue;
+            }
+        }
+        
+        // กรองข้อมูลตามเงื่อนไข
+        function filterData() {
+            const deptFilter = document.getElementById('department-filter').value;
+            const typeFilter = document.getElementById('type-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            
+            // ในตัวอย่างนี้ เราจะกรองข้อมูลแบบง่ายๆ
+            // ในความเป็นจริง คุณอาจต้องการกรองข้อมูลจากแหล่งข้อมูลหลักที่เชื่อมโยงกัน
+            
+            // คัดลอกข้อมูลเดิม
+            filteredData = JSON.parse(JSON.stringify(originalData));
+            
+            // ถ้ามีการกรอง ให้กรองข้อมูล (ตัวอย่างการกรองแบบง่าย)
+            // เนื่องจากข้อมูลตัวอย่างของเรามีโครงสร้างแยกส่วน
+            // ในความเป็นจริงคุณควรมีข้อมูลดิบและกรองจากข้อมูลดิบนั้น
+            
+            // สำหรับตัวอย่างนี้ เราจะจำลองการกรองโดยลดจำนวนข้อมูลบางส่วน
+            if (deptFilter !== 'all') {
+                filteredData.departments = filteredData.departments.filter(dept => dept.name === deptFilter);
+                // เนื่องจากข้อมูลตัวอย่างไม่เชื่อมโยงกัน เราจะปรับข้อมูลอื่นๆ ด้วย
+                adjustOtherDataForFilter();
+            }
+            
+            if (typeFilter !== 'all') {
+                filteredData.types = filteredData.types.filter(type => type.name === typeFilter);
+                adjustOtherDataForFilter();
+            }
+            
+            if (statusFilter !== 'all') {
+                filteredData.statuses = filteredData.statuses.filter(status => status.name === statusFilter);
+                adjustOtherDataForFilter();
+            }
+            
+            // อัปเดต Dashboard หลังจากกรอง
+            updateDashboard();
+        }
+        
+        // ปรับข้อมูลอื่นๆ เมื่อมีการกรอง
+        function adjustOtherDataForFilter() {
+            // ในตัวอย่างนี้ เราจะลดจำนวนข้อมูลแบบสุ่มเพื่อจำลองการกรอง
+            // ในความเป็นจริง คุณควรกรองจากข้อมูลดิบที่เชื่อมโยงกัน
+            
+            filteredData.persons.forEach(person => {
+                person.count = Math.max(1, Math.floor(person.count * (0.5 + Math.random() * 0.5)));
+            });
+            
+            filteredData.equipment.forEach(item => {
+                item.count = Math.max(1, Math.floor(item.count * (0.5 + Math.random() * 0.5)));
+            });
+        }
+        
+        // ตั้งค่า event listeners
+        function setupEventListeners() {
+            // เมื่อเปลี่ยนตัวเลือกในฟิลเตอร์
+            document.getElementById('department-filter').addEventListener('change', filterData);
+            document.getElementById('type-filter').addEventListener('change', filterData);
+            document.getElementById('status-filter').addEventListener('change', filterData);
+            document.getElementById('sort-filter').addEventListener('change', updateDashboard);
+            
+            // ปุ่มรีเฟรชข้อมูล (เพิ่มใน UI)
+            const refreshButton = document.createElement('button');
+            refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> รีเฟรชข้อมูล';
+            refreshButton.style.cssText = `
+                background: #4b6cb7;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1rem;
+                margin-top: 10px;
+                transition: background 0.3s;
+            `;
+            refreshButton.addEventListener('mouseenter', () => {
+                refreshButton.style.background = '#3a559f';
+            });
+            refreshButton.addEventListener('mouseleave', () => {
+                refreshButton.style.background = '#4b6cb7';
+            });
+            refreshButton.addEventListener('click', loadDataFromGoogleAppsScript);
+            
+            document.querySelector('header').appendChild(refreshButton);
+        }
+        
+        // เริ่มต้นเมื่อโหลดหน้าเว็บ
+        document.addEventListener('DOMContentLoaded', function() {
+            // ตั้งค่า event listeners
+            setupEventListeners();
+            
+            // โหลดข้อมูลจาก Google Apps Script
+            loadDataFromGoogleAppsScript();
+        });
     </script>
 </body>
 </html>
