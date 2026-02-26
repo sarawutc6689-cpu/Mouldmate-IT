@@ -1,67 +1,130 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบลงเวลาทำงานนอกสถานที่</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f6fa;
-      padding: 16px;
-      color: #2f3640;
-    }
-
-    .card {
-      background: white;
-      border-radius: 16px;
+      font-family: 'Sarabun', 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
       padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
       max-width: 450px;
-      margin: 0 auto;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-
-    h2 { 
-      text-align: center;
-      margin-bottom: 20px;
-      color: #273c75;
-      font-size: 1.6rem;
-    }
-
-    input {
       width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      border: 2px solid #dcdde1;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #2d3748;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e2e8f0;
       border-radius: 10px;
-      margin-bottom: 15px;
+      font-size: 16px;
+      transition: border-color 0.3s;
     }
 
-    input:focus {
+    input:focus, select:focus {
       outline: none;
-      border-color: #273c75;
+      border-color: #667eea;
     }
 
-    .camera-box {
+    .camera-container {
       width: 100%;
       min-height: 300px;
-      background: #2f3640;
-      border-radius: 12px;
-      margin: 15px 0;
+      background: #1a202c;
+      border-radius: 10px;
       overflow: hidden;
+      margin: 15px 0;
       position: relative;
     }
 
     #video {
       width: 100%;
+      height: auto;
       display: block;
     }
 
-    .camera-placeholder {
+    .camera-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.7);
       color: white;
-      text-align: center;
-      padding: 50px 20px;
+    }
+
+    .camera-overlay.hidden {
+      display: none;
+    }
+
+    .camera-overlay span {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .btn-camera {
+      background: #48bb78;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
     }
 
     .btn-group {
@@ -73,127 +136,183 @@
     button {
       flex: 1;
       padding: 14px;
-      font-size: 16px;
-      font-weight: bold;
       border: none;
       border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      transition: 0.2s;
+      transition: transform 0.2s, opacity 0.2s;
     }
 
-    .btn-in {
-      background: #273c75;
-      color: white;
+    button:hover {
+      transform: translateY(-2px);
     }
 
-    .btn-out {
-      background: #c23616;
-      color: white;
-    }
-
-    .btn-camera {
-      background: #00a8ff;
-      color: white;
-      margin-bottom: 10px;
+    button:active {
+      transform: translateY(0);
     }
 
     button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-in {
+      background: #4299e1;
+      color: white;
+    }
+
+    .btn-out {
+      background: #f56565;
+      color: white;
+    }
+
+    .btn-location {
+      background: #ed8936;
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    .location-info {
+      background: #ebf4ff;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 15px 0;
+      border-left: 4px solid #4299e1;
+    }
+
+    .location-info div {
+      margin: 5px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     #status {
-      text-align: center;
-      padding: 10px;
-      font-weight: bold;
+      padding: 12px;
       border-radius: 8px;
-      margin-top: 10px;
-    }
-
-    .success { background: #c8e6c9; color: #2e7d32; }
-    .error { background: #ffcdd2; color: #c62828; }
-    .warning { background: #fff3cd; color: #856404; }
-
-    footer {
       text-align: center;
-      margin-top: 20px;
-      color: #7f8fa6;
-      font-size: 0.8rem;
+      font-weight: 600;
+      margin: 15px 0;
     }
-    
-    .mode-selector {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
+
+    .status-success {
+      background: #c6f6d5;
+      color: #22543d;
     }
-    
-    .mode-btn {
-      flex: 1;
-      padding: 10px;
-      background: #f0f4f8;
-      border: 2px solid #dcdde1;
-      color: #2f3640;
+
+    .status-error {
+      background: #fed7d7;
+      color: #742a2a;
     }
-    
-    .mode-btn.active {
-      background: #273c75;
+
+    .status-warning {
+      background: #feebc8;
+      color: #7b341e;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      background: #f7fafc;
+      border-top: 1px solid #e2e8f0;
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .badge {
+      background: #48bb78;
       color: white;
-      border-color: #273c75;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      display: inline-block;
+      margin-left: 5px;
+    }
+
+    .badge-warning {
+      background: #ed8936;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>📸 ระบบลงเวลาทำงาน</h2>
-
-    <div class="mode-selector">
-      <button class="mode-btn active" onclick="setMode('gas')" id="modeGas">🔗 Apps Script</button>
-      <button class="mode-btn" onclick="setMode('api')" id="modeApi">🌐 Web API</button>
+  <div class="container">
+    <div class="header">
+      <h1>📸 ระบบลงเวลาทำงาน</h1>
+      <p>สำหรับพนักงานนอกสถานที่</p>
     </div>
 
-    <input type="text" id="employee_id" placeholder="รหัสพนักงาน" onkeyup="lookupEmployee()">
-    <div id="empName" style="margin-bottom: 10px; font-weight: bold; text-align: center;"></div>
+    <div class="content">
+      <!-- แจ้งเตือน Github Pages -->
+      <div style="background: #4299e1; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center; font-size: 0.9rem;">
+        🌐 กำลังรันบน Github Pages
+      </div>
 
-    <button class="btn-camera" onclick="initCamera()" id="cameraBtn">
-      📷 เปิดกล้อง
-    </button>
+      <div class="form-group">
+        <label>👤 รหัสพนักงาน</label>
+        <input type="text" id="employeeId" placeholder="เช่น EMP001" autocomplete="off">
+        <div id="employeeName" style="margin-top: 5px; font-size: 0.9rem; color: #718096;"></div>
+      </div>
 
-    <div class="camera-box">
-      <video id="video" autoplay playsinline style="display: none;"></video>
-      <div id="cameraPlaceholder" class="camera-placeholder">
-        <div style="font-size: 48px;">📷</div>
-        <div id="cameraMessage">กดปุ่ม "เปิดกล้อง" เพื่อเริ่มใช้งาน</div>
+      <button class="btn-location" onclick="getLocation()" id="locationBtn">
+        <span>📍</span> ค้นหาตำแหน่งปัจจุบัน
+      </button>
+
+      <div id="locationInfo" class="location-info" style="display: none;">
+        <div><span>📍</span> <span id="address">กำลังค้นหา...</span></div>
+        <div><span>🎯</span> ความแม่นยำ: <span id="accuracy">0</span> เมตร</div>
+        <div><span>🏢</span> ระยะห่างจากบริษัท: <span id="distance">0</span> เมตร</div>
+        <div><span>📅</span> <span id="currentTime"></span></div>
+      </div>
+
+      <div class="camera-container">
+        <video id="video" autoplay playsinline style="display: none;"></video>
+        <div id="cameraOverlay" class="camera-overlay">
+          <span>📷</span>
+          <div id="cameraMessage">กดปุ่มเพื่อเปิดกล้อง</div>
+          <button class="btn-camera" onclick="initCamera()">เปิดกล้อง</button>
+        </div>
+      </div>
+
+      <canvas id="canvas" style="display: none;"></canvas>
+
+      <div class="btn-group">
+        <button class="btn-in" onclick="capture('IN')" id="btnIn" disabled>🟢 เข้างาน</button>
+        <button class="btn-out" onclick="capture('OUT')" id="btnOut" disabled>🔴 ออกงาน</button>
+      </div>
+
+      <div id="status"></div>
+      
+      <div style="margin-top: 15px; padding: 10px; background: #f7fafc; border-radius: 8px; font-size: 0.85rem;">
+        <details>
+          <summary style="cursor: pointer; color: #4a5568;">⚙️ ตั้งค่า (สำหรับผู้ดูแล)</summary>
+          <div style="margin-top: 10px;">
+            <label>Google Apps Script URL</label>
+            <input type="text" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbwp-Z98V_bMxBz_mK6inPwCzwswM6oKFK8uOIp0DGWejCsdVPuxb24R7Zx9N6so8ldpkQ/exec" style="font-size: 0.85rem;">
+            <p style="color: #718096; margin-top: 5px;">⚠️ ต้อง deploy เป็น Web App และตั้งค่า "Execute as: Me" และ "Who has access: Anyone"</p>
+          </div>
+        </details>
       </div>
     </div>
 
-    <canvas id="canvas" style="display: none;"></canvas>
-
-    <div class="btn-group">
-      <button class="btn-in" onclick="capture('IN')" id="btnIn" disabled>🟢 เข้างาน</button>
-      <button class="btn-out" onclick="capture('OUT')" id="btnOut" disabled>🔴 ออกงาน</button>
-    </div>
-
-    <div id="status"></div>
-    
-    <div id="apiUrlSection" style="display: none; margin-top: 15px;">
-      <input type="text" id="apiUrl" placeholder="https://your-api.com/endpoint" value="https://script.google.com/macros/s/AKfycbwp-Z98V_bMxBz_mK6inPwCzwswM6oKFK8uOIp0DGWejCsdVPuxb24R7Zx9N6so8ldpkQ/exec">
-      <small style="color: #666;">URL สำหรับ Web API mode</small>
+    <div class="footer">
+      <p>© 2026 ระบบลงเวลาทำงานนอกสถานที่</p>
+      <p style="font-size: 0.8rem;">พัฒนาโดย IT Support</p>
     </div>
   </div>
 
-  <footer>
-    <p>ระบบลงเวลานอกสถานที่ © 2026</p>
-  </footer>
-
   <script>
+    // ค่าคงที่
+    const OFFICE_LAT = 14.57736759075333;
+    const OFFICE_LNG = 100.79379214129247;
+    const ALLOW_RADIUS = 100;
+
     // ตัวแปร
     let cameraStream = null;
     let isCameraReady = false;
-    let currentMode = 'gas'; // 'gas' หรือ 'api'
-    
-    // URL ของ Google Apps Script (deploy เป็น web app)
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwp-Z98V_bMxBz_mK6inPwCzwswM6oKFK8uOIp0DGWejCsdVPuxb24R7Zx9N6so8ldpkQ/exec';
-    const GAS_DASHBOARD = 'https://script.google.com/macros/s/AKfycbyJslMzmKGjaYVCHPyXftM213Tbz40XupO5dBCidsYqMgAqQl_H587OcelnbTzmsIgt/exec';
+    let currentPosition = null;
+    let employeeData = {};
 
     // ดึง elements
     const video = document.getElementById('video');
@@ -201,33 +320,39 @@
     const statusDiv = document.getElementById('status');
     const btnIn = document.getElementById('btnIn');
     const btnOut = document.getElementById('btnOut');
-    const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+    const cameraOverlay = document.getElementById('cameraOverlay');
     const cameraMessage = document.getElementById('cameraMessage');
-    const cameraBtn = document.getElementById('cameraBtn');
-    const apiUrlSection = document.getElementById('apiUrlSection');
-    const modeGas = document.getElementById('modeGas');
-    const modeApi = document.getElementById('modeApi');
+    const locationInfo = document.getElementById('locationInfo');
+    const addressSpan = document.getElementById('address');
+    const accuracySpan = document.getElementById('accuracy');
+    const distanceSpan = document.getElementById('distance');
+    const currentTimeSpan = document.getElementById('currentTime');
+    const employeeId = document.getElementById('employeeId');
+    const employeeName = document.getElementById('employeeName');
+    const scriptUrl = document.getElementById('scriptUrl');
 
-    // เปลี่ยนโหมดการทำงาน
-    window.setMode = function(mode) {
-      currentMode = mode;
-      
-      // อัปเดตปุ่ม
-      modeGas.className = mode === 'gas' ? 'mode-btn active' : 'mode-btn';
-      modeApi.className = mode === 'api' ? 'mode-btn active' : 'mode-btn';
-      
-      // แสดง/ซ่อน URL input
-      apiUrlSection.style.display = mode === 'api' ? 'block' : 'none';
-      
-      statusDiv.innerText = mode === 'gas' ? 
-        '🔗 ใช้ Google Apps Script โดยตรง' : 
-        '🌐 ใช้ Web API (ต้องตั้งค่า URL)';
-      statusDiv.className = 'warning';
-    };
+    // อัปเดตเวลาปัจจุบัน
+    function updateTime() {
+      const now = new Date();
+      const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit'
+      };
+      if (currentTimeSpan) {
+        currentTimeSpan.innerText = now.toLocaleDateString('th-TH', options);
+      }
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
 
-    // ฟังก์ชันเริ่มต้นกล้อง
+    // ฟังก์ชันเปิดกล้อง
     window.initCamera = function() {
-      cameraPlaceholder.style.display = 'block';
+      cameraOverlay.classList.remove('hidden');
+      cameraOverlay.style.display = 'flex';
       video.style.display = 'none';
       cameraMessage.innerText = 'กำลังขอสิทธิ์ใช้งานกล้อง...';
       
@@ -240,7 +365,7 @@
       }
       
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        cameraMessage.innerText = '❌ เบราว์เซอร์ไม่รองรับการใช้งานกล้อง';
+        cameraMessage.innerText = '❌ เบราว์เซอร์ไม่รองรับ';
         return;
       }
       
@@ -256,192 +381,245 @@
         video.srcObject = stream;
         
         video.onloadedmetadata = function() {
-          cameraPlaceholder.style.display = 'none';
+          cameraOverlay.style.display = 'none';
           video.style.display = 'block';
           btnIn.disabled = false;
           btnOut.disabled = false;
           isCameraReady = true;
           
-          statusDiv.innerText = '✅ กล้องพร้อมใช้งาน';
-          statusDiv.className = 'success';
-          cameraBtn.style.display = 'none';
+          showStatus('✅ กล้องพร้อมใช้งาน', 'success');
         };
       })
       .catch(function(err) {
-        console.error('Camera error:', err);
-        
-        let errorMsg = 'ไม่สามารถเปิดกล้องได้';
-        
-        if (err.name === 'NotAllowedError') {
-          errorMsg = '❌ ไม่ได้รับอนุญาตให้ใช้กล้อง';
-        } else if (err.name === 'NotFoundError') {
-          errorMsg = '❌ ไม่พบกล้องในอุปกรณ์นี้';
-        } else if (err.name === 'NotReadableError') {
-          errorMsg = '❌ ไม่สามารถเข้าถึงกล้องได้';
-        } else {
-          errorMsg = '❌ ' + err.message;
-        }
-        
-        cameraMessage.innerText = errorMsg;
+        console.error(err);
+        cameraMessage.innerText = '❌ ไม่สามารถเปิดกล้องได้';
+        showStatus('❌ ไม่สามารถเปิดกล้องได้', 'error');
       });
     };
 
-    // ฟังก์ชันบันทึกข้อมูล
-    function saveAttendance(data) {
-      if (currentMode === 'gas') {
-        // ใช้ google.script.run (ต้องรันใน Apps Script)
-        if (typeof google !== 'undefined' && google.script) {
-          google.script.run
-            .withSuccessHandler(function(res) {
-              if (res.result === 'success') {
-                statusDiv.innerText = '✅ ' + res.message;
-                statusDiv.className = 'success';
-                document.getElementById('employee_id').value = '';
-                document.getElementById('empName').innerText = '';
-              } else {
-                statusDiv.innerText = '❌ ' + res.message;
-                statusDiv.className = 'error';
-              }
-            })
-            .withFailureHandler(function(err) {
-              statusDiv.innerText = '❌ การเชื่อมต่อล้มเหลว';
-              statusDiv.className = 'error';
-            })
-            .saveAttendance(data);
-        } else {
-          // ถ้าไม่มี google.script.run ให้เตือน
-          statusDiv.innerText = '❌ ต้องรันผ่าน Google Apps Script';
-          statusDiv.className = 'error';
-        }
-      } else {
-        // ใช้ Fetch API ส่งไปยัง Webhook หรือ API
-        const apiUrl = document.getElementById('apiUrl').value.trim();
-        if (!apiUrl) {
-          statusDiv.innerText = '❌ กรุณาระบุ URL';
-          statusDiv.className = 'error';
-          return;
-        }
-        
-        fetch(apiUrl, {
-          method: 'POST',
-          mode: 'no-cors', // สำหรับ Google Apps Script
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        })
-        .then(() => {
-          statusDiv.innerText = '✅ ส่งข้อมูลสำเร็จ (แต่ไม่ได้รับการตอบกลับ)';
-          statusDiv.className = 'success';
-          
-          // เคลียร์ข้อมูล
-          document.getElementById('employee_id').value = '';
-          document.getElementById('empName').innerText = '';
-        })
-        .catch(err => {
-          statusDiv.innerText = '❌ ' + err.message;
-          statusDiv.className = 'error';
-        });
-      }
-    }
-
-    // ฟังก์ชันถ่ายภาพ
-    window.capture = function(status) {
-      const empId = document.getElementById('employee_id').value.trim();
-      if (!empId) {
-        statusDiv.innerText = '❌ กรุณากรอกรหัสพนักงาน';
-        statusDiv.className = 'error';
+    // ฟังก์ชันหาตำแหน่ง
+    window.getLocation = function() {
+      showStatus('📍 กำลังค้นหาตำแหน่ง...', 'warning');
+      
+      if (!navigator.geolocation) {
+        showStatus('❌ ไม่รองรับการระบุตำแหน่ง', 'error');
         return;
       }
-      
-      if (!isCameraReady || !video.srcObject) {
-        statusDiv.innerText = '❌ กรุณาเปิดกล้องก่อน';
-        statusDiv.className = 'error';
-        return;
-      }
-      
-      statusDiv.innerText = '📍 กำลังหาตำแหน่ง...';
-      statusDiv.className = 'warning';
       
       navigator.geolocation.getCurrentPosition(
         function(pos) {
-          statusDiv.innerText = '📷 กำลังถ่ายรูป...';
+          currentPosition = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            accuracy: pos.coords.accuracy
+          };
           
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          canvas.getContext('2d').drawImage(video, 0, 0);
+          const distance = calculateDistance(
+            currentPosition.lat, 
+            currentPosition.lng, 
+            OFFICE_LAT, 
+            OFFICE_LNG
+          );
           
-          const imageData = canvas.toDataURL('image/jpeg', 0.8);
-          const base64Data = imageData.split(',')[1];
+          accuracySpan.innerText = currentPosition.accuracy.toFixed(0);
+          distanceSpan.innerText = distance.toFixed(0);
           
-          statusDiv.innerText = '⏳ กำลังบันทึก...';
+          getAddress(currentPosition.lat, currentPosition.lng);
+          locationInfo.style.display = 'block';
           
-          // ส่งข้อมูล
-          saveAttendance({
-            employee_id: empId,
-            status: status,
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            image: base64Data
-          });
+          if (distance <= ALLOW_RADIUS) {
+            showStatus(`✅ อยู่ในพื้นที่ทำงาน (ห่าง ${distance.toFixed(0)} เมตร)`, 'success');
+          } else {
+            showStatus(`⚠️ อยู่นอกพื้นที่ทำงาน (ห่าง ${distance.toFixed(0)} เมตร)`, 'warning');
+          }
         },
         function(err) {
-          statusDiv.innerText = '❌ ไม่สามารถระบุตำแหน่ง';
-          statusDiv.className = 'error';
+          let msg = 'ไม่สามารถระบุตำแหน่ง';
+          if (err.code === 1) msg = '❌ ไม่อนุญาตให้เข้าถึงตำแหน่ง';
+          if (err.code === 2) msg = '❌ สัญญาณ GPS ไม่พร้อม';
+          if (err.code === 3) msg = '❌ การขอตำแหน่งหมดเวลา';
+          showStatus(msg, 'error');
         },
         {
           enableHighAccuracy: true,
-          timeout: 10000
+          timeout: 10000,
+          maximumAge: 0
         }
       );
     };
 
-    // ค้นหาพนักงาน
-    window.lookupEmployee = function() {
-      const empId = document.getElementById('employee_id').value.trim();
-      const empName = document.getElementById('empName');
+    // ดึงที่อยู่จากพิกัด
+    function getAddress(lat, lng) {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18`;
       
+      fetch(url, {
+        headers: { 'User-Agent': 'AttendanceApp/1.0' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.display_name) {
+          let addr = data.display_name;
+          if (addr.length > 50) addr = addr.substr(0, 50) + '...';
+          addressSpan.innerText = addr;
+        }
+      })
+      .catch(() => {
+        addressSpan.innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      });
+    }
+
+    // คำนวณระยะทาง
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const φ1 = lat1 * Math.PI/180;
+      const φ2 = lat2 * Math.PI/180;
+      const Δφ = (lat2-lat1) * Math.PI/180;
+      const Δλ = (lon2-lon1) * Math.PI/180;
+      
+      const a = Math.sin(Δφ/2) ** 2 +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      
+      return R * c;
+    }
+
+    // ฟังก์ชันถ่ายภาพและบันทึก
+    window.capture = function(status) {
+      const empId = employeeId.value.trim();
       if (!empId) {
-        empName.innerText = '';
+        showStatus('❌ กรุณากรอกรหัสพนักงาน', 'error');
         return;
       }
       
-      if (currentMode === 'gas' && typeof google !== 'undefined') {
-        google.script.run
-          .withSuccessHandler(function(res) {
-            if (res.result === 'success') {
-              empName.innerText = '👤 ' + res.name + ' (' + res.department + ')';
-              empName.style.color = 'green';
-            } else {
-              empName.innerText = '❌ ' + res.message;
-              empName.style.color = 'red';
-            }
-          })
-          .withFailureHandler(function() {
-            empName.innerText = '❌ ไม่สามารถเชื่อมต่อ';
-            empName.style.color = 'red';
-          })
-          .getEmployeeName(empId);
-      } else {
-        // โหมด API - อาจต้องเรียกผ่าน fetch
-        empName.innerText = '👤 (โหมด API)';
-        empName.style.color = 'blue';
+      if (!isCameraReady) {
+        showStatus('❌ กรุณาเปิดกล้องก่อน', 'error');
+        return;
       }
+      
+      if (!currentPosition) {
+        showStatus('❌ กรุณาค้นหาตำแหน่งก่อน', 'error');
+        return;
+      }
+      
+      showStatus('📷 กำลังถ่ายภาพ...', 'warning');
+      
+      // ถ่ายภาพ
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      
+      // แปลงเป็น Base64
+      const imageData = canvas.toDataURL('image/jpeg', 0.7);
+      const base64Data = imageData.split(',')[1];
+      
+      // เตรียมข้อมูล
+      const attendanceData = {
+        employee_id: empId,
+        status: status,
+        latitude: currentPosition.lat,
+        longitude: currentPosition.lng,
+        image: base64Data,
+        timestamp: new Date().toISOString()
+      };
+      
+      showStatus('⏳ กำลังส่งข้อมูล...', 'warning');
+      
+      // ส่งข้อมูลไปยัง Google Apps Script
+      const url = scriptUrl.value.trim();
+      
+      // ใช้ fetch แบบ no-cors
+      fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(attendanceData)
+      })
+      .then(() => {
+        // เนื่องจากเป็น no-cors เราจะไม่ได้รับการตอบกลับ
+        showStatus('✅ ส่งข้อมูลสำเร็จ (รอการยืนยัน)', 'success');
+        
+        // เคลียร์ข้อมูล
+        setTimeout(() => {
+          employeeId.value = '';
+          employeeName.innerText = '';
+          currentPosition = null;
+          locationInfo.style.display = 'none';
+        }, 2000);
+      })
+      .catch(err => {
+        console.error(err);
+        showStatus('❌ ส่งข้อมูลไม่สำเร็จ', 'error');
+      });
+      
+      // ลองใช้วิธี JSONP เผื่อไว้
+      try {
+        const formData = new FormData();
+        formData.append('employee_id', empId);
+        formData.append('status', status);
+        formData.append('latitude', currentPosition.lat);
+        formData.append('longitude', currentPosition.lng);
+        formData.append('image', base64Data);
+        
+        fetch(url, {
+          method: 'POST',
+          body: formData
+        }).catch(e => console.log('FormData error:', e));
+      } catch (e) {}
     };
 
-    // ตรวจสอบว่ากำลังรันใน Apps Script หรือไม่
-    if (typeof google !== 'undefined' && google.script) {
-      // รันใน Apps Script
-      document.body.insertAdjacentHTML('afterbegin', 
-        '<div style="background: #4cd137; color: white; padding: 5px; text-align: center;">✅ กำลังรันใน Google Apps Script</div>'
-      );
-    } else {
-      // รันใน Github Pages
-      document.body.insertAdjacentHTML('afterbegin', 
-        '<div style="background: #fbc531; color: #2f3640; padding: 5px; text-align: center;">⚠️ กำลังรันใน Github Pages - ใช้โหมด Web API</div>'
-      );
-      setMode('api'); // เปลี่ยนเป็นโหมด API อัตโนมัติ
+    // แสดงสถานะ
+    function showStatus(message, type) {
+      statusDiv.innerText = message;
+      statusDiv.className = '';
+      if (type === 'success') statusDiv.classList.add('status-success');
+      if (type === 'error') statusDiv.classList.add('status-error');
+      if (type === 'warning') statusDiv.classList.add('status-warning');
     }
+
+    // ค้นหาพนักงาน (ถ้ามี API)
+    employeeId.addEventListener('input', function() {
+      const id = this.value.trim();
+      if (id.length >= 3) {
+        employeeName.innerText = '🔍 กำลังค้นหา...';
+        
+        // ถ้ามี API สำหรับค้นหาพนักงาน
+        // fetch(`https://your-api.com/employees/${id}`)
+        //   .then(res => res.json())
+        //   .then(data => {
+        //     employeeName.innerText = `👤 ${data.name}`;
+        //   })
+        //   .catch(() => {
+        //     employeeName.innerText = '';
+        //   });
+        
+        // กรณียังไม่มี API ให้แสดงตัวอย่าง
+        setTimeout(() => {
+          employeeName.innerText = '👤 พนักงานตัวอย่าง (โหมดทดสอบ)';
+          employeeName.style.color = '#718096';
+        }, 500);
+      } else {
+        employeeName.innerText = '';
+      }
+    });
+
+    // ตรวจสอบ In-App Browser
+    (function() {
+      const ua = navigator.userAgent;
+      if (ua.includes('Line') || ua.includes('FBAN') || ua.includes('Instagram')) {
+        const warning = document.createElement('div');
+        warning.style.background = '#ed8936';
+        warning.style.color = 'white';
+        warning.style.padding = '10px';
+        warning.style.borderRadius = '8px';
+        warning.style.marginBottom = '15px';
+        warning.style.textAlign = 'center';
+        warning.innerHTML = '⚠️ กรณีกด ⋮ แล้วเลือก "เปิดในเบราว์เซอร์"';
+        document.querySelector('.content').prepend(warning);
+      }
+    })();
   </script>
 </body>
 </html>
