@@ -120,11 +120,36 @@
       color: #7f8fa6;
       font-size: 0.8rem;
     }
+    
+    .mode-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .mode-btn {
+      flex: 1;
+      padding: 10px;
+      background: #f0f4f8;
+      border: 2px solid #dcdde1;
+      color: #2f3640;
+    }
+    
+    .mode-btn.active {
+      background: #273c75;
+      color: white;
+      border-color: #273c75;
+    }
   </style>
 </head>
 <body>
   <div class="card">
     <h2>📸 ระบบลงเวลาทำงาน</h2>
+
+    <div class="mode-selector">
+      <button class="mode-btn active" onclick="setMode('gas')" id="modeGas">🔗 Apps Script</button>
+      <button class="mode-btn" onclick="setMode('api')" id="modeApi">🌐 Web API</button>
+    </div>
 
     <input type="text" id="employee_id" placeholder="รหัสพนักงาน" onkeyup="lookupEmployee()">
     <div id="empName" style="margin-bottom: 10px; font-weight: bold; text-align: center;"></div>
@@ -149,6 +174,11 @@
     </div>
 
     <div id="status"></div>
+    
+    <div id="apiUrlSection" style="display: none; margin-top: 15px;">
+      <input type="text" id="apiUrl" placeholder="https://your-api.com/endpoint" value="https://script.google.com/macros/s/AKfycbwp-Z98V_bMxBz_mK6inPwCzwswM6oKFK8uOIp0DGWejCsdVPuxb24R7Zx9N6so8ldpkQ/exec">
+      <small style="color: #666;">URL สำหรับ Web API mode</small>
+    </div>
   </div>
 
   <footer>
@@ -159,6 +189,11 @@
     // ตัวแปร
     let cameraStream = null;
     let isCameraReady = false;
+    let currentMode = 'gas'; // 'gas' หรือ 'api'
+    
+    // URL ของ Google Apps Script (deploy เป็น web app)
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwp-Z98V_bMxBz_mK6inPwCzwswM6oKFK8uOIp0DGWejCsdVPuxb24R7Zx9N6so8ldpkQ/exec';
+    const GAS_DASHBOARD = 'https://script.google.com/macros/s/AKfycbyJslMzmKGjaYVCHPyXftM213Tbz40XupO5dBCidsYqMgAqQl_H587OcelnbTzmsIgt/exec';
 
     // ดึง elements
     const video = document.getElementById('video');
@@ -169,36 +204,49 @@
     const cameraPlaceholder = document.getElementById('cameraPlaceholder');
     const cameraMessage = document.getElementById('cameraMessage');
     const cameraBtn = document.getElementById('cameraBtn');
+    const apiUrlSection = document.getElementById('apiUrlSection');
+    const modeGas = document.getElementById('modeGas');
+    const modeApi = document.getElementById('modeApi');
 
-    // ฟังก์ชันเริ่มต้นกล้อง (ไม่พึ่ง Apps Script)
+    // เปลี่ยนโหมดการทำงาน
+    window.setMode = function(mode) {
+      currentMode = mode;
+      
+      // อัปเดตปุ่ม
+      modeGas.className = mode === 'gas' ? 'mode-btn active' : 'mode-btn';
+      modeApi.className = mode === 'api' ? 'mode-btn active' : 'mode-btn';
+      
+      // แสดง/ซ่อน URL input
+      apiUrlSection.style.display = mode === 'api' ? 'block' : 'none';
+      
+      statusDiv.innerText = mode === 'gas' ? 
+        '🔗 ใช้ Google Apps Script โดยตรง' : 
+        '🌐 ใช้ Web API (ต้องตั้งค่า URL)';
+      statusDiv.className = 'warning';
+    };
+
+    // ฟังก์ชันเริ่มต้นกล้อง
     window.initCamera = function() {
-      // ซ่อน/แสดง elements
       cameraPlaceholder.style.display = 'block';
       video.style.display = 'none';
       cameraMessage.innerText = 'กำลังขอสิทธิ์ใช้งานกล้อง...';
       
-      // ปิดปุ่มบันทึกเวลาระหว่างรอ
       btnIn.disabled = true;
       btnOut.disabled = true;
       
-      // หยุดกล้องเก่าถ้ามี
       if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
         cameraStream = null;
       }
       
-      // ตรวจสอบว่าเบราว์เซอร์รองรับหรือไม่ [citation:1][citation:3]
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         cameraMessage.innerText = '❌ เบราว์เซอร์ไม่รองรับการใช้งานกล้อง';
-        statusDiv.innerText = 'กรุณาใช้ Chrome, Safari หรือ Firefox';
-        statusDiv.className = 'error';
         return;
       }
       
-      // ขอสิทธิ์ใช้งานกล้อง [citation:5][citation:7]
       navigator.mediaDevices.getUserMedia({ 
         video: { 
-          facingMode: 'user', // ใช้กล้องหน้า
+          facingMode: 'user',
           width: { ideal: 1280 },
           height: { ideal: 720 }
         } 
@@ -207,7 +255,6 @@
         cameraStream = stream;
         video.srcObject = stream;
         
-        // รอให้ video พร้อม [citation:9]
         video.onloadedmetadata = function() {
           cameraPlaceholder.style.display = 'none';
           video.style.display = 'block';
@@ -217,36 +264,88 @@
           
           statusDiv.innerText = '✅ กล้องพร้อมใช้งาน';
           statusDiv.className = 'success';
-          
-          // ซ่อนปุ่มเปิดกล้องหลังจากเปิดสำเร็จ
           cameraBtn.style.display = 'none';
         };
       })
       .catch(function(err) {
         console.error('Camera error:', err);
         
-        // จัดการ error ต่างๆ [citation:3][citation:7]
         let errorMsg = 'ไม่สามารถเปิดกล้องได้';
         
-        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        if (err.name === 'NotAllowedError') {
           errorMsg = '❌ ไม่ได้รับอนุญาตให้ใช้กล้อง';
-          statusDiv.innerText = 'กรุณาอนุญาตการเข้าถึงกล้องในการตั้งค่า';
         } else if (err.name === 'NotFoundError') {
           errorMsg = '❌ ไม่พบกล้องในอุปกรณ์นี้';
         } else if (err.name === 'NotReadableError') {
-          errorMsg = '❌ ไม่สามารถเข้าถึงกล้องได้ (อาจมีแอปอื่นใช้งานอยู่)';
-        } else if (err.name === 'OverconstrainedError') {
-          errorMsg = '❌ กล้องไม่รองรับความละเอียดที่ต้องการ';
+          errorMsg = '❌ ไม่สามารถเข้าถึงกล้องได้';
         } else {
-          errorMsg = '❌ เกิดข้อผิดพลาด: ' + err.message;
+          errorMsg = '❌ ' + err.message;
         }
         
         cameraMessage.innerText = errorMsg;
-        statusDiv.className = 'error';
       });
     };
 
-    // ฟังก์ชันถ่ายภาพและบันทึก
+    // ฟังก์ชันบันทึกข้อมูล
+    function saveAttendance(data) {
+      if (currentMode === 'gas') {
+        // ใช้ google.script.run (ต้องรันใน Apps Script)
+        if (typeof google !== 'undefined' && google.script) {
+          google.script.run
+            .withSuccessHandler(function(res) {
+              if (res.result === 'success') {
+                statusDiv.innerText = '✅ ' + res.message;
+                statusDiv.className = 'success';
+                document.getElementById('employee_id').value = '';
+                document.getElementById('empName').innerText = '';
+              } else {
+                statusDiv.innerText = '❌ ' + res.message;
+                statusDiv.className = 'error';
+              }
+            })
+            .withFailureHandler(function(err) {
+              statusDiv.innerText = '❌ การเชื่อมต่อล้มเหลว';
+              statusDiv.className = 'error';
+            })
+            .saveAttendance(data);
+        } else {
+          // ถ้าไม่มี google.script.run ให้เตือน
+          statusDiv.innerText = '❌ ต้องรันผ่าน Google Apps Script';
+          statusDiv.className = 'error';
+        }
+      } else {
+        // ใช้ Fetch API ส่งไปยัง Webhook หรือ API
+        const apiUrl = document.getElementById('apiUrl').value.trim();
+        if (!apiUrl) {
+          statusDiv.innerText = '❌ กรุณาระบุ URL';
+          statusDiv.className = 'error';
+          return;
+        }
+        
+        fetch(apiUrl, {
+          method: 'POST',
+          mode: 'no-cors', // สำหรับ Google Apps Script
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        })
+        .then(() => {
+          statusDiv.innerText = '✅ ส่งข้อมูลสำเร็จ (แต่ไม่ได้รับการตอบกลับ)';
+          statusDiv.className = 'success';
+          
+          // เคลียร์ข้อมูล
+          document.getElementById('employee_id').value = '';
+          document.getElementById('empName').innerText = '';
+        })
+        .catch(err => {
+          statusDiv.innerText = '❌ ' + err.message;
+          statusDiv.className = 'error';
+        });
+      }
+    }
+
+    // ฟังก์ชันถ่ายภาพ
     window.capture = function(status) {
       const empId = document.getElementById('employee_id').value.trim();
       if (!empId) {
@@ -264,58 +363,31 @@
       statusDiv.innerText = '📍 กำลังหาตำแหน่ง...';
       statusDiv.className = 'warning';
       
-      // ขอตำแหน่ง GPS
       navigator.geolocation.getCurrentPosition(
         function(pos) {
           statusDiv.innerText = '📷 กำลังถ่ายรูป...';
           
-          // ถ่ายรูปจาก video [citation:9]
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
           canvas.getContext('2d').drawImage(video, 0, 0);
           
-          // แปลงเป็น Base64 [citation:7]
           const imageData = canvas.toDataURL('image/jpeg', 0.8);
           const base64Data = imageData.split(',')[1];
           
           statusDiv.innerText = '⏳ กำลังบันทึก...';
           
-          // ส่งข้อมูลไปยัง Google Apps Script
-          google.script.run
-            .withSuccessHandler(function(res) {
-              if (res.result === 'success') {
-                statusDiv.innerText = '✅ ' + res.message;
-                statusDiv.className = 'success';
-                
-                // เคลียร์ข้อมูล
-                document.getElementById('employee_id').value = '';
-                document.getElementById('empName').innerText = '';
-              } else {
-                statusDiv.innerText = '❌ ' + res.message;
-                statusDiv.className = 'error';
-              }
-            })
-            .withFailureHandler(function(err) {
-              console.error(err);
-              statusDiv.innerText = '❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์';
-              statusDiv.className = 'error';
-            })
-            .saveAttendance({
-              employee_id: empId,
-              status: status,
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
-              image: base64Data
-            });
+          // ส่งข้อมูล
+          saveAttendance({
+            employee_id: empId,
+            status: status,
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            image: base64Data
+          });
         },
         function(err) {
-          console.error('GPS Error:', err);
-          statusDiv.innerText = '❌ ไม่สามารถระบุตำแหน่งได้';
+          statusDiv.innerText = '❌ ไม่สามารถระบุตำแหน่ง';
           statusDiv.className = 'error';
-          
-          if (err.code === 1) {
-            alert('กรุณาอนุญาตให้แอปเข้าถึงตำแหน่งที่ตั้ง');
-          }
         },
         {
           enableHighAccuracy: true,
@@ -334,44 +406,42 @@
         return;
       }
       
-      google.script.run
-        .withSuccessHandler(function(res) {
-          if (res.result === 'success') {
-            empName.innerText = '👤 ' + res.name + ' (' + res.department + ')';
-            empName.style.color = 'green';
-          } else {
-            empName.innerText = '❌ ' + res.message;
+      if (currentMode === 'gas' && typeof google !== 'undefined') {
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (res.result === 'success') {
+              empName.innerText = '👤 ' + res.name + ' (' + res.department + ')';
+              empName.style.color = 'green';
+            } else {
+              empName.innerText = '❌ ' + res.message;
+              empName.style.color = 'red';
+            }
+          })
+          .withFailureHandler(function() {
+            empName.innerText = '❌ ไม่สามารถเชื่อมต่อ';
             empName.style.color = 'red';
-          }
-        })
-        .withFailureHandler(function() {
-          empName.innerText = '❌ ไม่สามารถเชื่อมต่อ';
-          empName.style.color = 'red';
-        })
-        .getEmployeeName(empId);
+          })
+          .getEmployeeName(empId);
+      } else {
+        // โหมด API - อาจต้องเรียกผ่าน fetch
+        empName.innerText = '👤 (โหมด API)';
+        empName.style.color = 'blue';
+      }
     };
 
-    // ตรวจสอบ In-App Browser
-    (function checkInAppBrowser() {
-      const ua = navigator.userAgent;
-      const inApp = (
-        ua.includes('FBAN') || 
-        ua.includes('FBAV') || 
-        ua.includes('Instagram') || 
-        ua.includes('Line') ||
-        ua.includes('Messenger')
+    // ตรวจสอบว่ากำลังรันใน Apps Script หรือไม่
+    if (typeof google !== 'undefined' && google.script) {
+      // รันใน Apps Script
+      document.body.insertAdjacentHTML('afterbegin', 
+        '<div style="background: #4cd137; color: white; padding: 5px; text-align: center;">✅ กำลังรันใน Google Apps Script</div>'
       );
-      
-      if (inApp) {
-        const warning = document.createElement('div');
-        warning.className = 'warning';
-        warning.style.padding = '10px';
-        warning.style.margin = '10px 0';
-        warning.style.borderRadius = '8px';
-        warning.innerHTML = '⚠️ กรุณากด ⋮ แล้วเลือก "เปิดในเบราว์เซอร์"';
-        document.querySelector('.card').prepend(warning);
-      }
-    })();
+    } else {
+      // รันใน Github Pages
+      document.body.insertAdjacentHTML('afterbegin', 
+        '<div style="background: #fbc531; color: #2f3640; padding: 5px; text-align: center;">⚠️ กำลังรันใน Github Pages - ใช้โหมด Web API</div>'
+      );
+      setMode('api'); // เปลี่ยนเป็นโหมด API อัตโนมัติ
+    }
   </script>
 </body>
 </html>
