@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mouldmate Home | Modern Welcome</title>
+    <title>Mouldmate | Premium Red</title>
     <style>
         * {
             margin: 0;
@@ -12,198 +12,378 @@
         }
 
         body {
-            font-family: 'Inter', 'Sukhumvit Set', 'Kanit', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(145deg, #0f0f0f 0%, #1a1a1a 100%);
+            font-family: 'Inter', 'Sukhumvit Set', 'Kanit', -apple-system, sans-serif;
+            background: #0a0a0f;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #e0e0e0;
+            color: #ffffff;
             padding: 1.5rem;
-            line-height: 1.6;
+            position: relative;
         }
 
-        .glass-card {
-            background: rgba(25, 25, 25, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 2.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.05);
-            max-width: 680px;
+        /* Minimal ambient background */
+        body::before {
+            content: '';
+            position: absolute;
             width: 100%;
-            padding: 3.5rem 2.5rem;
-            transition: transform 0.3s ease;
+            height: 100%;
+            background: radial-gradient(circle at 80% 20%, rgba(180, 60, 60, 0.08) 0%, transparent 50%);
+            pointer-events: none;
         }
 
-        .glass-card:hover {
-            transform: translateY(-6px);
-        }
-
-        .badge {
-            display: inline-block;
-            background: rgba(230, 180, 70, 0.12);
-            color: #e6b546;
-            font-size: 0.85rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            padding: 0.35rem 1.2rem;
-            border-radius: 40px;
-            border: 1px solid rgba(230, 180, 70, 0.2);
-            margin-bottom: 1.8rem;
-            backdrop-filter: blur(4px);
-        }
-
-        h1 {
-            font-size: 3.2rem;
-            font-weight: 600;
-            line-height: 1.2;
-            margin-bottom: 0.75rem;
-            background: linear-gradient(to right, #ffffff, #c0c0c0);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: -0.02em;
-        }
-
-        .subhead {
-            font-size: 1.2rem;
-            color: #a0a0a0;
-            margin-bottom: 2.5rem;
-            font-weight: 350;
-            border-left: 3px solid #e6b546;
-            padding-left: 1.5rem;
-        }
-
-        .feature-grid {
+        .container {
+            max-width: 1200px;
+            width: 100%;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.2rem;
-            margin: 2.8rem 0 3.2rem;
-        }
-
-        .feature-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 1.8rem;
-            padding: 1.2rem 1.5rem;
-            font-size: 0.95rem;
-            font-weight: 400;
-            color: #c8c8c8;
-            display: flex;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
             align-items: center;
-            gap: 0.8rem;
-            backdrop-filter: blur(5px);
-            transition: all 0.2s;
+            position: relative;
+            z-index: 2;
         }
 
-        .feature-item:hover {
-            background: rgba(230, 180, 70, 0.05);
-            border-color: rgba(230, 180, 70, 0.2);
+        /* Left Content */
+        .content {
+            padding-right: 2rem;
         }
 
-        .feature-item span {
-            font-size: 1.4rem;
-            filter: drop-shadow(0 2px 5px rgba(230, 180, 70, 0.3));
-        }
-
-        .btn-modern {
+        .pill {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            background: #e6b546;
-            color: #0f0f0f;
-            font-weight: 600;
-            font-size: 1.25rem;
-            padding: 1.2rem 2.8rem;
-            border: none;
-            border-radius: 60px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
-            box-shadow: 0 12px 30px -8px rgba(230, 180, 70, 0.25);
-            border: 1px solid rgba(255, 215, 120, 0.3);
-            width: fit-content;
-            margin: 0.5rem 0 2rem;
+            gap: 0.5rem;
+            background: rgba(200, 70, 70, 0.1);
+            color: #ffa5a5;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.5rem 1.2rem 0.5rem 0.8rem;
+            border-radius: 100px;
+            border: 1px solid rgba(220, 100, 100, 0.2);
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
             letter-spacing: 0.3px;
         }
 
-        .btn-modern:hover {
-            background: #f0c45a;
-            transform: scale(1.03);
-            box-shadow: 0 20px 35px -8px rgba(230, 180, 70, 0.45);
-            color: #080808;
+        .pill::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px #ff6b6b;
         }
 
-        .btn-modern:active {
-            transform: scale(0.98);
+        h1 {
+            font-size: 4rem;
+            font-weight: 600;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
         }
 
-        .footer-note {
-            font-size: 0.85rem;
-            color: #6f6f6f;
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff 0%, #ffb5b5 70%, #ff8a8a 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            color: #a0a0b0;
+            margin-bottom: 3rem;
+            max-width: 500px;
+            line-height: 1.7;
+            font-weight: 350;
+        }
+
+        .btn-group {
             display: flex;
-            align-items: center;
             gap: 1.2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding-top: 2rem;
-            margin-top: 1rem;
+            margin-bottom: 3.5rem;
         }
 
-        .footer-note a {
-            color: #a0a0a0;
+        .btn-primary {
+            background: #c43c3c;
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
             text-decoration: none;
-            transition: color 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 15px 25px -10px rgba(180, 50, 50, 0.4);
+            border: 1px solid rgba(255, 150, 150, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #d64f4f;
+            transform: translateY(-2px);
+            box-shadow: 0 20px 30px -10px rgba(200, 60, 60, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            color: #e0e0e0;
+            border: 1px solid rgba(220, 120, 120, 0.3);
+            padding: 1.2rem 2.2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(200, 80, 80, 0.1);
+            border-color: rgba(230, 130, 130, 0.5);
+            color: white;
+        }
+
+        .stats {
+            display: flex;
+            gap: 3rem;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #ffa5a5;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6f6f8a;
+            letter-spacing: 0.5px;
+        }
+
+        /* Right Card */
+        .card {
+            background: rgba(18, 12, 14, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(220, 100, 100, 0.15);
+            border-radius: 3rem;
+            padding: 2.5rem;
+            box-shadow: 0 30px 40px -20px rgba(0, 0, 0, 0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+            border-color: rgba(220, 100, 100, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .card-header h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: #ffd0d0;
+        }
+
+        .card-header span {
+            color: #ff8a8a;
+            font-size: 0.9rem;
+            padding: 0.3rem 1rem;
+            background: rgba(200, 70, 70, 0.15);
+            border-radius: 30px;
+            border: 1px solid rgba(220, 100, 100, 0.3);
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-bottom: 2.5rem;
+        }
+
+        .feature-list li {
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 1rem;
+            padding: 0.8rem 0;
+            color: #c0c0d0;
+            border-bottom: 1px solid rgba(220, 120, 120, 0.1);
         }
 
-        .footer-note a:hover {
-            color: #e6b546;
+        .feature-list li:last-child {
+            border-bottom: none;
         }
 
-        @media (max-width: 550px) {
-            .glass-card { padding: 2.2rem 1.5rem; }
-            h1 { font-size: 2.4rem; }
-            .feature-grid { grid-template-columns: 1fr; }
-            .btn-modern { width: 100%; justify-content: center; }
+        .feature-list li::before {
+            content: '▹';
+            color: #ff7a7a;
+            font-size: 1.2rem;
+        }
+
+        .login-preview {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(220, 100, 100, 0.2);
+        }
+
+        .preview-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .preview-dot {
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        .preview-line {
+            flex: 1;
+            height: 10px;
+            background: rgba(255, 130, 130, 0.2);
+            border-radius: 20px;
+        }
+
+        .preview-line.short {
+            width: 60%;
+        }
+
+        /* Decorative elements */
+        .corner-decoration {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            width: 150px;
+            height: 150px;
+            border: 1px solid rgba(220, 100, 100, 0.1);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            .content {
+                padding-right: 0;
+            }
+            h1 {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .btn-group {
+                flex-direction: column;
+            }
+            .stats {
+                gap: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="glass-card">
-        <div class="badge">✦ Mouldmate ecosystem</div>
-        
-        <h1>ยินดีต้อนรับ<br>สู่พื้นที่ทำงาน</h1>
-        <div class="subhead">ระบบจัดการแม่พิมพ์และบุคลากร สำหรับทีม TOKAISOLIDTIRE</div>
+    <div class="corner-decoration"></div>
+    
+    <div class="container">
+        <!-- Left Side - Welcome Content -->
+        <div class="content">
+            <div class="pill">
+                MOULDMATE · PREMIUM
+            </div>
+            
+            <h1>
+                <span class="gradient-text">ยินดีต้อนรับ</span><br>
+                สู่ระบบแม่พิมพ์
+            </h1>
+            
+            <p class="description">
+                แพลตฟอร์มบริหารจัดการแม่พิมพ์และบุคลากร<br>
+                สำหรับทีม TOKAISOLIDTIRE โดยเฉพาะ
+            </p>
 
-        <!-- จุดเด่นแบบสั้น เพื่อความทันสมัย -->
-        <div class="feature-grid">
-            <div class="feature-item"><span>⚙️</span> ตรวจสอบสถานะแม่พิมพ์</div>
-            <div class="feature-item"><span>🔐</span> เข้าระบบอย่างปลอดภัย</div>
-            <div class="feature-item"><span>📋</span> บันทึกการปฏิบัติงาน</div>
-            <div class="feature-item"><span>📊</span> รายงานผลผลิต</div>
+            <div class="btn-group">
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-Home/" class="btn-primary" target="_blank">
+                    เข้าสู่ระบบพนักงาน
+                    <span>→</span>
+                </a>
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-Home/" class="btn-secondary" target="_blank">
+                    ขอความช่วยเหลือ
+                    <span>?</span>
+                </a>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number">99.9%</span>
+                    <span class="stat-label">UPTIME</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">SUPPORT</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">SECURE</span>
+                    <span class="stat-label">SSL/TLS</span>
+                </div>
+            </div>
         </div>
 
-        <!-- ปุ่มเข้าสู่ระบบที่เชื่อมไปยังลิงก์ที่ให้มา -->
-        <a href="https://sarawutc6689-cpu.github.io/Mouldmate-Home/" class="btn-modern" target="_blank" rel="noopener noreferrer">
-            เข้าสู่ระบบสำหรับพนักงาน
-            <span style="font-size: 1.4rem;">→</span>
-        </a>
+        <!-- Right Side - Feature Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3>ระบบล็อกอินพนักงาน</h3>
+                <span>TOKAISOLIDTIRE</span>
+            </div>
 
-        <!-- ส่วนท้ายที่สุภาพและเชื่อมโยงถึงระบบรักษาความปลอดภัย -->
-        <div class="footer-note">
-            <span>🔒 ระบบลงชื่อใช้งานเฉพาะพนักงาน</span>
-            <a href="https://sarawutc6689-cpu.github.io/Mouldmate-Home/" target="_blank" rel="noopener noreferrer">
-                <span>ⓘ</span> ต้องการความช่วยเหลือ?
-            </a>
-        </div>
+            <ul class="feature-list">
+                <li>เฉพาะพนักงานที่ลงทะเบียน</li>
+                <li>ยืนยันตัวตนสองชั้น</li>
+                <li>บันทึกประวัติการเข้าใช้งาน</li>
+                <li>ระบบแจ้งเตือนความปลอดภัย</li>
+            </ul>
 
-        <!-- เครดิตดีไซน์เล็กน้อย (ปรับได้ตามชอบ) -->
-        <div style="text-align: right; margin-top: 1.2rem; font-size: 0.75rem; color: #4a4a4a; letter-spacing: 0.3px;">
-            Mouldmate Home · Modern Interface
+            <div class="login-preview">
+                <div class="preview-row">
+                    <div class="preview-dot"></div>
+                    <div class="preview-line"></div>
+                </div>
+                <div class="preview-row">
+                    <div class="preview-dot"></div>
+                    <div class="preview-line short"></div>
+                </div>
+                <div class="preview-row">
+                    <div class="preview-dot"></div>
+                    <div class="preview-line"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; text-align: center; color: #6f6f8a; font-size: 0.85rem;">
+                ⚡ พัฒนาโดย Sarawut.C · © 2026
+            </div>
         </div>
     </div>
 </body>
