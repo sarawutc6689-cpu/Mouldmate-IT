@@ -3,579 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>หน้าหลัก | TOKAI</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Mouldmate Home | Modern Welcome</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: #0a0a0a;
+            font-family: 'Inter', 'Sukhumvit Set', 'Kanit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(145deg, #0f0f0f 0%, #1a1a1a 100%);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* พื้นหลังเอฟเฟกต์ */
-        .bg-effect {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 20% 50%, rgba(245, 6, 2, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(245, 6, 2, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 80%, rgba(245, 6, 2, 0.08) 0%, transparent 50%);
-            z-index: -1;
-        }
-
-        /* เอฟเฟกต์แสงลอย */
-        .glow-effect {
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(245, 6, 2, 0.2) 0%, transparent 70%);
-            border-radius: 50%;
-            z-index: -1;
-            animation: float 15s infinite ease-in-out;
-        }
-
-        .glow-effect:nth-child(1) {
-            top: 10%;
-            left: 10%;
-        }
-
-        .glow-effect:nth-child(2) {
-            bottom: 15%;
-            right: 10%;
-            animation-delay: -5s;
-        }
-
-        .glow-effect:nth-child(3) {
-            top: 50%;
-            left: 80%;
-            animation-delay: -10s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -30px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-
-        .dashboard {
-            background: rgba(20, 20, 20, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(245, 6, 2, 0.2),
-                        0 0 0 1px rgba(255, 255, 255, 0.05);
-            width: 100%;
-            max-width: 600px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            animation: slideUp 0.5s ease;
-            position: relative;
-            z-index: 1;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header {
-            background: linear-gradient(to right, #1a1a1a, #0a0a0a);
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
-            position: relative;
-            border-bottom: 2px solid #F50602;
-        }
-
-        .header img {
-            max-width: 180px;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 0 8px rgba(245, 6, 2, 0.5));
-        }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            background: linear-gradient(to right, #fff, #ff9999);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header p {
-            opacity: 0.9;
-            color: #ccc;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #F50602;
-        }
-
-        .loading i {
-            font-size: 50px;
-            margin-bottom: 20px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-
-        .user-info {
-            background: rgba(10, 10, 10, 0.7);
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            border-left: 4px solid #F50602;
-            border: 1px solid #333;
-        }
-
-        .user-info h3 {
-            color: #F50602;
-            margin-bottom: 20px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-info p {
-            color: #ddd;
-            margin: 15px 0;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-        }
-
-        .user-info i {
-            color: #F50602;
-            width: 25px;
-            font-size: 18px;
-        }
-
-        .user-info span {
-            color: white;
-            font-weight: 600;
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .menu-item {
-            background: linear-gradient(to right, #1a1a1a, #0a0a0a);
-            color: white;
-            padding: 25px 15px;
-            border-radius: 12px;
-            text-align: center;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid #333;
-            font-size: 16px;
-        }
-
-        .menu-item:hover {
-            transform: translateY(-5px);
-            border-color: #F50602;
-            box-shadow: 0 10px 25px rgba(245, 6, 2, 0.3);
-        }
-
-        .menu-item i {
-            font-size: 30px;
-            margin-bottom: 10px;
-            color: #F50602;
-            display: block;
-        }
-
-        .logout-btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(to right, #F50602, #cc0502);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: 0 6px 20px rgba(245, 6, 2, 0.3);
+            color: #e0e0e0;
+            padding: 1.5rem;
+            line-height: 1.6;
         }
 
-        .logout-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(245, 6, 2, 0.5);
+        .glass-card {
+            background: rgba(25, 25, 25, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.05);
+            max-width: 680px;
+            width: 100%;
+            padding: 3.5rem 2.5rem;
+            transition: transform 0.3s ease;
         }
 
-        .logout-btn i {
-            font-size: 20px;
+        .glass-card:hover {
+            transform: translateY(-6px);
         }
 
-        .footer {
-            text-align: center;
-            padding: 20px;
-            background: rgba(15, 15, 15, 0.9);
-            border-top: 1px solid #222;
-            color: #777;
-            font-size: 14px;
-        }
-
-        .footer i {
-            color: #F50602;
-            margin: 0 5px;
-        }
-
-        .status-badge {
+        .badge {
             display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
+            background: rgba(230, 180, 70, 0.12);
+            color: #e6b546;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            padding: 0.35rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid rgba(230, 180, 70, 0.2);
+            margin-bottom: 1.8rem;
+            backdrop-filter: blur(4px);
+        }
+
+        h1 {
+            font-size: 3.2rem;
             font-weight: 600;
-            margin-left: 10px;
+            line-height: 1.2;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(to right, #ffffff, #c0c0c0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
         }
 
-        .status-badge.online {
-            background: rgba(0, 200, 0, 0.2);
-            color: #66ff66;
-            border: 1px solid #00cc00;
+        .subhead {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            margin-bottom: 2.5rem;
+            font-weight: 350;
+            border-left: 3px solid #e6b546;
+            padding-left: 1.5rem;
         }
 
-        .error-container {
-            text-align: center;
-            padding: 40px;
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin: 2.8rem 0 3.2rem;
         }
 
-        .error-container i {
-            font-size: 50px;
-            color: #F50602;
-            margin-bottom: 20px;
+        .feature-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.8rem;
+            padding: 1.2rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: #c8c8c8;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            backdrop-filter: blur(5px);
+            transition: all 0.2s;
         }
 
-        .error-container h2 {
-            color: white;
-            margin-bottom: 20px;
+        .feature-item:hover {
+            background: rgba(230, 180, 70, 0.05);
+            border-color: rgba(230, 180, 70, 0.2);
         }
 
-        .error-container button {
-            padding: 12px 30px;
-            background: linear-gradient(to right, #F50602, #cc0502);
+        .feature-item span {
+            font-size: 1.4rem;
+            filter: drop-shadow(0 2px 5px rgba(230, 180, 70, 0.3));
+        }
+
+        .btn-modern {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            background: #e6b546;
+            color: #0f0f0f;
+            font-weight: 600;
+            font-size: 1.25rem;
+            padding: 1.2rem 2.8rem;
             border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
+            border-radius: 60px;
             cursor: pointer;
-            margin: 10px;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+            box-shadow: 0 12px 30px -8px rgba(230, 180, 70, 0.25);
+            border: 1px solid rgba(255, 215, 120, 0.3);
+            width: fit-content;
+            margin: 0.5rem 0 2rem;
+            letter-spacing: 0.3px;
         }
 
-        @media (max-width: 480px) {
-            .content {
-                padding: 20px;
-            }
-            
-            .menu-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 24px;
-            }
+        .btn-modern:hover {
+            background: #f0c45a;
+            transform: scale(1.03);
+            box-shadow: 0 20px 35px -8px rgba(230, 180, 70, 0.45);
+            color: #080808;
+        }
+
+        .btn-modern:active {
+            transform: scale(0.98);
+        }
+
+        .footer-note {
+            font-size: 0.85rem;
+            color: #6f6f6f;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 2rem;
+            margin-top: 1rem;
+        }
+
+        .footer-note a {
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .footer-note a:hover {
+            color: #e6b546;
+        }
+
+        @media (max-width: 550px) {
+            .glass-card { padding: 2.2rem 1.5rem; }
+            h1 { font-size: 2.4rem; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .btn-modern { width: 100%; justify-content: center; }
         }
     </style>
 </head>
 <body>
-    <div class="bg-effect"></div>
-    <div class="glow-effect"></div>
-    <div class="glow-effect"></div>
-    <div class="glow-effect"></div>
+    <div class="glass-card">
+        <div class="badge">✦ Mouldmate ecosystem</div>
+        
+        <h1>ยินดีต้อนรับ<br>สู่พื้นที่ทำงาน</h1>
+        <div class="subhead">ระบบจัดการแม่พิมพ์และบุคลากร สำหรับทีม TOKAISOLIDTIRE</div>
 
-    <div class="dashboard" id="dashboard">
-        <div class="loading" id="loading">
-            <i class="fas fa-spinner fa-spin"></i>
-            <p>กำลังตรวจสอบข้อมูล...</p>
+        <!-- จุดเด่นแบบสั้น เพื่อความทันสมัย -->
+        <div class="feature-grid">
+            <div class="feature-item"><span>⚙️</span> ตรวจสอบสถานะแม่พิมพ์</div>
+            <div class="feature-item"><span>🔐</span> เข้าระบบอย่างปลอดภัย</div>
+            <div class="feature-item"><span>📋</span> บันทึกการปฏิบัติงาน</div>
+            <div class="feature-item"><span>📊</span> รายงานผลผลิต</div>
         </div>
 
-        <div id="error" style="display: none;">
-            <div class="error-container">
-                <i class="fas fa-exclamation-circle"></i>
-                <h2>เกิดข้อผิดพลาด</h2>
-                <p id="errorMessage">ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์</p>
-                <button onclick="redirectToLogin()">
-                    <i class="fas fa-sign-in-alt"></i> กลับหน้าเข้าสู่ระบบ
-                </button>
-                <button onclick="location.reload()">
-                    <i class="fas fa-sync-alt"></i> ลองใหม่
-                </button>
-            </div>
+        <!-- ปุ่มเข้าสู่ระบบที่เชื่อมไปยังลิงก์ที่ให้มา -->
+        <a href="https://sarawutc6689-cpu.github.io/Mouldmate-Home/" class="btn-modern" target="_blank" rel="noopener noreferrer">
+            เข้าสู่ระบบสำหรับพนักงาน
+            <span style="font-size: 1.4rem;">→</span>
+        </a>
+
+        <!-- ส่วนท้ายที่สุภาพและเชื่อมโยงถึงระบบรักษาความปลอดภัย -->
+        <div class="footer-note">
+            <span>🔒 ระบบลงชื่อใช้งานเฉพาะพนักงาน</span>
+            <a href="https://sarawutc6689-cpu.github.io/Mouldmate-Home/" target="_blank" rel="noopener noreferrer">
+                <span>ⓘ</span> ต้องการความช่วยเหลือ?
+            </a>
         </div>
 
-        <div id="content" style="display: none;">
-            <div class="header">
-                <img src="https://sarawutc6689-cpu.github.io/Mouldmate-Login/logotokai.png" alt="TOKAI Logo">
-                <h1>ยินดีต้อนรับ</h1>
-                <p id="welcomeMessage">ระบบบริหารจัดการพนักงาน</p>
-            </div>
-
-            <div class="content">
-                <div class="user-info" id="userInfo">
-                    <h3>
-                        <i class="fas fa-user-circle"></i> 
-                        ข้อมูลผู้ใช้
-                        <span class="status-badge online" id="statusBadge">Online</span>
-                    </h3>
-                    <p>
-                        <i class="fas fa-id-card"></i>
-                        <span>รหัสพนักงาน:</span> 
-                        <span id="displayUsername">-</span>
-                    </p>
-                    <p>
-                        <i class="fas fa-user-tie"></i>
-                        <span>ชื่อ-สกุล:</span> 
-                        <span id="displayName">-</span>
-                    </p>
-                    <p>
-                        <i class="fas fa-clock"></i>
-                        <span>เวลาเข้าใช้:</span> 
-                        <span id="loginTime">-</span>
-                    </p>
-                    <p>
-                        <i class="fas fa-hourglass-half"></i>
-                        <span> session หมดอายุ:</span> 
-                        <span id="expireTime">-</span>
-                    </p>
-                </div>
-
-                <div class="menu-grid">
-                    <div class="menu-item" onclick="showFeature('profile')">
-                        <i class="fas fa-user-edit"></i>
-                        จัดการโปรไฟล์
-                    </div>
-                    <div class="menu-item" onclick="showFeature('attendance')">
-                        <i class="fas fa-clock"></i>
-                        บันทึกเวลา
-                    </div>
-                    <div class="menu-item" onclick="showFeature('report')">
-                        <i class="fas fa-chart-bar"></i>
-                        รายงาน
-                    </div>
-                    <div class="menu-item" onclick="showFeature('setting')">
-                        <i class="fas fa-cog"></i>
-                        ตั้งค่า
-                    </div>
-                </div>
-
-                <button class="logout-btn" onclick="handleLogout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                    ออกจากระบบ
-                </button>
-            </div>
-
-            <div class="footer">
-                <i class="fas fa-shield-alt"></i>
-                ระบบรักษาความปลอดภัย © 2026 | พัฒนาโดย Sarawut.C
-                <i class="fas fa-shield-alt"></i>
-            </div>
+        <!-- เครดิตดีไซน์เล็กน้อย (ปรับได้ตามชอบ) -->
+        <div style="text-align: right; margin-top: 1.2rem; font-size: 0.75rem; color: #4a4a4a; letter-spacing: 0.3px;">
+            Mouldmate Home · Modern Interface
         </div>
     </div>
-
-    <script>
-        // กำหนดค่าคงที่
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzIF28lLXcjnDrxLjV8wNEOC0xhcawtoSyTr8XUBwh95aew0rtfvhtSYB_Lv2xXLHOi/exec';
-        const LOGIN_URL = 'test.html'; // เปลี่ยนเป็นชื่อไฟล์ login ของคุณ
-
-        // ตรวจสอบสถานะเมื่อโหลดหน้า
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuth();
-        });
-
-        // ตรวจสอบสิทธิ์
-        async function checkAuth() {
-            const username = localStorage.getItem('username');
-            const token = localStorage.getItem('authToken');
-            const expireTime = localStorage.getItem('expireTime');
-
-            console.log('Checking auth - username:', username);
-            console.log('Checking auth - expireTime:', expireTime);
-
-            // ตรวจสอบว่ามีข้อมูลใน localStorage หรือไม่
-            if (!username || !token) {
-                console.log('No username or token found');
-                showError('กรุณาเข้าสู่ระบบก่อน');
-                return;
-            }
-
-            // ตรวจสอบเวลา session
-            if (expireTime && Date.now() > parseInt(expireTime)) {
-                console.log('Session expired');
-                showError('session หมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง');
-                return;
-            }
-
-            try {
-                // เรียก API เพื่อตรวจสอบ token
-                const response = await fetch(`${SCRIPT_URL}?action=verify&token=${encodeURIComponent(username)}`, {
-                    method: 'GET',
-                    mode: 'cors'
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const responseText = await response.text();
-                console.log('Verify response text:', responseText);
-
-                let data;
-                try {
-                    data = JSON.parse(responseText);
-                } catch (e) {
-                    console.error('JSON Parse Error:', e);
-                    // ถ้า parse ไม่ได้ ให้ถือว่าผ่านก่อน (สำหรับทดสอบ)
-                    showContent(username);
-                    return;
-                }
-
-                console.log('Verify data:', data);
-
-                if (data.valid === true) {
-                    // token ถูกต้อง
-                    showContent(username, data.name);
-                } else {
-                    // token ไม่ถูกต้อง
-                    console.log('Invalid token');
-                    showError('ข้อมูลไม่ถูกต้อง กรุณาเข้าสู่ระบบใหม่');
-                }
-
-            } catch (error) {
-                console.error('Verify error:', error);
-                
-                // ถ้าเป็น error จากการเชื่อมต่อ ให้แสดงข้อความ
-                if (error.message.includes('Failed to fetch')) {
-                    showError('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์');
-                } else {
-                    // สำหรับการทดสอบ ให้แสดงเนื้อหาไปก่อน
-                    showContent(username);
-                }
-            }
-        }
-
-        // แสดงเนื้อหา
-        function showContent(username, name) {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('error').style.display = 'none';
-            document.getElementById('content').style.display = 'block';
-
-            // แสดงข้อมูลผู้ใช้
-            document.getElementById('displayUsername').textContent = username || '-';
-            document.getElementById('displayName').textContent = name || username || '-';
-            
-            // แสดงเวลาที่ login
-            const loginTime = localStorage.getItem('loginTime');
-            if (loginTime) {
-                const date = new Date(parseInt(loginTime));
-                document.getElementById('loginTime').textContent = date.toLocaleString('th-TH');
-            }
-
-            // แสดงเวลา session หมดอายุ
-            const expireTime = localStorage.getItem('expireTime');
-            if (expireTime) {
-                const date = new Date(parseInt(expireTime));
-                document.getElementById('expireTime').textContent = date.toLocaleString('th-TH');
-            }
-
-            // ข้อความต้อนรับ
-            document.getElementById('welcomeMessage').textContent = 
-                `ยินดีต้อนรับ ${name || username || 'พนักงาน'}`;
-        }
-
-        // แสดง error
-        function showError(message) {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('error').style.display = 'block';
-            document.getElementById('content').style.display = 'none';
-            document.getElementById('errorMessage').textContent = message || 'เกิดข้อผิดพลาด';
-        }
-
-        // กลับไปหน้า login
-        function redirectToLogin() {
-            localStorage.clear();
-            window.location.href = LOGIN_URL;
-        }
-
-        // ออกจากระบบ
-        async function handleLogout() {
-            const username = localStorage.getItem('username');
-            
-            try {
-                // แจ้ง server
-                if (username) {
-                    await fetch(`${SCRIPT_URL}?uname=${encodeURIComponent(username)}&action=logout`, {
-                        method: 'GET',
-                        mode: 'cors'
-                    });
-                }
-            } catch (error) {
-                console.error('Logout error:', error);
-            } finally {
-                // ล้างข้อมูลและกลับไปหน้า login
-                localStorage.clear();
-                window.location.href = LOGIN_URL;
-            }
-        }
-
-        // แสดงฟีเจอร์ (สำหรับทดสอบ)
-        function showFeature(feature) {
-            const features = {
-                profile: '👤 กำลังพัฒนาโปรไฟล์',
-                attendance: '⏰ กำลังพัฒนาระบบบันทึกเวลา',
-                report: '📊 กำลังพัฒนาระบบรายงาน',
-                setting: '⚙️ กำลังพัฒนาระบบตั้งค่า'
-            };
-            alert(features[feature] || 'กำลังพัฒนา');
-        }
-
-        // ตรวจสอบ session อัตโนมัติทุก 5 นาที
-        setInterval(() => {
-            const expireTime = localStorage.getItem('expireTime');
-            if (expireTime && Date.now() > parseInt(expireTime)) {
-                alert('session หมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง');
-                redirectToLogin();
-            }
-        }, 60000); // ตรวจสอบทุก 1 นาที
-    </script>
 </body>
 </html>
