@@ -465,8 +465,8 @@
         // ฟังก์ชันดึงข้อมูลสภาพอากาศจริง
         async function getWeatherData() {
             const API_KEY = 'c291051c4f2ea34244969c82a3966c06'; 
-            // ใช้พิกัดอำเภอแก่งคอย จังหวัดสระบุรี (ที่ตั้งของ TOKAISOLIDTIRE น่าจะอยู่ใกล้ๆ)
-            const URL = `https://api.openweathermap.org/data/2.5/weather?lat=14.5877&lon=100.9956&units=metric&lang=th&appid=${API_KEY}`;
+            // ใช้พิกัดอำเภอเสาไห้ จังหวัดสระบุรี (ที่ตั้งของ TOKAISOLIDTIRE น่าจะอยู่ใกล้ๆ)
+            const URL = `https://api.openweathermap.org/data/2.5/weather?lat=14.577335348719544&lon=100.79378873642342&units=metric&lang=th&appid=${API_KEY}`;
             
             try {
                 const response = await fetch(URL);
