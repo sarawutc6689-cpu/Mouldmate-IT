@@ -449,7 +449,7 @@
         async function getWeatherData() {
             const API_KEY = '300ed74c8a756ce3eda25e316d9fd1c0'; // ต้องสมัคร API key ที่ https://openweathermap.org/api
             const CITY = 'Saraburi'; // เปลี่ยนเป็นจังหวัดหรือพิกัดที่ต้องการ
-            const URL = `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&units=metric&lang=th&appid=${API_KEY}`;
+            const URL = `https://api.openweathermap.org/data/2.5/weather?lat=14.577351657823138&lon=100.79378328292721&units=metric&lang=th&appid=${API_KEY}`;
             
             // สำหรับตัวอย่างนี้ ใช้ mock data (ของจริงต้องใช้ API key)
             return mockWeatherData();
