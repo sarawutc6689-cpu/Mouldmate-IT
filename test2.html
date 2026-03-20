@@ -152,10 +152,6 @@
             gap: 10px;
         }
 
-        .user-info span {
-            font-size: 1rem;
-        }
-
         .user-icon {
             width: 35px;
             height: 35px;
@@ -170,7 +166,7 @@
 
         .content-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
             gap: 25px;
             margin-top: 25px;
         }
@@ -229,14 +225,23 @@
         .form-description {
             color: #4a6f8c;
             font-size: 0.95rem;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             line-height: 1.6;
             padding-left: 44px;
         }
 
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-left: 44px;
+            flex-wrap: wrap;
+        }
+
         .form-link {
-            display: inline-block;
-            padding: 10px 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
             background-color: #e6f0fa;
             color: #1a4b7a;
             text-decoration: none;
@@ -245,7 +250,8 @@
             transition: all 0.3s ease;
             border: 1px solid #b8d1e6;
             font-weight: 500;
-            margin-left: 44px;
+            cursor: pointer;
+            min-width: 110px;
         }
 
         .form-link:hover {
@@ -254,17 +260,44 @@
             border-color: #1a4b7a;
         }
 
+        .form-link.approve {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .form-link.approve:hover {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
         .form-link.pending {
             background-color: #f8fafc;
             color: #5dade2;
             border-color: #d0deeb;
-            cursor: pointer;
         }
 
-        .form-link.pending:hover {
-            background-color: #5dade2;
-            color: white;
-            border-color: #5dade2;
+        .badge-pending {
+            background-color: #f0f4f8;
+            color: #5dade2;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 50px;
+            margin-left: 8px;
+            border: 1px solid #d0deeb;
+            white-space: nowrap;
+        }
+
+        .approve-badge {
+            background-color: #d4edda;
+            color: #155724;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 50px;
+            margin-left: 8px;
+            border: 1px solid #c3e6cb;
+            white-space: nowrap;
         }
 
         .footer {
@@ -282,16 +315,6 @@
             margin-bottom: 5px;
         }
 
-        .badge-pending {
-            background-color: #f0f4f8;
-            color: #5dade2;
-            font-size: 0.75rem;
-            padding: 4px 10px;
-            border-radius: 50px;
-            margin-left: 10px;
-            border: 1px solid #d0deeb;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .container {
@@ -304,6 +327,14 @@
             
             .header h1:after {
                 width: 40px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .form-link {
+                width: 100%;
             }
         }
     </style>
@@ -376,9 +407,14 @@
                         ขอรับชื่อผู้ใช้และอีเมล
                     </h3>
                     <p class="form-description">แบบฟอร์มสำหรับขอรับบัญชีผู้ใช้และอีเมลในองค์กร พร้อมกำหนดสิทธิ์การใช้งานเบื้องต้น</p>
-                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 1')">
-                        ดูรายละเอียด <span class="badge-pending">รอเพิ่มลิงก์</span>
-                    </a>
+                    <div class="button-group">
+                        <a href="#" class="form-link pending" onclick="alert('กำลังเปิดแบบฟอร์มที่ 1')">
+                            ดูรายละเอียด
+                        </a>
+                        <a href="#" class="form-link approve" onclick="alert('อนุมัติแบบฟอร์มที่ 1')">
+                            อนุมัติ ✓
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Card 2 -->
@@ -388,9 +424,14 @@
                         ตรวจสอบบำรุงรักษาคอมพิวเตอร์
                     </h3>
                     <p class="form-description">แบบฟอร์มแจ้งซ่อมและบำรุงรักษาคอมพิวเตอร์ อุปกรณ์ต่อพ่วง และระบบเครือข่าย</p>
-                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 2')">
-                        ดูรายละเอียด <span class="badge-pending">รอเพิ่มลิงก์</span>
-                    </a>
+                    <div class="button-group">
+                        <a href="#" class="form-link pending" onclick="alert('กำลังเปิดแบบฟอร์มที่ 2')">
+                            ดูรายละเอียด
+                        </a>
+                        <a href="#" class="form-link approve" onclick="alert('อนุมัติแบบฟอร์มที่ 2')">
+                            อนุมัติ ✓
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Card 3 -->
@@ -400,9 +441,14 @@
                         นำอุปกรณ์ออกนอกบริษัท
                     </h3>
                     <p class="form-description">แบบฟอร์มขอนำเครื่องมือ/อุปกรณ์สารสนเทศออกนอกบริษัท พร้อมระบุวัตถุประสงค์</p>
-                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 3')">
-                        ดูรายละเอียด <span class="badge-pending">รอเพิ่มลิงก์</span>
-                    </a>
+                    <div class="button-group">
+                        <a href="#" class="form-link pending" onclick="alert('กำลังเปิดแบบฟอร์มที่ 3')">
+                            ดูรายละเอียด
+                        </a>
+                        <a href="#" class="form-link approve" onclick="alert('อนุมัติแบบฟอร์มที่ 3')">
+                            อนุมัติ ✓
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Card 4 -->
@@ -412,9 +458,14 @@
                         ขอเพิ่มอุปกรณ์ในหน่วยงาน
                     </h3>
                     <p class="form-description">แบบฟอร์มขอเพิ่มอุปกรณ์สารสนเทศในหน่วยงาน พร้อมเหตุผลความจำเป็น</p>
-                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 4')">
-                        ดูรายละเอียด <span class="badge-pending">รอเพิ่มลิงก์</span>
-                    </a>
+                    <div class="button-group">
+                        <a href="#" class="form-link pending" onclick="alert('กำลังเปิดแบบฟอร์มที่ 4')">
+                            ดูรายละเอียด
+                        </a>
+                        <a href="#" class="form-link approve" onclick="alert('อนุมัติแบบฟอร์มที่ 4')">
+                            อนุมัติ ✓
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Card 5 -->
@@ -424,9 +475,14 @@
                         นำอุปกรณ์ส่วนตัวเข้า-ออก
                     </h3>
                     <p class="form-description">แบบฟอร์มขอนำเครื่องมือ/อุปกรณ์สารสนเทศส่วนตัวเข้า-ออกบริษัท</p>
-                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 5')">
-                        ดูรายละเอียด <span class="badge-pending">รอเพิ่มลิงก์</span>
-                    </a>
+                    <div class="button-group">
+                        <a href="#" class="form-link pending" onclick="alert('กำลังเปิดแบบฟอร์มที่ 5')">
+                            ดูรายละเอียด
+                        </a>
+                        <a href="#" class="form-link approve" onclick="alert('อนุมัติแบบฟอร์มที่ 5')">
+                            อนุมัติ ✓
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Card 6 -->
@@ -436,9 +492,14 @@
                         รับมอบ-ส่งคืนทรัพย์สิน
                     </h3>
                     <p class="form-description">แบบฟอร์มการรับมอบ-ส่งคืนทรัพย์สินอุปกรณ์สารสนเทศ ครุภัณฑ์คอมพิวเตอร์</p>
-                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 6')">
-                        ดูรายละเอียด <span class="badge-pending">รอเพิ่มลิงก์</span>
-                    </a>
+                    <div class="button-group">
+                        <a href="#" class="form-link pending" onclick="alert('กำลังเปิดแบบฟอร์มที่ 6')">
+                            ดูรายละเอียด
+                        </a>
+                        <a href="#" class="form-link approve" onclick="alert('อนุมัติแบบฟอร์มที่ 6')">
+                            อนุมัติ ✓
+                        </a>
+                    </div>
                 </div>
             </div>
 
