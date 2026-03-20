@@ -9,11 +9,11 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', 'Sarabun', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background-color: #f4f7fc;
+            background-color: #f0f4f8;
             min-height: 100vh;
         }
 
@@ -22,33 +22,35 @@
             min-height: 100vh;
         }
 
-        /* Sidebar Styles */
+        /* Sidebar Styles - โทนฟ้าสุภาพ */
         .sidebar {
             width: 320px;
-            background: linear-gradient(180deg, #2c3e50 0%, #1e2a36 100%);
+            background: linear-gradient(180deg, #1a4b7a 0%, #0d3b5e 100%);
             color: white;
             padding: 25px 0;
-            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 4px 0 15px rgba(0, 40, 80, 0.15);
             overflow-y: auto;
         }
 
         .sidebar-header {
-            padding: 0 25px 20px 25px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0 25px 25px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             margin-bottom: 20px;
         }
 
         .sidebar-header h3 {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 500;
             letter-spacing: 0.5px;
-            color: #ecf0f1;
+            color: #ffffff;
+            margin-bottom: 5px;
         }
 
         .sidebar-header p {
             font-size: 0.9rem;
-            color: #b0c4de;
+            color: #b8d1e6;
             margin-top: 5px;
+            font-weight: 300;
         }
 
         .menu {
@@ -56,25 +58,26 @@
         }
 
         .menu-item {
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         .menu-link {
             display: flex;
             align-items: center;
             padding: 14px 25px;
-            color: #ecf0f1;
+            color: #e6f0fa;
             text-decoration: none;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
             cursor: pointer;
             font-size: 1rem;
+            background-color: transparent;
         }
 
         .menu-link:hover {
-            background-color: rgba(52, 152, 219, 0.2);
-            border-left-color: #3498db;
-            padding-left: 30px;
+            background-color: rgba(52, 152, 219, 0.25);
+            border-left-color: #5dade2;
+            color: #ffffff;
         }
 
         .menu-number {
@@ -83,39 +86,30 @@
             justify-content: center;
             width: 28px;
             height: 28px;
-            background-color: rgba(52, 152, 219, 0.3);
+            background-color: rgba(255, 255, 255, 0.15);
             border-radius: 6px;
             margin-right: 15px;
             font-size: 0.9rem;
             font-weight: 500;
-            color: #3498db;
+            color: #ffffff;
             transition: all 0.3s ease;
         }
 
         .menu-link:hover .menu-number {
-            background-color: #3498db;
-            color: white;
+            background-color: #5dade2;
+            color: #ffffff;
         }
 
         .menu-text {
             flex: 1;
-        }
-
-        .form-badge {
-            background-color: #e74c3c;
-            color: white;
-            font-size: 0.7rem;
-            padding: 3px 8px;
-            border-radius: 20px;
-            margin-left: 10px;
-            opacity: 0.8;
+            font-weight: 400;
         }
 
         /* Main Content Styles */
         .main-content {
             flex: 1;
             padding: 30px;
-            background-color: #f4f7fc;
+            background-color: #f0f4f8;
         }
 
         .header {
@@ -124,109 +118,199 @@
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #e0e7ef;
+            border-bottom: 2px solid #d0deeb;
         }
 
         .header h1 {
-            color: #2c3e50;
+            color: #1a4b7a;
             font-size: 2rem;
             font-weight: 600;
+            position: relative;
+        }
+
+        .header h1:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: #5dade2;
+            border-radius: 2px;
         }
 
         .user-info {
             background-color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            color: #2c3e50;
+            padding: 12px 25px;
+            border-radius: 50px;
+            box-shadow: 0 3px 10px rgba(26, 75, 122, 0.08);
+            color: #1a4b7a;
             font-weight: 500;
+            border: 1px solid #e1ebf5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info span {
+            font-size: 1rem;
+        }
+
+        .user-icon {
+            width: 35px;
+            height: 35px;
+            background-color: #e6f0fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a4b7a;
+            font-weight: 600;
         }
 
         .content-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 25px;
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
         .form-card {
             background-color: white;
             border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 5px 20px rgba(26, 75, 122, 0.05);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid #e8ecf3;
+            border: 1px solid #e1ebf5;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1a4b7a, #5dade2);
         }
 
         .form-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 12px 30px rgba(26, 75, 122, 0.12);
+            border-color: #b8d1e6;
         }
 
         .form-card h3 {
-            color: #2c3e50;
+            color: #1a4b7a;
             font-size: 1.2rem;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-weight: 600;
         }
 
         .form-number {
-            background-color: #3498db;
-            color: white;
-            width: 30px;
-            height: 30px;
+            background-color: #e6f0fa;
+            color: #1a4b7a;
+            width: 32px;
+            height: 32px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 1px solid #b8d1e6;
         }
 
         .form-description {
-            color: #7f8c8d;
+            color: #4a6f8c;
             font-size: 0.95rem;
-            margin-bottom: 20px;
-            line-height: 1.5;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            padding-left: 44px;
         }
 
         .form-link {
             display: inline-block;
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: white;
+            padding: 10px 25px;
+            background-color: #e6f0fa;
+            color: #1a4b7a;
             text-decoration: none;
-            border-radius: 6px;
+            border-radius: 50px;
             font-size: 0.95rem;
-            transition: background-color 0.3s ease;
-            border: none;
-            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #b8d1e6;
+            font-weight: 500;
+            margin-left: 44px;
         }
 
         .form-link:hover {
-            background-color: #2980b9;
+            background-color: #1a4b7a;
+            color: white;
+            border-color: #1a4b7a;
         }
 
         .form-link.pending {
-            background-color: #95a5a6;
-            cursor: not-allowed;
+            background-color: #f8fafc;
+            color: #5dade2;
+            border-color: #d0deeb;
+            cursor: pointer;
+        }
+
+        .form-link.pending:hover {
+            background-color: #5dade2;
+            color: white;
+            border-color: #5dade2;
         }
 
         .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e7ef;
+            margin-top: 50px;
+            padding: 25px 0 10px 0;
+            border-top: 1px solid #d0deeb;
             text-align: center;
-            color: #7f8c8d;
-            font-size: 0.9rem;
+            color: #4a6f8c;
+            font-size: 0.95rem;
+        }
+
+        .footer p:first-child {
+            font-weight: 500;
+            color: #1a4b7a;
+            margin-bottom: 5px;
+        }
+
+        .badge-pending {
+            background-color: #f0f4f8;
+            color: #5dade2;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 50px;
+            margin-left: 10px;
+            border: 1px solid #d0deeb;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .header h1:after {
+                width: 40px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar -->
+        <!-- Sidebar - โทนฟ้าสุภาพ -->
         <div class="sidebar">
             <div class="sidebar-header">
                 <h3>ระบบจัดการแบบฟอร์ม</h3>
@@ -235,37 +319,37 @@
             
             <ul class="menu">
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">
+                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 1')">
                         <span class="menu-number">1</span>
                         <span class="menu-text">แบบฟอร์มขอรับ ชื่อผู้ใช้ และอีเมล</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">
+                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 2')">
                         <span class="menu-number">2</span>
                         <span class="menu-text">แบบฟอร์มตรวจสอบบำรุงรักษาคอมพิวเตอร์</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">
+                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 3')">
                         <span class="menu-number">3</span>
                         <span class="menu-text">แบบฟอร์มขอนำเครื่องมือ อุปกรณ์สารสนเทศออกนอกบริษัท</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">
+                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 4')">
                         <span class="menu-number">4</span>
                         <span class="menu-text">แบบฟอร์มขอเพิ่มอุปกรณ์สารสนเทศในหน่วยงาน</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">
+                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 5')">
                         <span class="menu-number">5</span>
                         <span class="menu-text">แบบฟอร์มขอนำเครื่องมือ อุปกรณ์สารสนเทศส่วนตัวเข้า-ออกบริษัท</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">
+                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 6')">
                         <span class="menu-number">6</span>
                         <span class="menu-text">แบบฟอร์มการรับมอบ-ส่งคืนทรัพย์สินอุปกรณ์สารสนเทศ</span>
                     </a>
@@ -278,7 +362,8 @@
             <div class="header">
                 <h1>หน้าหลัก</h1>
                 <div class="user-info">
-                    <span>👤 ผู้ดูแลระบบ</span>
+                    <div class="user-icon">ธ</div>
+                    <span>ธนากร พงศ์สุวรรณ</span>
                 </div>
             </div>
 
@@ -290,8 +375,10 @@
                         <span class="form-number">1</span>
                         ขอรับชื่อผู้ใช้และอีเมล
                     </h3>
-                    <p class="form-description">แบบฟอร์มสำหรับขอรับบัญชีผู้ใช้และอีเมลในองค์กร</p>
-                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">ดูรายละเอียด</a>
+                    <p class="form-description">แบบฟอร์มสำหรับขอรับบัญชีผู้ใช้และอีเมลในองค์กร พร้อมกำหนดสิทธิ์การใช้งานเบื้องต้น</p>
+                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 1')">
+                        ดูรายละเอียด <span class="badge-pending">รอเพิ่มลิงก์</span>
+                    </a>
                 </div>
 
                 <!-- Card 2 -->
@@ -300,8 +387,10 @@
                         <span class="form-number">2</span>
                         ตรวจสอบบำรุงรักษาคอมพิวเตอร์
                     </h3>
-                    <p class="form-description">แบบฟอร์มแจ้งซ่อมและบำรุงรักษาคอมพิวเตอร์</p>
-                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">ดูรายละเอียด</a>
+                    <p class="form-description">แบบฟอร์มแจ้งซ่อมและบำรุงรักษาคอมพิวเตอร์ อุปกรณ์ต่อพ่วง และระบบเครือข่าย</p>
+                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 2')">
+                        ดูรายละเอียด <span class="badge-pending">รอเพิ่มลิงก์</span>
+                    </a>
                 </div>
 
                 <!-- Card 3 -->
@@ -310,8 +399,10 @@
                         <span class="form-number">3</span>
                         นำอุปกรณ์ออกนอกบริษัท
                     </h3>
-                    <p class="form-description">แบบฟอร์มขอนำเครื่องมือ/อุปกรณ์สารสนเทศออกนอกบริษัท</p>
-                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">ดูรายละเอียด</a>
+                    <p class="form-description">แบบฟอร์มขอนำเครื่องมือ/อุปกรณ์สารสนเทศออกนอกบริษัท พร้อมระบุวัตถุประสงค์</p>
+                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 3')">
+                        ดูรายละเอียด <span class="badge-pending">รอเพิ่มลิงก์</span>
+                    </a>
                 </div>
 
                 <!-- Card 4 -->
@@ -320,8 +411,10 @@
                         <span class="form-number">4</span>
                         ขอเพิ่มอุปกรณ์ในหน่วยงาน
                     </h3>
-                    <p class="form-description">แบบฟอร์มขอเพิ่มอุปกรณ์สารสนเทศในหน่วยงาน</p>
-                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">ดูรายละเอียด</a>
+                    <p class="form-description">แบบฟอร์มขอเพิ่มอุปกรณ์สารสนเทศในหน่วยงาน พร้อมเหตุผลความจำเป็น</p>
+                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 4')">
+                        ดูรายละเอียด <span class="badge-pending">รอเพิ่มลิงก์</span>
+                    </a>
                 </div>
 
                 <!-- Card 5 -->
@@ -330,8 +423,10 @@
                         <span class="form-number">5</span>
                         นำอุปกรณ์ส่วนตัวเข้า-ออก
                     </h3>
-                    <p class="form-description">แบบฟอร์มขอนำเครื่องมือ/อุปกรณ์ส่วนตัวเข้า-ออกบริษัท</p>
-                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">ดูรายละเอียด</a>
+                    <p class="form-description">แบบฟอร์มขอนำเครื่องมือ/อุปกรณ์สารสนเทศส่วนตัวเข้า-ออกบริษัท</p>
+                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 5')">
+                        ดูรายละเอียด <span class="badge-pending">รอเพิ่มลิงก์</span>
+                    </a>
                 </div>
 
                 <!-- Card 6 -->
@@ -340,27 +435,29 @@
                         <span class="form-number">6</span>
                         รับมอบ-ส่งคืนทรัพย์สิน
                     </h3>
-                    <p class="form-description">แบบฟอร์มการรับมอบ-ส่งคืนทรัพย์สินอุปกรณ์สารสนเทศ</p>
-                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">ดูรายละเอียด</a>
+                    <p class="form-description">แบบฟอร์มการรับมอบ-ส่งคืนทรัพย์สินอุปกรณ์สารสนเทศ ครุภัณฑ์คอมพิวเตอร์</p>
+                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์สำหรับแบบฟอร์มที่ 6')">
+                        ดูรายละเอียด <span class="badge-pending">รอเพิ่มลิงก์</span>
+                    </a>
                 </div>
             </div>
 
             <div class="footer">
-                <p>© 2024 ศูนย์เทคโนโลยีสารสนเทศ - ระบบจัดการแบบฟอร์มออนไลน์</p>
-                <p style="font-size: 0.8rem; margin-top: 5px;">ลิงก์แบบฟอร์มกำลังอยู่ระหว่างการดำเนินการ</p>
+                <p>ศูนย์เทคโนโลยีสารสนเทศ - ระบบจัดการแบบฟอร์มออนไลน์</p>
+                <p>© 2024 บริษัท ... จำกัด. สงวนลิขสิทธิ์</p>
+                <p style="font-size: 0.8rem; margin-top: 8px; color: #7a9cba;">หมายเหตุ: ลิงก์แบบฟอร์มกำลังอยู่ระหว่างการดำเนินการ</p>
             </div>
         </div>
     </div>
 
     <script>
-        // คุณสามารถเพิ่ม JavaScript สำหรับการจัดการลิงก์ในภายหลังได้ที่นี่
+        // JavaScript สำหรับการจัดการลิงก์ (พร้อมอัปเดตในภายหลัง)
         document.addEventListener('DOMContentLoaded', function() {
             const menuLinks = document.querySelectorAll('.menu-link');
             menuLinks.forEach((link, index) => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    // คุณจะเปลี่ยนเป็นลิงก์จริงในภายหลัง
-                    console.log(`กำลังเปิดแบบฟอร์มที่ ${index + 1}`);
+                    // console.log(`กำลังเปิดแบบฟอร์มที่ ${index + 1}`);
                 });
             });
         });
