@@ -1,390 +1,369 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mouldmate | Premium Red</title>
+    <title>Dashboard - ระบบจัดการแบบฟอร์มสารสนเทศ</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: 'Inter', 'Sukhumvit Set', 'Kanit', -apple-system, sans-serif;
-            background: #0a0a0f;
+            background-color: #f4f7fc;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
-            padding: 1.5rem;
-            position: relative;
-        }
-
-        /* Minimal ambient background */
-        body::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 80% 20%, rgba(180, 60, 60, 0.08) 0%, transparent 50%);
-            pointer-events: none;
         }
 
         .container {
-            max-width: 1200px;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 2rem;
-            align-items: center;
-            position: relative;
-            z-index: 2;
-        }
-
-        /* Left Content */
-        .content {
-            padding-right: 2rem;
-        }
-
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(200, 70, 70, 0.1);
-            color: #ffa5a5;
-            font-size: 0.85rem;
-            font-weight: 500;
-            padding: 0.5rem 1.2rem 0.5rem 0.8rem;
-            border-radius: 100px;
-            border: 1px solid rgba(220, 100, 100, 0.2);
-            margin-bottom: 2rem;
-            backdrop-filter: blur(10px);
-            letter-spacing: 0.3px;
-        }
-
-        .pill::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: #ff6b6b;
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 10px #ff6b6b;
-        }
-
-        h1 {
-            font-size: 4rem;
-            font-weight: 600;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            letter-spacing: -0.03em;
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #ffffff 0%, #ffb5b5 70%, #ff8a8a 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: inline-block;
-        }
-
-        .description {
-            font-size: 1.1rem;
-            color: #a0a0b0;
-            margin-bottom: 3rem;
-            max-width: 500px;
-            line-height: 1.7;
-            font-weight: 350;
-        }
-
-        .btn-group {
             display: flex;
-            gap: 1.2rem;
-            margin-bottom: 3.5rem;
+            min-height: 100vh;
         }
 
-        .btn-primary {
-            background: #c43c3c;
+        /* Sidebar Styles */
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1e2a36 100%);
             color: white;
-            border: none;
-            padding: 1.2rem 2.5rem;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.8rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 15px 25px -10px rgba(180, 50, 50, 0.4);
-            border: 1px solid rgba(255, 150, 150, 0.3);
+            padding: 25px 0;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
         }
 
-        .btn-primary:hover {
-            background: #d64f4f;
-            transform: translateY(-2px);
-            box-shadow: 0 20px 30px -10px rgba(200, 60, 60, 0.5);
+        .sidebar-header {
+            padding: 0 25px 20px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
         }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.03);
-            color: #e0e0e0;
-            border: 1px solid rgba(220, 120, 120, 0.3);
-            padding: 1.2rem 2.2rem;
-            border-radius: 50px;
-            font-size: 1.1rem;
+        .sidebar-header h3 {
+            font-size: 1.4rem;
             font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.8rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(200, 80, 80, 0.1);
-            border-color: rgba(230, 130, 130, 0.5);
-            color: white;
-        }
-
-        .stats {
-            display: flex;
-            gap: 3rem;
-        }
-
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #ffa5a5;
-            line-height: 1.2;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #6f6f8a;
             letter-spacing: 0.5px;
+            color: #ecf0f1;
         }
 
-        /* Right Card */
-        .card {
-            background: rgba(18, 12, 14, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(220, 100, 100, 0.15);
-            border-radius: 3rem;
-            padding: 2.5rem;
-            box-shadow: 0 30px 40px -20px rgba(0, 0, 0, 0.8);
-            transition: transform 0.3s ease;
+        .sidebar-header p {
+            font-size: 0.9rem;
+            color: #b0c4de;
+            margin-top: 5px;
         }
 
-        .card:hover {
-            transform: scale(1.02);
-            border-color: rgba(220, 100, 100, 0.3);
+        .menu {
+            list-style: none;
         }
 
-        .card-header {
+        .menu-item {
+            margin-bottom: 5px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 14px 25px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .menu-link:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+            border-left-color: #3498db;
+            padding-left: 30px;
+        }
+
+        .menu-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background-color: rgba(52, 152, 219, 0.3);
+            border-radius: 6px;
+            margin-right: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .menu-link:hover .menu-number {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .menu-text {
+            flex: 1;
+        }
+
+        .form-badge {
+            background-color: #e74c3c;
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            margin-left: 10px;
+            opacity: 0.8;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            background-color: #f4f7fc;
+        }
+
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e7ef;
         }
 
-        .card-header h3 {
-            font-size: 1.3rem;
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            color: #2c3e50;
             font-weight: 500;
-            color: #ffd0d0;
         }
 
-        .card-header span {
-            color: #ff8a8a;
-            font-size: 0.9rem;
-            padding: 0.3rem 1rem;
-            background: rgba(200, 70, 70, 0.15);
-            border-radius: 30px;
-            border: 1px solid rgba(220, 100, 100, 0.3);
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
         }
 
-        .feature-list {
-            list-style: none;
-            margin-bottom: 2.5rem;
+        .form-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e8ecf3;
         }
 
-        .feature-list li {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.8rem 0;
-            color: #c0c0d0;
-            border-bottom: 1px solid rgba(220, 120, 120, 0.1);
+        .form-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
 
-        .feature-list li:last-child {
-            border-bottom: none;
-        }
-
-        .feature-list li::before {
-            content: '▹';
-            color: #ff7a7a;
+        .form-card h3 {
+            color: #2c3e50;
             font-size: 1.2rem;
-        }
-
-        .login-preview {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 2rem;
-            padding: 1.5rem;
-            border: 1px solid rgba(220, 100, 100, 0.2);
-        }
-
-        .preview-row {
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
+            gap: 10px;
         }
 
-        .preview-dot {
-            width: 10px;
-            height: 10px;
-            background: #ff6b6b;
-            border-radius: 50%;
-            opacity: 0.5;
+        .form-number {
+            background-color: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
-        .preview-line {
-            flex: 1;
-            height: 10px;
-            background: rgba(255, 130, 130, 0.2);
-            border-radius: 20px;
+        .form-description {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
 
-        .preview-line.short {
-            width: 60%;
+        .form-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
 
-        /* Decorative elements */
-        .corner-decoration {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            width: 150px;
-            height: 150px;
-            border: 1px solid rgba(220, 100, 100, 0.1);
-            border-radius: 50%;
-            z-index: 1;
+        .form-link:hover {
+            background-color: #2980b9;
         }
 
-        @media (max-width: 900px) {
-            .container {
-                grid-template-columns: 1fr;
-                gap: 3rem;
-            }
-            .content {
-                padding-right: 0;
-            }
-            h1 {
-                font-size: 3rem;
-            }
+        .form-link.pending {
+            background-color: #95a5a6;
+            cursor: not-allowed;
         }
 
-        @media (max-width: 600px) {
-            .btn-group {
-                flex-direction: column;
-            }
-            .stats {
-                gap: 2rem;
-            }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e7ef;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-    <div class="corner-decoration"></div>
-    
     <div class="container">
-        <!-- Left Side - Welcome Content -->
-        <div class="content">
-            <div class="pill">
-                MOULDMATE · PREMIUM
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>ระบบจัดการแบบฟอร์ม</h3>
+                <p>ศูนย์เทคโนโลยีสารสนเทศ</p>
             </div>
             
-            <h1>
-                <span class="gradient-text">ยินดีต้อนรับ</span><br>
-                สู่ระบบแม่พิมพ์
-            </h1>
-            
-            <p class="description">
-                แพลตฟอร์มบริหารจัดการแม่พิมพ์และบุคลากร<br>
-                สำหรับทีม TOKAISOLIDTIRE โดยเฉพาะ
-            </p>
-
-            <div class="btn-group">
-                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-Home/" class="btn-primary" target="_blank">
-                    เข้าสู่ระบบพนักงาน
-                    <span>→</span>
-                </a>
-                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-Home/" class="btn-secondary" target="_blank">
-                    ขอความช่วยเหลือ
-                    <span>?</span>
-                </a>
-            </div>
-
-            <div class="stats">
-                <div class="stat-item">
-                    <span class="stat-number">99.9%</span>
-                    <span class="stat-label">UPTIME</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">24/7</span>
-                    <span class="stat-label">SUPPORT</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">SECURE</span>
-                    <span class="stat-label">SSL/TLS</span>
-                </div>
-            </div>
+            <ul class="menu">
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">
+                        <span class="menu-number">1</span>
+                        <span class="menu-text">แบบฟอร์มขอรับ ชื่อผู้ใช้ และอีเมล</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">
+                        <span class="menu-number">2</span>
+                        <span class="menu-text">แบบฟอร์มตรวจสอบบำรุงรักษาคอมพิวเตอร์</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">
+                        <span class="menu-number">3</span>
+                        <span class="menu-text">แบบฟอร์มขอนำเครื่องมือ อุปกรณ์สารสนเทศออกนอกบริษัท</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">
+                        <span class="menu-number">4</span>
+                        <span class="menu-text">แบบฟอร์มขอเพิ่มอุปกรณ์สารสนเทศในหน่วยงาน</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">
+                        <span class="menu-number">5</span>
+                        <span class="menu-text">แบบฟอร์มขอนำเครื่องมือ อุปกรณ์สารสนเทศส่วนตัวเข้า-ออกบริษัท</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">
+                        <span class="menu-number">6</span>
+                        <span class="menu-text">แบบฟอร์มการรับมอบ-ส่งคืนทรัพย์สินอุปกรณ์สารสนเทศ</span>
+                    </a>
+                </li>
+            </ul>
         </div>
 
-        <!-- Right Side - Feature Card -->
-        <div class="card">
-            <div class="card-header">
-                <h3>ระบบล็อกอินพนักงาน</h3>
-                <span>TOKAISOLIDTIRE</span>
-            </div>
-
-            <ul class="feature-list">
-                <li>เฉพาะพนักงานที่ลงทะเบียน</li>
-                <li>ยืนยันตัวตนสองชั้น</li>
-                <li>บันทึกประวัติการเข้าใช้งาน</li>
-                <li>ระบบแจ้งเตือนความปลอดภัย</li>
-            </ul>
-
-            <div class="login-preview">
-                <div class="preview-row">
-                    <div class="preview-dot"></div>
-                    <div class="preview-line"></div>
-                </div>
-                <div class="preview-row">
-                    <div class="preview-dot"></div>
-                    <div class="preview-line short"></div>
-                </div>
-                <div class="preview-row">
-                    <div class="preview-dot"></div>
-                    <div class="preview-line"></div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>หน้าหลัก</h1>
+                <div class="user-info">
+                    <span>👤 ผู้ดูแลระบบ</span>
                 </div>
             </div>
 
-            <div style="margin-top: 1.5rem; text-align: center; color: #6f6f8a; font-size: 0.85rem;">
-                ⚡ พัฒนาโดย Sarawut.C · © 2026
+            <!-- Dashboard Cards -->
+            <div class="content-grid">
+                <!-- Card 1 -->
+                <div class="form-card">
+                    <h3>
+                        <span class="form-number">1</span>
+                        ขอรับชื่อผู้ใช้และอีเมล
+                    </h3>
+                    <p class="form-description">แบบฟอร์มสำหรับขอรับบัญชีผู้ใช้และอีเมลในองค์กร</p>
+                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">ดูรายละเอียด</a>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="form-card">
+                    <h3>
+                        <span class="form-number">2</span>
+                        ตรวจสอบบำรุงรักษาคอมพิวเตอร์
+                    </h3>
+                    <p class="form-description">แบบฟอร์มแจ้งซ่อมและบำรุงรักษาคอมพิวเตอร์</p>
+                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">ดูรายละเอียด</a>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="form-card">
+                    <h3>
+                        <span class="form-number">3</span>
+                        นำอุปกรณ์ออกนอกบริษัท
+                    </h3>
+                    <p class="form-description">แบบฟอร์มขอนำเครื่องมือ/อุปกรณ์สารสนเทศออกนอกบริษัท</p>
+                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">ดูรายละเอียด</a>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="form-card">
+                    <h3>
+                        <span class="form-number">4</span>
+                        ขอเพิ่มอุปกรณ์ในหน่วยงาน
+                    </h3>
+                    <p class="form-description">แบบฟอร์มขอเพิ่มอุปกรณ์สารสนเทศในหน่วยงาน</p>
+                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">ดูรายละเอียด</a>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="form-card">
+                    <h3>
+                        <span class="form-number">5</span>
+                        นำอุปกรณ์ส่วนตัวเข้า-ออก
+                    </h3>
+                    <p class="form-description">แบบฟอร์มขอนำเครื่องมือ/อุปกรณ์ส่วนตัวเข้า-ออกบริษัท</p>
+                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">ดูรายละเอียด</a>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="form-card">
+                    <h3>
+                        <span class="form-number">6</span>
+                        รับมอบ-ส่งคืนทรัพย์สิน
+                    </h3>
+                    <p class="form-description">แบบฟอร์มการรับมอบ-ส่งคืนทรัพย์สินอุปกรณ์สารสนเทศ</p>
+                    <a href="#" class="form-link pending" onclick="alert('กำลังดำเนินการเพิ่มลิงก์')">ดูรายละเอียด</a>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>© 2024 ศูนย์เทคโนโลยีสารสนเทศ - ระบบจัดการแบบฟอร์มออนไลน์</p>
+                <p style="font-size: 0.8rem; margin-top: 5px;">ลิงก์แบบฟอร์มกำลังอยู่ระหว่างการดำเนินการ</p>
             </div>
         </div>
     </div>
+
+    <script>
+        // คุณสามารถเพิ่ม JavaScript สำหรับการจัดการลิงก์ในภายหลังได้ที่นี่
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuLinks = document.querySelectorAll('.menu-link');
+            menuLinks.forEach((link, index) => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // คุณจะเปลี่ยนเป็นลิงก์จริงในภายหลัง
+                    console.log(`กำลังเปิดแบบฟอร์มที่ ${index + 1}`);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
