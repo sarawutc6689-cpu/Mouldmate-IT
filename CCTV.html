@@ -231,7 +231,7 @@
   .map-container {
     position: relative;
     width: 100%;
-    height: calc(100% - 120px);
+    height: calc(100% - 140px);
     background: #f5f9ff;
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -585,12 +585,17 @@
       <div class="stats-row">
         <div class="stat-chip ok" id="stat-ok">● ปกติ: 0</div>
         <div class="stat-chip maint" id="stat-maint">● ซ่อมแซม: 0</div>
-        <button class="edit-btn" id="editModeBtn" onclick="toggleEditMode()">✏ แก้ไขตำแหน่ง</button>
+        <button class="edit-btn" id="editModeBtn" onclick="toggleEditMode()">✏ แก้ไขกล้อง</button>
+        <button class="edit-btn" id="editBldBtn" onclick="toggleBuildingMode()">🏢 แก้ไขอาคาร</button>
       </div>
     </div>
     <div class="edit-toolbar" id="editToolbar">
-      <div class="edit-toolbar-label">⚡ โหมดแก้ไข — ลากจุดกล้องเพื่อย้ายตำแหน่ง | Scroll หมุนกล้อง | คลิกขวาหมุน 45° | คลิกแผนที่เพื่อเพิ่ม</div>
+      <div class="edit-toolbar-label">📷 โหมดแก้ไขกล้อง — ลากย้าย | Scroll/คลิกขวาหมุน | คลิกแผนที่เพิ่มกล้อง</div>
       <span class="coord-display" id="coordDisplay">X: — Y: —</span>
+    </div>
+    <div class="edit-toolbar" id="editBldToolbar" style="background:#e8f1fb;border-color:#a3c4e8;color:#1a5fa8;">
+      <div class="edit-toolbar-label">🏢 โหมดแก้ไขอาคาร — ลากย้าย | ลากมุมปรับขนาด | คลิกขวาลบ | คลิกพื้นที่ว่างเพิ่มอาคาร</div>
+      <span class="coord-display" id="bldCoordDisplay"></span>
     </div>
 
     <div class="summary-bar">
@@ -612,111 +617,15 @@
       </div>
     </div>
 
-    <div class="map-container">
+    <div class="map-container" id="mapContainer">
       <div class="map-wrapper" id="mapWrapper">
-        <!-- SVG Map Background -->
-        <svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;">
+        <!-- Dynamic SVG map rendered by JS -->
+        <svg id="mapSvg" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg"
+             style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;">
           <rect class="map-bg" width="900" height="600"/>
-
-          <!-- Outer boundary -->
-          <polygon class="building" style="stroke:#243d55;stroke-width:2" points="30,60 870,60 870,540 30,540"/>
-
-          <!-- Roads -->
-          <line class="road" x1="0" y1="520" x2="900" y2="520"/>
-          <line class="road" x1="30" y1="60" x2="30" y2="600"/>
-
-          <!-- Buildings -->
-          <!-- Employee Dormitory -->
-          <rect class="building" x="280" y="80" width="120" height="80"/>
-          <text class="building-label-svg" x="340" y="128" text-anchor="middle">หอพักพนักงาน</text>
-
-          <!-- Carbon/Rubber Additive Storage -->
-          <rect class="building" x="430" y="70" width="140" height="70"/>
-          <text class="building-label-svg" x="500" y="108" text-anchor="middle" font-size="7">กรอกคาร์บอน/บดเศษยาง</text>
-
-          <!-- Raw Material Warehouse -->
-          <rect class="building" x="610" y="70" width="130" height="80"/>
-          <text class="building-label-svg" x="675" y="114" text-anchor="middle">คลังวัตถุดิบ</text>
-
-          <!-- Raw Material Prep -->
-          <rect class="building" x="760" y="70" width="105" height="80"/>
-          <text class="building-label-svg" x="812" y="114" text-anchor="middle" font-size="7">เตรียมวัตถุดิบ</text>
-
-          <!-- T10 Building -->
-          <rect class="building" x="230" y="200" width="160" height="120"/>
-          <text class="building-label-svg" x="310" y="268" text-anchor="middle" font-size="11">อาคาร T10</text>
-
-          <!-- Production Hall (main large) -->
-          <rect class="building" x="400" y="200" width="230" height="200"/>
-          <text class="building-label-svg" x="515" y="285" text-anchor="middle">คลังสินค้า</text>
-          <text class="building-label-svg" x="515" y="300" text-anchor="middle">และคลังพัสดุ</text>
-
-          <!-- Forklift Garage -->
-          <rect class="building" x="395" y="185" width="80" height="40"/>
-          <text class="building-label-svg" x="435" y="200" text-anchor="middle" font-size="7">เก็บรถโฟล์คลิฟท์</text>
-
-          <!-- Rubber Mix Building -->
-          <rect class="building" x="650" y="175" width="230" height="110"/>
-          <text class="building-label-svg" x="765" y="235" text-anchor="middle">ผสมยาง</text>
-
-          <!-- Truck Maintenance -->
-          <rect class="building" x="650" y="300" width="200" height="100"/>
-          <text class="building-label-svg" x="750" y="355" text-anchor="middle" font-size="7">บริษัทซ่อมบำรุงรถแทรค</text>
-
-          <!-- Battery Repair -->
-          <rect class="building" x="550" y="300" width="90" height="100"/>
-          <text class="building-label-svg" x="595" y="358" text-anchor="middle" font-size="7">ซ่อมแบตเตอรี่</text>
-
-          <!-- Mold Storage -->
-          <rect class="building" x="130" y="260" width="90" height="80"/>
-          <text class="building-label-svg" x="175" y="305" text-anchor="middle" font-size="7">เก็บแม่พิมพ์</text>
-
-          <!-- Plug/Mold Storage -->
-          <rect class="building" x="145" y="355" width="80" height="60"/>
-          <text class="building-label-svg" x="185" y="390" text-anchor="middle" font-size="7">เก็บปลอก</text>
-
-          <!-- Medicine Production -->
-          <rect class="building" x="145" y="430" width="110" height="70"/>
-          <text class="building-label-svg" x="200" y="472" text-anchor="middle" font-size="7">ผลิตแม่พิมพ์</text>
-
-          <!-- Office -->
-          <rect class="building" x="60" y="400" width="80" height="70"/>
-          <text class="building-label-svg" x="100" y="440" text-anchor="middle">สำนักงาน</text>
-
-          <!-- R&D -->
-          <rect class="building" x="80" y="485" width="90" height="60"/>
-          <text class="building-label-svg" x="125" y="520" text-anchor="middle">อาคาร R&amp;D</text>
-
-          <!-- Canteen -->
-          <rect class="building" x="115" y="180" width="80" height="65"/>
-          <text class="building-label-svg" x="155" y="217" text-anchor="middle" font-size="7">โรงอาหาร</text>
-
-          <!-- Main Production -->
-          <rect class="building" x="260" y="280" width="130" height="120"/>
-          <text class="building-label-svg" x="325" y="345" text-anchor="middle" font-size="7">อาคารการผลิต</text>
-
-          <!-- Maintenance/Library -->
-          <rect class="building" x="760" y="160" width="105" height="90"/>
-          <text class="building-label-svg" x="812" y="210" text-anchor="middle" font-size="7">ซ่อมบำรุง</text>
-
-          <!-- Test track -->
-          <rect class="building" style="stroke:#152840;stroke-dasharray:6,4" x="620" y="420" width="230" height="80"/>
-          <text class="building-label-svg" x="735" y="465" text-anchor="middle" style="fill:rgba(0,212,255,0.25)">พื้นที่ทดสอบแทรค</text>
-
-          <!-- Empty land -->
-          <rect class="building" style="stroke:#101e2e;stroke-dasharray:4,5" x="620" y="510" width="240" height="40"/>
-          <text class="building-label-svg" x="740" y="535" text-anchor="middle" style="fill:rgba(0,212,255,0.2)">พื้นที่ว่างเปล่า</text>
-
-          <!-- Parking -->
-          <rect class="building" style="stroke:#152840;stroke-dasharray:5,5" x="250" y="430" width="180" height="80"/>
-          <text class="building-label-svg" x="340" y="475" text-anchor="middle" style="fill:rgba(0,212,255,0.25)">ที่จอดรถพนักงาน</text>
-
-          <!-- Well -->
-          <circle style="fill:none;stroke:#1e3a55;stroke-width:1.5" cx="65" cy="520" r="12"/>
-          <text class="building-label-svg" x="65" y="548" text-anchor="middle" font-size="8">บ่อน้ำ</text>
+          <g id="buildingLayer"></g>
         </svg>
-
-        <!-- Camera dots will be injected here -->
+        <!-- Camera dots injected here -->
         <div id="cameraLayer"></div>
       </div>
     </div>
@@ -824,10 +733,268 @@
   </div>
 </div>
 
-<script>
 // =============================
-// EDIT MODE STATE
+// BUILDING DATA (SVG coords 0-900 x 0-600)
+// type: 'solid' | 'dashed' | 'dotted'
 // =============================
+let buildings = [
+  { id:'B00', label:'เขตโรงงาน', x:30,  y:60,  w:840, h:480, type:'boundary' },
+  { id:'B01', label:'หอพักพนักงาน',          x:280, y:80,  w:120, h:80,  type:'solid' },
+  { id:'B02', label:'กรอกคาร์บอน/บดเศษยาง', x:430, y:70,  w:140, h:70,  type:'solid' },
+  { id:'B03', label:'คลังวัตถุดิบ',           x:610, y:70,  w:130, h:80,  type:'solid' },
+  { id:'B04', label:'เตรียมวัตถุดิบ',         x:760, y:70,  w:105, h:80,  type:'solid' },
+  { id:'B05', label:'อาคาร T10',              x:230, y:200, w:160, h:120, type:'solid' },
+  { id:'B06', label:'คลังสินค้าและพัสดุ',     x:400, y:200, w:230, h:200, type:'solid' },
+  { id:'B07', label:'เก็บรถโฟล์คลิฟท์',       x:395, y:185, w:80,  h:40,  type:'solid' },
+  { id:'B08', label:'ผสมยาง',                 x:650, y:175, w:230, h:110, type:'solid' },
+  { id:'B09', label:'ซ่อมบำรุงรถแทรค',        x:650, y:300, w:200, h:100, type:'solid' },
+  { id:'B10', label:'ซ่อมแบตเตอรี่',          x:550, y:300, w:90,  h:100, type:'solid' },
+  { id:'B11', label:'เก็บแม่พิมพ์',           x:130, y:260, w:90,  h:80,  type:'solid' },
+  { id:'B12', label:'เก็บปลอก',               x:145, y:355, w:80,  h:60,  type:'solid' },
+  { id:'B13', label:'ผลิตแม่พิมพ์',           x:145, y:430, w:110, h:70,  type:'solid' },
+  { id:'B14', label:'สำนักงาน',               x:60,  y:400, w:80,  h:70,  type:'solid' },
+  { id:'B15', label:'อาคาร R&D',              x:80,  y:485, w:90,  h:60,  type:'solid' },
+  { id:'B16', label:'โรงอาหาร',               x:115, y:180, w:80,  h:65,  type:'solid' },
+  { id:'B17', label:'อาคารการผลิต',           x:260, y:280, w:130, h:120, type:'solid' },
+  { id:'B18', label:'ซ่อมบำรุง',              x:760, y:160, w:105, h:90,  type:'solid' },
+  { id:'B19', label:'พื้นที่ทดสอบแทรค',       x:620, y:420, w:230, h:80,  type:'dashed' },
+  { id:'B20', label:'พื้นที่ว่างเปล่า',        x:620, y:510, w:240, h:40,  type:'dotted' },
+  { id:'B21', label:'ที่จอดรถพนักงาน',        x:250, y:430, w:180, h:80,  type:'dashed' },
+];
+
+let bldIdCounter = 30;
+let buildingMode = false;
+let selectedBldId = null;
+
+// ── render ──────────────────────────────────────
+function renderBuildings() {
+  const g = document.getElementById('buildingLayer');
+  g.innerHTML = '';
+
+  // Roads/boundary first
+  const ns = 'http://www.w3.org/2000/svg';
+
+  // Outer road lines
+  const r1 = document.createElementNS(ns,'line');
+  Object.assign(r1,{}); r1.setAttribute('x1','0'); r1.setAttribute('y1','520');
+  r1.setAttribute('x2','900'); r1.setAttribute('y2','520');
+  r1.setAttribute('class','road'); g.appendChild(r1);
+  const r2 = document.createElementNS(ns,'line');
+  r2.setAttribute('x1','30'); r2.setAttribute('y1','60');
+  r2.setAttribute('x2','30'); r2.setAttribute('y2','600');
+  r2.setAttribute('class','road'); g.appendChild(r2);
+
+  buildings.forEach(b => {
+    const isBoundary = b.type === 'boundary';
+    const isSelected = buildingMode && b.id === selectedBldId;
+
+    // rect
+    const rect = document.createElementNS(ns,'rect');
+    rect.setAttribute('x', b.x); rect.setAttribute('y', b.y);
+    rect.setAttribute('width', b.w); rect.setAttribute('height', b.h);
+    rect.setAttribute('rx', isBoundary ? 4 : 3);
+    rect.setAttribute('fill', isSelected ? 'rgba(26,95,168,0.10)' : (isBoundary ? 'none' : 'rgba(26,80,140,0.05)'));
+    rect.setAttribute('stroke', isSelected ? '#1a5fa8' : (isBoundary ? '#4a7aaa' : '#7aafd0'));
+    rect.setAttribute('stroke-width', isBoundary ? '2' : (isSelected ? '2' : '1.5'));
+    if (b.type === 'dashed') rect.setAttribute('stroke-dasharray','7,4');
+    if (b.type === 'dotted') rect.setAttribute('stroke-dasharray','3,5');
+    if (buildingMode && !isBoundary) rect.style.cursor = 'move';
+    g.appendChild(rect);
+
+    // label
+    const txt = document.createElementNS(ns,'text');
+    txt.setAttribute('x', b.x + b.w/2);
+    txt.setAttribute('y', b.y + b.h/2 + 4);
+    txt.setAttribute('text-anchor','middle');
+    txt.setAttribute('class','building-label-svg');
+    txt.setAttribute('font-size', b.w < 100 ? '8' : '9');
+    txt.style.fill = isBoundary ? '#4a7aaa'
+                   : b.type !== 'solid' ? '#6a90b0'
+                   : '#1e4a7a';
+    txt.textContent = b.label;
+    g.appendChild(txt);
+
+    // selected highlight + resize handle
+    if (isSelected) {
+      const hl = document.createElementNS(ns,'rect');
+      hl.setAttribute('x', b.x-2); hl.setAttribute('y', b.y-2);
+      hl.setAttribute('width', b.w+4); hl.setAttribute('height', b.h+4);
+      hl.setAttribute('fill','none');
+      hl.setAttribute('stroke','#2e7dd1');
+      hl.setAttribute('stroke-width','1.5');
+      hl.setAttribute('stroke-dasharray','5,3');
+      hl.setAttribute('rx','4');
+      g.appendChild(hl);
+
+      // Resize handle (bottom-right corner)
+      const rh = document.createElementNS(ns,'rect');
+      rh.setAttribute('x', b.x+b.w-7); rh.setAttribute('y', b.y+b.h-7);
+      rh.setAttribute('width','12'); rh.setAttribute('height','12');
+      rh.setAttribute('rx','3');
+      rh.setAttribute('fill','#2e7dd1'); rh.setAttribute('stroke','white');
+      rh.setAttribute('stroke-width','1.5');
+      rh.style.cursor = 'se-resize';
+      rh.dataset.role = 'resize';
+      rh.dataset.bid = b.id;
+      g.appendChild(rh);
+
+      // Label edit hint
+      const hint = document.createElementNS(ns,'text');
+      hint.setAttribute('x', b.x + b.w/2);
+      hint.setAttribute('y', b.y - 6);
+      hint.setAttribute('text-anchor','middle');
+      hint.setAttribute('font-size','8');
+      hint.setAttribute('fill','#2e7dd1');
+      hint.textContent = '✎ ดับเบิลคลิกแก้ชื่อ | คลิกขวาลบ';
+      g.appendChild(hint);
+    }
+
+    // Interaction in building mode
+    if (buildingMode && !isBoundary) {
+      attachBuildingEvents(rect, txt, b);
+    }
+  });
+}
+
+// ── attach drag / select / rename / delete ──────
+function svgPt(svg, e) {
+  const pt = svg.createSVGPoint();
+  pt.x = e.clientX; pt.y = e.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+
+function attachBuildingEvents(rect, txt, b) {
+  const svg = document.getElementById('mapSvg');
+
+  // Select on click
+  rect.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    e.stopPropagation();
+    selectedBldId = b.id;
+
+    const origin = svgPt(svg, e);
+    const startX = b.x, startY = b.y;
+    let dragging = false;
+
+    const onMove = (me) => {
+      dragging = true;
+      const cur = svgPt(svg, me);
+      b.x = Math.max(32, Math.min(870 - b.w, startX + cur.x - origin.x));
+      b.y = Math.max(62, Math.min(538 - b.h, startY + cur.y - origin.y));
+      renderBuildings();
+    };
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      if (!dragging) renderBuildings(); // just select
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // Double-click → rename
+  rect.addEventListener('dblclick', (e) => {
+    e.stopPropagation();
+    const newName = prompt('ชื่ออาคาร:', b.label);
+    if (newName !== null && newName.trim()) {
+      b.label = newName.trim();
+      renderBuildings();
+    }
+  });
+  txt.addEventListener('dblclick', (e) => {
+    e.stopPropagation();
+    const newName = prompt('ชื่ออาคาร:', b.label);
+    if (newName !== null && newName.trim()) {
+      b.label = newName.trim();
+      renderBuildings();
+    }
+  });
+
+  // Right-click → delete
+  rect.addEventListener('contextmenu', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (confirm(`ลบอาคาร "${b.label}" ออกจากแผนผัง?`)) {
+      buildings = buildings.filter(bd => bd.id !== b.id);
+      if (selectedBldId === b.id) selectedBldId = null;
+      renderBuildings();
+    }
+  });
+}
+
+// ── resize handle mousedown ──────────────────────
+document.addEventListener('mousedown', (e) => {
+  if (!buildingMode) return;
+  const rh = e.target.closest('[data-role="resize"]');
+  if (!rh) return;
+  e.stopPropagation(); e.preventDefault();
+  const bid = rh.dataset.bid;
+  const b = buildings.find(bd => bd.id === bid);
+  if (!b) return;
+  const svg = document.getElementById('mapSvg');
+  const origin = svgPt(svg, e);
+  const startW = b.w, startH = b.h;
+
+  const onMove = (me) => {
+    const cur = svgPt(svg, me);
+    b.w = Math.max(40, startW + cur.x - origin.x);
+    b.h = Math.max(30, startH + cur.y - origin.y);
+    renderBuildings();
+  };
+  const onUp = () => {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+});
+
+// ── click map background to add building ─────────
+function onMapBgClick(e) {
+  if (!buildingMode) return;
+  if (e.target.closest('rect[stroke]') || e.target.closest('[data-role]')) return;
+  const svg = document.getElementById('mapSvg');
+  const pt = svgPt(svg, e);
+  const name = prompt('ชื่ออาคารใหม่:', 'อาคารใหม่');
+  if (!name) return;
+  bldIdCounter++;
+  buildings.push({
+    id: 'B' + bldIdCounter,
+    label: name.trim(),
+    x: Math.round(pt.x - 60), y: Math.round(pt.y - 40),
+    w: 120, h: 80, type: 'solid'
+  });
+  selectedBldId = 'B' + bldIdCounter;
+  renderBuildings();
+}
+
+// ── toggle building edit mode ────────────────────
+function toggleBuildingMode() {
+  // exit camera edit mode if on
+  if (editMode) toggleEditMode();
+
+  buildingMode = !buildingMode;
+  const btn = document.getElementById('editBldBtn');
+  const toolbar = document.getElementById('editBldToolbar');
+  const svg = document.getElementById('mapSvg');
+
+  if (buildingMode) {
+    btn.classList.add('active');
+    btn.textContent = '✔ เสร็จสิ้น';
+    toolbar.classList.add('visible');
+    svg.style.cursor = 'crosshair';
+    svg.addEventListener('click', onMapBgClick);
+  } else {
+    btn.classList.remove('active');
+    btn.textContent = '🏢 แก้ไขอาคาร';
+    toolbar.classList.remove('visible');
+    svg.style.cursor = '';
+    svg.removeEventListener('click', onMapBgClick);
+    selectedBldId = null;
+  }
+  renderBuildings();
+}
+
+
 let editMode = false;
 let pendingAddPos = null; // {x%, y%} where user clicked to add
 
@@ -1317,6 +1484,7 @@ setInterval(simulateRealtime, 8000);
 // =============================
 // INIT
 // =============================
+renderBuildings();
 renderMapDots();
 renderList();
 updateStats();
