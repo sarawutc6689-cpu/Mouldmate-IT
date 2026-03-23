@@ -4,1490 +4,829 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ระบบ CCTV — บริษัท โมลด์เมท จำกัด</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #eef3f9;
-    --panel: #ffffff;
-    --panel2: #f4f7fb;
-    --border: #c5d5e8;
-    --border2: #dce8f5;
-    --accent: #1a5fa8;
-    --accent-light: #2e7dd1;
-    --accent-pale: #e8f1fb;
-    --ok: #1a7a46;
-    --ok-bg: #e8f5ee;
-    --ok-border: #9dcfb5;
-    --maint: #b86c00;
-    --maint-bg: #fff4e0;
-    --maint-border: #f0c070;
-    --text: #1a2a3a;
-    --text2: #3a5068;
-    --dim: #7a96b0;
-    --header-bg: #1a3d6b;
-    --shadow: 0 2px 12px rgba(26,63,107,0.10);
-    --shadow-md: 0 4px 24px rgba(26,63,107,0.14);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    font-family: 'Sarabun', sans-serif;
-    font-size: 16px;
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  body::after {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-      linear-gradient(rgba(26,95,168,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(26,95,168,0.05) 1px, transparent 1px);
-    background-size: 44px 44px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  header {
-    position: relative; z-index: 10;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 28px;
-    height: 64px;
-    background: var(--header-bg);
-    border-bottom: 3px solid #2e7dd1;
-    box-shadow: 0 2px 16px rgba(26,63,107,0.18);
-  }
-
-  .logo-area { display: flex; align-items: center; gap: 14px; }
-
-  .logo-icon {
-    width: 40px; height: 40px;
-    border: 2px solid rgba(255,255,255,0.35);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    background: rgba(255,255,255,0.10);
-  }
-
-  .company-name {
-    font-size: 11px;
-    color: rgba(255,255,255,0.60);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .system-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #ffffff;
-  }
-
-  .header-right { display: flex; align-items: center; gap: 20px; }
-
-  .live-badge {
-    display: flex; align-items: center; gap: 7px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #6eeebb;
-    padding: 5px 14px;
-    border: 1px solid rgba(110,238,187,0.4);
-    border-radius: 20px;
-    background: rgba(110,238,187,0.08);
-  }
-
-  .live-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: #6eeebb;
-    animation: blink 1.2s infinite;
-    box-shadow: 0 0 6px #6eeebb;
-  }
-
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
-
-  #clock {
-    font-size: 16px;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: 2px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .main-layout {
-    position: relative; z-index: 5;
-    display: grid;
-    grid-template-columns: 1fr 330px;
-    gap: 0;
-    height: calc(100vh - 64px);
-  }
-
-  /* ===== MAP PANEL ===== */
-  .map-panel {
-    position: relative;
-    padding: 16px 18px;
-    border-right: 1px solid var(--border);
-    overflow: hidden;
-    background: var(--bg);
-  }
-
-  .map-panel-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 8px;
-  }
-
-  .panel-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.3px;
-  }
-
-  .stats-row { display: flex; gap: 8px; align-items: center; }
-
-  .stat-chip {
-    font-size: 13px;
-    font-weight: 700;
-    padding: 4px 14px;
-    border-radius: 20px;
-  }
-  .stat-chip.ok  { background: var(--ok-bg);   color: var(--ok);   border: 1px solid var(--ok-border);   }
-  .stat-chip.maint { background: var(--maint-bg); color: var(--maint); border: 1px solid var(--maint-border); }
-
-  /* Edit mode button */
-  .edit-btn {
-    padding: 6px 14px;
-    font-size: 13px;
-    font-weight: 700;
-    border-radius: 7px;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: var(--panel);
-    color: var(--text2);
-    transition: all 0.2s;
-  }
-  .edit-btn:hover { border-color: var(--accent-light); color: var(--accent); background: var(--accent-pale); }
-  .edit-btn.active { border-color: var(--maint); color: var(--maint); background: var(--maint-bg); }
-
-  /* Edit toolbar */
-  .edit-toolbar {
-    display: none;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 14px;
-    background: var(--maint-bg);
-    border: 1px solid var(--maint-border);
-    border-radius: 7px;
-    margin-bottom: 8px;
-    font-size: 14px;
-    color: var(--maint);
-    font-weight: 600;
-  }
-  .edit-toolbar.visible { display: flex; }
-  .edit-toolbar-label { flex: 1; }
-
-  .coord-display {
-    font-size: 13px;
-    color: var(--dim);
-    font-weight: 500;
-    margin-left: auto;
-  }
-
-  .map-container.edit-mode { cursor: crosshair; }
-  .map-container.edit-mode .cam-dot { cursor: grab; }
-  .map-container.edit-mode .cam-dot:active { cursor: grabbing; }
-  .map-container.edit-mode .cam-dot .cam-tooltip { display: none !important; }
-
-  .cam-dot.dragging {
-    opacity: 0.75;
-    transform: translate(-50%, -50%) scale(1.3);
-    z-index: 999;
-    transition: none;
-  }
-
-  /* Summary bar */
-  .summary-bar { display: flex; gap: 10px; margin-bottom: 10px; }
-
-  .summary-card {
-    flex: 1;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    display: flex; flex-direction: column; gap: 2px;
-    box-shadow: var(--shadow);
-  }
-
-  .summary-num { font-size: 26px; line-height: 1; font-weight: 800; }
-  .summary-num.blue   { color: var(--accent); }
-  .summary-num.green  { color: var(--ok); }
-  .summary-num.yellow { color: var(--maint); }
-
-  .summary-label { font-size: 12px; color: var(--dim); font-weight: 500; }
-
-  /* MAP CONTAINER */
-  .map-container {
-    position: relative;
-    width: 100%;
-    height: calc(100% - 140px);
-    background: #f5f9ff;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: var(--shadow);
-  }
-
-  /* ===== CAMERA ICON DOTS ===== */
-  .cam-dot {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    cursor: pointer;
-    z-index: 10;
-    transition: transform 0.18s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .cam-dot:hover { transform: translate(-50%,-50%) scale(1.35); z-index: 20; }
-
-  .cam-dot .cam-icon-wrap {
-    display: flex; align-items: center; justify-content: center;
-    width: 32px; height: 26px;
-    border-radius: 6px;
-    border: 2px solid;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  }
-  .cam-dot.online .cam-icon-wrap {
-    border-color: var(--ok);
-    box-shadow: 0 2px 10px rgba(26,122,70,0.28), 0 0 0 3px rgba(26,122,70,0.10);
-    animation: ripple-green 2.5s infinite;
-  }
-  .cam-dot.maintenance .cam-icon-wrap {
-    border-color: var(--maint);
-    box-shadow: 0 2px 10px rgba(184,108,0,0.28), 0 0 0 3px rgba(184,108,0,0.10);
-    animation: ripple-yellow 2.5s infinite;
-  }
-  .cam-dot .cam-icon-wrap svg { width: 19px; height: 19px; }
-
-  .cam-dot .cam-status-pip {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    margin-top: 2px;
-    flex-shrink: 0;
-    border: 1.5px solid rgba(255,255,255,0.9);
-  }
-  .cam-dot.online .cam-status-pip    { background: var(--ok);   box-shadow: 0 0 4px var(--ok);   animation: blink 1.4s infinite; }
-  .cam-dot.maintenance .cam-status-pip { background: var(--maint); }
-
-  @keyframes ripple-green {
-    0%,100% { box-shadow: 0 2px 8px rgba(26,122,70,0.20), 0 0 0 2px rgba(26,122,70,0.08); }
-    50%      { box-shadow: 0 2px 14px rgba(26,122,70,0.38), 0 0 0 7px rgba(26,122,70,0); }
-  }
-  @keyframes ripple-yellow {
-    0%,100% { box-shadow: 0 2px 8px rgba(184,108,0,0.20), 0 0 0 2px rgba(184,108,0,0.08); }
-    50%      { box-shadow: 0 2px 14px rgba(184,108,0,0.38), 0 0 0 7px rgba(184,108,0,0); }
-  }
-
-  /* Tooltip */
-  .cam-tooltip {
-    display: none;
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 14px;
-    white-space: nowrap;
-    font-size: 13px;
-    pointer-events: none;
-    z-index: 100;
-    box-shadow: var(--shadow-md);
-  }
-  .cam-dot:hover .cam-tooltip { display: block; }
-  .cam-tooltip .tt-id { font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
-  .cam-tooltip .tt-name { color: var(--text); font-weight: 600; font-size: 13px; }
-  .cam-tooltip .tt-status { font-size: 12px; margin-top: 4px; font-weight: 700; }
-  .cam-tooltip .tt-status.online { color: var(--ok); }
-  .cam-tooltip .tt-status.maintenance { color: var(--maint); }
-
-  /* ===== SIDEBAR ===== */
-  .sidebar {
-    display: flex; flex-direction: column; overflow: hidden;
-    background: var(--panel);
-    border-left: 1px solid var(--border);
-  }
-
-  .sidebar-header {
-    padding: 15px 16px 12px;
-    border-bottom: 1px solid var(--border2);
-    background: var(--panel2);
-  }
-
-  .sidebar-title {
-    font-size: 15px; font-weight: 800; color: var(--accent);
-    margin-bottom: 10px;
-  }
-
-  .filter-tabs { display: flex; gap: 6px; }
-
-  .filter-tab {
-    flex: 1; padding: 7px 0;
-    font-size: 13px; font-weight: 700;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    background: var(--panel);
-    color: var(--dim);
-    cursor: pointer;
-    transition: all 0.15s;
-    text-align: center;
-  }
-  .filter-tab.active-all  { border-color: var(--accent);       color: var(--accent);       background: var(--accent-pale); }
-  .filter-tab.active-ok   { border-color: var(--ok);           color: var(--ok);           background: var(--ok-bg);       }
-  .filter-tab.active-maint{ border-color: var(--maint);        color: var(--maint);        background: var(--maint-bg);    }
-
-  /* Add/Remove buttons */
-  .qty-btn {
-    display: flex; align-items: center; gap: 5px;
-    padding: 7px 10px;
-    font-size: 13px; font-weight: 700;
-    border-radius: 7px;
-    cursor: pointer;
-    border: 1px solid;
-    background: var(--panel);
-    transition: all 0.15s;
-    flex: 1; justify-content: center;
-  }
-  .qty-btn.add    { border-color: var(--accent-light); color: var(--accent); }
-  .qty-btn.add:hover { background: var(--accent-pale); }
-  .qty-btn.remove { border-color: #c0524a; color: #b03030; }
-  .qty-btn.remove:hover { background: #fdf0ef; }
-
-  /* Camera list */
-  .cam-list { flex: 1; overflow-y: auto; padding: 8px 10px; }
-  .cam-list::-webkit-scrollbar { width: 5px; }
-  .cam-list::-webkit-scrollbar-track { background: var(--bg); }
-  .cam-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  .zone-label {
-    font-size: 11px; font-weight: 800;
-    color: var(--dim);
-    letter-spacing: 1px; text-transform: uppercase;
-    padding: 9px 6px 4px;
-    border-top: 1px solid var(--border2);
-    margin-top: 4px;
-  }
-  .zone-label:first-child { border-top: none; margin-top: 0; }
-
-  .cam-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.14s;
-    border: 1px solid transparent;
-    margin-bottom: 2px;
-  }
-  .cam-item:hover  { background: var(--accent-pale); border-color: var(--border2); }
-  .cam-item.selected { background: var(--accent-pale); border-color: #a3c4e8; }
-
-  .cam-item-icon { font-size: 15px; flex-shrink: 0; }
-  .cam-item-info { flex: 1; min-width: 0; }
-  .cam-item-id   { font-size: 11px; font-weight: 700; color: var(--dim); letter-spacing: 0.5px; }
-  .cam-item-name {
-    font-size: 14px; font-weight: 600; color: var(--text);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .cam-item-status {
-    font-size: 12px; font-weight: 700;
-    padding: 3px 10px; border-radius: 12px; flex-shrink: 0;
-  }
-  .cam-item-status.online      { color: var(--ok);   background: var(--ok-bg);   border: 1px solid var(--ok-border);   }
-  .cam-item-status.maintenance { color: var(--maint); background: var(--maint-bg); border: 1px solid var(--maint-border); }
-
-  /* Detail panel */
-  .detail-panel {
-    border-top: 1px solid var(--border);
-    padding: 14px 16px;
-    background: var(--panel2);
-    min-height: 170px;
-  }
-
-  .detail-title {
-    font-size: 12px; font-weight: 800;
-    color: var(--dim); letter-spacing: 1px; text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  .detail-empty { color: var(--dim); font-size: 14px; text-align: center; padding: 22px 0; }
-
-  .detail-content { display: none; }
-  .detail-content.visible { display: block; }
-
-  .detail-cam-id { font-size: 20px; font-weight: 800; color: var(--accent); margin-bottom: 2px; }
-  .detail-cam-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
-
-  .detail-rows { display: flex; flex-direction: column; gap: 0; }
-
-  .detail-row {
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 14px;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--border2);
-  }
-  .detail-row:last-child { border-bottom: none; }
-  .detail-row-label { color: var(--dim); font-weight: 500; }
-  .detail-row-val   { font-size: 14px; font-weight: 700; color: var(--text); }
-
-  .status-badge {
-    padding: 3px 12px; border-radius: 12px;
-    font-size: 13px; font-weight: 700;
-  }
-  .status-badge.online      { color: var(--ok);   background: var(--ok-bg);   border: 1px solid var(--ok-border);   }
-  .status-badge.maintenance { color: var(--maint); background: var(--maint-bg); border: 1px solid var(--maint-border); }
-
-  .toggle-btn {
-    margin-top: 10px; width: 100%; padding: 8px;
-    border-radius: 7px; border: 1px solid var(--border);
-    background: var(--panel); color: var(--text2);
-    font-family: 'Sarabun', sans-serif; font-size: 15px; font-weight: 700;
-    cursor: pointer; transition: all 0.15s;
-  }
-  .toggle-btn:hover { border-color: var(--accent-light); color: var(--accent); background: var(--accent-pale); }
-
-  .del-cam-btn {
-    margin-top: 6px; width: 100%; padding: 7px;
-    border-radius: 7px; border: 1px solid #c0524a;
-    background: var(--panel); color: #b03030;
-    font-family: 'Sarabun', sans-serif; font-size: 15px; font-weight: 700;
-    cursor: pointer; transition: all 0.15s;
-  }
-  .del-cam-btn:hover { background: #fdf0ef; }
-
-  /* Modal */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(20,40,70,0.42);
-    z-index: 500; align-items: center; justify-content: center;
-    backdrop-filter: blur(2px);
-  }
-  .modal-overlay.visible { display: flex; }
-
-  .modal-box {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 28px 30px; width: 370px;
-    box-shadow: var(--shadow-md);
-  }
-
-  .modal-title {
-    font-size: 17px; font-weight: 800; color: var(--accent);
-    margin-bottom: 18px;
-    border-bottom: 2px solid var(--border2);
-    padding-bottom: 10px;
-  }
-
-  .modal-field { margin-bottom: 13px; }
-  .modal-label { font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 4px; display: block; }
-
-  .modal-input, .modal-select {
-    width: 100%;
-    background: var(--panel2); border: 1px solid var(--border);
-    border-radius: 7px; padding: 9px 12px;
-    color: var(--text);
-    font-family: 'Sarabun', sans-serif; font-size: 15px;
-    outline: none; transition: border 0.15s;
-  }
-  .modal-input:focus, .modal-select:focus {
-    border-color: var(--accent-light);
-    box-shadow: 0 0 0 3px rgba(46,125,209,0.12);
-  }
-
-  .modal-btns { display: flex; gap: 10px; margin-top: 18px; }
-
-  .modal-ok {
-    flex: 1; padding: 10px;
-    background: var(--accent); border: none; border-radius: 7px;
-    color: #fff; font-family: 'Sarabun', sans-serif;
-    font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.15s;
-  }
-  .modal-ok:hover { background: var(--accent-light); }
-
-  .modal-cancel {
-    flex: 1; padding: 10px;
-    background: var(--panel2); border: 1px solid var(--border); border-radius: 7px;
-    color: var(--text2); font-family: 'Sarabun', sans-serif;
-    font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s;
-  }
-  .modal-cancel:hover { border-color: #c0524a; color: #b03030; }
-
-  /* MAP SVG */
-  .map-bg { fill: #f5f9ff; }
-  .building { fill: none; stroke: #7aafd0; stroke-width: 1.5; }
-  .road { fill: none; stroke: #c5d5e8; stroke-width: 2; }
-  .building-label-svg {
-    fill: #1e4a7a; font-size: 9px;
-    font-family: 'Sarabun', sans-serif; font-weight: 700;
-  }
-
-  .map-wrapper { position: relative; width: 100%; height: 100%; }
-
-  /* Rotate buttons */
-  .rotate-btn {
-    flex: 1; padding: 6px 4px;
-    font-size: 12px; font-weight: 700;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--panel);
-    color: var(--accent);
-    cursor: pointer;
-    transition: all 0.15s;
-    text-align: center;
-  }
-  .rotate-btn:hover { background: var(--accent-pale); border-color: var(--accent-light); }
-
-  /* Tooltip angle line */
-  .cam-tooltip .tt-angle {
-    font-size: 11px;
-    color: var(--accent);
-    font-weight: 600;
-    margin-top: 2px;
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;font-size:15px;background:#eef3f9;color:#1a2a3a;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+
+/* ── HEADER ── */
+header{height:58px;background:#1a3d6b;border-bottom:3px solid #2e7dd1;display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;box-shadow:0 2px 12px rgba(26,61,107,.2)}
+.hdr-left{display:flex;align-items:center;gap:12px}
+.hdr-icon{width:36px;height:36px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.3);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.hdr-sub{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:2px;text-transform:uppercase}
+.hdr-title{font-size:17px;font-weight:700;color:#fff}
+.hdr-right{display:flex;align-items:center;gap:16px}
+.live-badge{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#6eeebb;padding:4px 12px;border:1px solid rgba(110,238,187,.4);border-radius:20px;background:rgba(110,238,187,.08)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#6eeebb;animation:blink 1.2s infinite;box-shadow:0 0 5px #6eeebb}
+#clock{font-size:15px;font-weight:700;color:#fff;letter-spacing:2px;font-variant-numeric:tabular-nums}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── MAIN LAYOUT ── */
+.layout{display:grid;grid-template-columns:1fr 310px;flex:1;overflow:hidden}
+
+/* ── LEFT PANEL ── */
+.map-panel{display:flex;flex-direction:column;padding:12px 14px;gap:8px;overflow:hidden;background:#eef3f9;border-right:1px solid #c5d5e8}
+
+/* toolbar row */
+.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.panel-title{font-size:14px;font-weight:700;color:#1a5fa8;flex:1}
+.chip{font-size:12px;font-weight:700;padding:3px 12px;border-radius:20px;border:1px solid}
+.chip.ok{background:#e8f5ee;color:#1a7a46;border-color:#9dcfb5}
+.chip.maint{background:#fff4e0;color:#b86c00;border-color:#f0c070}
+.tbtn{padding:5px 12px;font-size:12px;font-weight:700;border-radius:7px;border:1px solid #c5d5e8;background:#fff;color:#3a5068;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tbtn:hover{border-color:#2e7dd1;color:#1a5fa8;background:#e8f1fb}
+.tbtn.active-cam{border-color:#b86c00;color:#b86c00;background:#fff4e0}
+.tbtn.active-bld{border-color:#1a5fa8;color:#1a5fa8;background:#e8f1fb}
+
+/* hint bar */
+.hint-bar{display:none;align-items:center;gap:8px;padding:6px 12px;border-radius:7px;border:1px solid;font-size:12px;font-weight:600;flex-shrink:0}
+.hint-bar.cam{background:#fff4e0;border-color:#f0c070;color:#b86c00}
+.hint-bar.bld{background:#e8f1fb;border-color:#a3c4e8;color:#1a5fa8}
+.hint-bar.show{display:flex}
+.hint-coord{margin-left:auto;font-size:11px;color:#7a96b0}
+
+/* summary cards */
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex-shrink:0}
+.scard{background:#fff;border:1px solid #c5d5e8;border-radius:8px;padding:8px 12px;box-shadow:0 1px 6px rgba(26,63,107,.07)}
+.snum{font-size:22px;font-weight:800;line-height:1}
+.snum.blue{color:#1a5fa8}.snum.green{color:#1a7a46}.snum.yellow{color:#b86c00}
+.slabel{font-size:11px;color:#7a96b0;font-weight:500;margin-top:1px}
+
+/* map container */
+.map-wrap{flex:1;position:relative;background:#f5f9ff;border:1px solid #c5d5e8;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(26,63,107,.08)}
+#mapSvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#camLayer{position:absolute;inset:0;pointer-events:none}
+
+/* ── CAMERA DOTS ── */
+.cdot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;cursor:pointer;z-index:10;transition:transform .18s;pointer-events:all}
+.cdot:hover{transform:translate(-50%,-50%) scale(1.35);z-index:20}
+.cdot .icon-wrap{width:30px;height:24px;border-radius:6px;border:2px solid;background:#fff;display:flex;align-items:center;justify-content:center;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.cdot.online .icon-wrap{border-color:#1a7a46;box-shadow:0 2px 8px rgba(26,122,70,.3);animation:rgreen 2.5s infinite}
+.cdot.maint .icon-wrap{border-color:#b86c00;box-shadow:0 2px 8px rgba(184,108,0,.3);animation:ryellow 2.5s infinite}
+.cdot .pip{width:5px;height:5px;border-radius:50%;margin-top:2px;border:1.5px solid rgba(255,255,255,.8)}
+.cdot.online .pip{background:#1a7a46;animation:blink 1.4s infinite}
+.cdot.maint .pip{background:#b86c00}
+@keyframes rgreen{0%,100%{box-shadow:0 2px 8px rgba(26,122,70,.2),0 0 0 2px rgba(26,122,70,.08)}50%{box-shadow:0 2px 12px rgba(26,122,70,.4),0 0 0 7px rgba(26,122,70,0)}}
+@keyframes ryellow{0%,100%{box-shadow:0 2px 8px rgba(184,108,0,.2),0 0 0 2px rgba(184,108,0,.08)}50%{box-shadow:0 2px 12px rgba(184,108,0,.4),0 0 0 7px rgba(184,108,0,0)}}
+.cdot .tip{display:none;position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:#fff;border:1px solid #c5d5e8;border-radius:7px;padding:7px 12px;white-space:nowrap;font-size:12px;pointer-events:none;z-index:100;box-shadow:0 4px 16px rgba(26,63,107,.13)}
+.cdot:hover .tip{display:block}
+.tip-id{font-size:10px;font-weight:700;color:#1a5fa8}
+.tip-name{font-weight:600;color:#1a2a3a}
+.tip-ang{font-size:11px;color:#1a5fa8;margin-top:1px}
+.tip-st{font-size:11px;font-weight:700;margin-top:2px}
+.tip-st.online{color:#1a7a46}.tip-st.maint{color:#b86c00}
+.cdot.dragging{opacity:.7;transition:none !important}
+
+/* ── RIGHT SIDEBAR ── */
+.sidebar{display:flex;flex-direction:column;overflow:hidden;background:#fff;border-left:1px solid #c5d5e8}
+.sb-head{padding:13px 14px 10px;border-bottom:1px solid #dce8f5;background:#f4f7fb;flex-shrink:0}
+.sb-title{font-size:14px;font-weight:800;color:#1a5fa8;margin-bottom:9px}
+.ftabs{display:flex;gap:5px;margin-bottom:8px}
+.ftab{flex:1;padding:6px 0;font-size:12px;font-weight:700;border:1px solid #c5d5e8;border-radius:6px;background:#fff;color:#7a96b0;cursor:pointer;transition:all .15s;text-align:center}
+.ftab.a-all{border-color:#1a5fa8;color:#1a5fa8;background:#e8f1fb}
+.ftab.a-ok{border-color:#1a7a46;color:#1a7a46;background:#e8f5ee}
+.ftab.a-maint{border-color:#b86c00;color:#b86c00;background:#fff4e0}
+.addrow{display:flex;gap:6px}
+.abtn{flex:1;padding:6px 8px;font-size:12px;font-weight:700;border-radius:6px;border:1px solid;background:#fff;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:4px}
+.abtn.add{border-color:#2e7dd1;color:#1a5fa8}.abtn.add:hover{background:#e8f1fb}
+.abtn.del{border-color:#c0524a;color:#b03030}.abtn.del:hover{background:#fdf0ef}
+
+/* cam list */
+.cam-list{flex:1;overflow-y:auto;padding:6px 8px}
+.cam-list::-webkit-scrollbar{width:4px}
+.cam-list::-webkit-scrollbar-thumb{background:#c5d5e8;border-radius:2px}
+.zone-hd{font-size:10px;font-weight:800;color:#7a96b0;letter-spacing:1px;text-transform:uppercase;padding:8px 6px 3px;border-top:1px solid #dce8f5;margin-top:3px}
+.zone-hd:first-child{border-top:none;margin-top:0}
+.citem{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer;border:1px solid transparent;margin-bottom:2px;transition:background .12s}
+.citem:hover{background:#e8f1fb;border-color:#dce8f5}
+.citem.sel{background:#e8f1fb;border-color:#a3c4e8}
+.ci-info{flex:1;min-width:0}
+.ci-id{font-size:10px;font-weight:700;color:#7a96b0}
+.ci-name{font-size:13px;font-weight:600;color:#1a2a3a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-st{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0}
+.ci-st.online{color:#1a7a46;background:#e8f5ee;border:1px solid #9dcfb5}
+.ci-st.maint{color:#b86c00;background:#fff4e0;border:1px solid #f0c070}
+
+/* detail panel */
+.detail{border-top:1px solid #c5d5e8;padding:12px 14px;background:#f4f7fb;flex-shrink:0}
+.det-title{font-size:11px;font-weight:800;color:#7a96b0;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.det-empty{color:#7a96b0;font-size:13px;text-align:center;padding:18px 0}
+.det-body{display:none}
+.det-body.show{display:block}
+.det-id{font-size:19px;font-weight:800;color:#1a5fa8}
+.det-name{font-size:14px;font-weight:600;color:#1a2a3a;margin-bottom:8px}
+.det-rows{display:flex;flex-direction:column}
+.drow{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid #dce8f5}
+.drow:last-child{border-bottom:none}
+.dlbl{color:#7a96b0;font-weight:500}
+.dval{font-weight:700;color:#1a2a3a;font-size:13px}
+.badge{padding:2px 10px;border-radius:10px;font-size:12px;font-weight:700}
+.badge.online{color:#1a7a46;background:#e8f5ee;border:1px solid #9dcfb5}
+.badge.maint{color:#b86c00;background:#fff4e0;border:1px solid #f0c070}
+.rot-row{display:flex;gap:4px;margin-top:8px}
+.rbtn{flex:1;padding:5px 2px;font-size:11px;font-weight:700;border-radius:5px;border:1px solid #c5d5e8;background:#fff;color:#1a5fa8;cursor:pointer;transition:all .15s;text-align:center}
+.rbtn:hover{background:#e8f1fb;border-color:#2e7dd1}
+.act-row{display:flex;gap:6px;margin-top:8px}
+.actbtn{flex:1;padding:7px;font-size:13px;font-weight:700;border-radius:6px;border:1px solid;background:#fff;cursor:pointer;transition:all .15s;font-family:'Sarabun',sans-serif}
+.actbtn.toggle{border-color:#c5d5e8;color:#3a5068}.actbtn.toggle:hover{border-color:#2e7dd1;color:#1a5fa8;background:#e8f1fb}
+.actbtn.delbtn{border-color:#c0524a;color:#b03030}.actbtn.delbtn:hover{background:#fdf0ef}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(20,40,70,.42);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border:1px solid #c5d5e8;border-radius:12px;padding:24px 26px;width:340px;box-shadow:0 8px 32px rgba(26,63,107,.18)}
+.modal h3{font-size:16px;font-weight:800;color:#1a5fa8;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #dce8f5}
+.mfield{margin-bottom:11px}
+.mfield label{font-size:12px;font-weight:700;color:#3a5068;display:block;margin-bottom:3px}
+.mfield input,.mfield select{width:100%;background:#f4f7fb;border:1px solid #c5d5e8;border-radius:6px;padding:8px 10px;color:#1a2a3a;font-family:'Sarabun',sans-serif;font-size:14px;outline:none;transition:border .15s}
+.mfield input:focus,.mfield select:focus{border-color:#2e7dd1;box-shadow:0 0 0 3px rgba(46,125,209,.1)}
+.mbtns{display:flex;gap:8px;margin-top:16px}
+.mok{flex:1;padding:9px;background:#1a5fa8;border:none;border-radius:7px;color:#fff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s}
+.mok:hover{background:#2e7dd1}
+.mcancel{flex:1;padding:9px;background:#f4f7fb;border:1px solid #c5d5e8;border-radius:7px;color:#3a5068;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s}
+.mcancel:hover{border-color:#c0524a;color:#b03030}
+
+/* SVG map styles (injected inline, but also here for safety) */
+.bld-boundary{fill:none;stroke:#4a7aaa;stroke-width:2}
+.bld-solid{fill:rgba(26,80,140,.05);stroke:#7aafd0;stroke-width:1.5}
+.bld-dashed{fill:none;stroke:#9ab8d0;stroke-width:1.5;stroke-dasharray:7,4}
+.bld-dotted{fill:none;stroke:#9ab8d0;stroke-width:1.5;stroke-dasharray:3,5}
+.bld-label{fill:#1e4a7a;font-size:9px;font-family:'Sarabun',sans-serif;font-weight:700;pointer-events:none}
+.bld-label.dim{fill:#6a90b0}
+.bld-sel-outline{fill:none;stroke:#2e7dd1;stroke-width:1.8;stroke-dasharray:5,3}
+.bld-hint{fill:#2e7dd1;font-size:8px;font-family:'Sarabun',sans-serif}
+.road{fill:none;stroke:#c5d5e8;stroke-width:2}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo-area">
-    <div class="logo-icon">📹</div>
+  <div class="hdr-left">
+    <div class="hdr-icon">📹</div>
     <div>
-      <div class="company-name">MOLD-MATE CO., LTD.</div>
-      <div class="system-title">ระบบติดตาม CCTV — แผนผังโรงงาน</div>
+      <div class="hdr-sub">MOLD-MATE CO., LTD.</div>
+      <div class="hdr-title">ระบบติดตาม CCTV — แผนผังโรงงาน</div>
     </div>
   </div>
-  <div class="header-right">
-    <div class="live-badge"><div class="live-dot"></div> LIVE MONITORING</div>
+  <div class="hdr-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
     <div id="clock">--:--:--</div>
   </div>
 </header>
 
-<div class="main-layout">
+<div class="layout">
 
-  <!-- MAP PANEL -->
+  <!-- LEFT: MAP -->
   <div class="map-panel">
-    <div class="map-panel-header">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
       <span class="panel-title">▶ แผนผังการติดตั้งกล้อง CCTV</span>
-      <div class="stats-row">
-        <div class="stat-chip ok" id="stat-ok">● ปกติ: 0</div>
-        <div class="stat-chip maint" id="stat-maint">● ซ่อมแซม: 0</div>
-        <button class="edit-btn" id="editModeBtn" onclick="toggleEditMode()">✏ แก้ไขกล้อง</button>
-        <button class="edit-btn" id="editBldBtn" onclick="toggleBuildingMode()">🏢 แก้ไขอาคาร</button>
-      </div>
-    </div>
-    <div class="edit-toolbar" id="editToolbar">
-      <div class="edit-toolbar-label">📷 โหมดแก้ไขกล้อง — ลากย้าย | Scroll/คลิกขวาหมุน | คลิกแผนที่เพิ่มกล้อง</div>
-      <span class="coord-display" id="coordDisplay">X: — Y: —</span>
-    </div>
-    <div class="edit-toolbar" id="editBldToolbar" style="background:#e8f1fb;border-color:#a3c4e8;color:#1a5fa8;">
-      <div class="edit-toolbar-label">🏢 โหมดแก้ไขอาคาร — ลากย้าย | ลากมุมปรับขนาด | คลิกขวาลบ | คลิกพื้นที่ว่างเพิ่มอาคาร</div>
-      <span class="coord-display" id="bldCoordDisplay"></span>
+      <div class="chip ok" id="chipOk">● ปกติ: 0</div>
+      <div class="chip maint" id="chipMaint">● ซ่อมแซม: 0</div>
+      <button class="tbtn" id="btnCamEdit" onclick="toggleCamMode()">✏ แก้ไขกล้อง</button>
+      <button class="tbtn" id="btnBldEdit" onclick="toggleBldMode()">🏢 แก้ไขอาคาร</button>
     </div>
 
-    <div class="summary-bar">
-      <div class="summary-card">
-        <div class="summary-num blue" id="sum-total">0</div>
-        <div class="summary-label">กล้องทั้งหมด</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-num green" id="sum-ok">0</div>
-        <div class="summary-label">ทำงานปกติ</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-num yellow" id="sum-maint">0</div>
-        <div class="summary-label">ซ่อมแซม</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-num green" id="sum-pct">0%</div>
-        <div class="summary-label">อัตราการทำงาน</div>
-      </div>
+    <!-- Hint bars -->
+    <div class="hint-bar cam" id="hintCam">
+      ✏ ลากกล้อง=ย้าย | Scroll=หมุน | คลิกขวา=หมุน 45° | คลิกพื้นที่ว่าง=เพิ่มกล้อง
+      <span class="hint-coord" id="coordDisp"></span>
+    </div>
+    <div class="hint-bar bld" id="hintBld">
+      🏢 ลากอาคาร=ย้าย | ลากมุมขวาล่าง=ปรับขนาด | ดับเบิลคลิก=แก้ชื่อ | คลิกขวา=ลบ | คลิกพื้นว่าง=เพิ่ม
+      <span class="hint-coord" id="bldCoordDisp"></span>
     </div>
 
-    <div class="map-container" id="mapContainer">
-      <div class="map-wrapper" id="mapWrapper">
-        <!-- Dynamic SVG map rendered by JS -->
-        <svg id="mapSvg" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg"
-             style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;">
-          <rect class="map-bg" width="900" height="600"/>
-          <g id="buildingLayer"></g>
-        </svg>
-        <!-- Camera dots injected here -->
-        <div id="cameraLayer"></div>
-      </div>
+    <!-- Summary -->
+    <div class="summary">
+      <div class="scard"><div class="snum blue" id="sTotal">0</div><div class="slabel">กล้องทั้งหมด</div></div>
+      <div class="scard"><div class="snum green" id="sOk">0</div><div class="slabel">ทำงานปกติ</div></div>
+      <div class="scard"><div class="snum yellow" id="sMaint">0</div><div class="slabel">ซ่อมแซม</div></div>
+      <div class="scard"><div class="snum green" id="sPct">0%</div><div class="slabel">อัตราการทำงาน</div></div>
     </div>
+
+    <!-- Map -->
+    <div class="map-wrap" id="mapWrap">
+      <svg id="mapSvg" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+        <rect width="900" height="600" fill="#f5f9ff"/>
+        <g id="bldLayer"></g>
+      </svg>
+      <div id="camLayer"></div>
+    </div>
+
   </div>
 
-  <!-- SIDEBAR -->
+  <!-- RIGHT: SIDEBAR -->
   <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-title">▶ รายการกล้อง CCTV</div>
-      <div class="filter-tabs">
-        <button class="filter-tab active-all" onclick="filterCams('all', this)">ทั้งหมด</button>
-        <button class="filter-tab" onclick="filterCams('online', this)">ปกติ</button>
-        <button class="filter-tab" onclick="filterCams('maintenance', this)">ซ่อมแซม</button>
+    <div class="sb-head">
+      <div class="sb-title">▶ รายการกล้อง CCTV</div>
+      <div class="ftabs">
+        <button class="ftab a-all" onclick="setFilter('all',this)">ทั้งหมด</button>
+        <button class="ftab" onclick="setFilter('online',this)">ปกติ</button>
+        <button class="ftab" onclick="setFilter('maint',this)">ซ่อมแซม</button>
       </div>
-      <div style="display:flex;gap:6px;margin-top:8px;align-items:center;">
-        <button class="qty-btn add" onclick="quickAddCamera()" title="เพิ่มกล้องใหม่">
-          <svg width="11" height="11" viewBox="0 0 11 11"><line x1="5.5" y1="1" x2="5.5" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="1" y1="5.5" x2="10" y2="5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          เพิ่มกล้อง
-        </button>
-        <button class="qty-btn remove" onclick="quickRemoveCamera()" title="ลบกล้องที่เลือก">
-          <svg width="11" height="11" viewBox="0 0 11 11"><line x1="1" y1="5.5" x2="10" y2="5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          ลบที่เลือก
-        </button>
+      <div class="addrow">
+        <button class="abtn add" onclick="openAddCam()">＋ เพิ่มกล้อง</button>
+        <button class="abtn del" onclick="delSelected()">－ ลบที่เลือก</button>
       </div>
     </div>
 
     <div class="cam-list" id="camList"></div>
 
-    <div class="detail-panel">
-      <div class="detail-title">▶ รายละเอียดกล้อง</div>
-      <div class="detail-empty" id="detailEmpty">เลือกกล้องเพื่อดูรายละเอียด</div>
-      <div class="detail-content" id="detailContent">
-        <div class="detail-cam-id" id="dId"></div>
-        <div class="detail-cam-name" id="dName"></div>
-        <div class="detail-rows">
-          <div class="detail-row">
-            <span class="detail-row-label">สถานะ</span>
-            <span class="detail-row-val" id="dStatus"></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-row-label">ตำแหน่ง</span>
-            <span class="detail-row-val" id="dZone"></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-row-label">อัปเดตล่าสุด</span>
-            <span class="detail-row-val" id="dTime"></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-row-label">ความละเอียด</span>
-            <span class="detail-row-val" id="dRes"></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-row-label">มุมกล้อง</span>
-            <span class="detail-row-val" id="dAngle">0°</span>
-          </div>
+    <div class="detail">
+      <div class="det-title">▶ รายละเอียดกล้อง</div>
+      <div class="det-empty" id="detEmpty">เลือกกล้องเพื่อดูรายละเอียด</div>
+      <div class="det-body" id="detBody">
+        <div class="det-id" id="dId"></div>
+        <div class="det-name" id="dName"></div>
+        <div class="det-rows">
+          <div class="drow"><span class="dlbl">สถานะ</span><span class="dval" id="dSt"></span></div>
+          <div class="drow"><span class="dlbl">โซน</span><span class="dval" id="dZone"></span></div>
+          <div class="drow"><span class="dlbl">ความละเอียด</span><span class="dval" id="dRes"></span></div>
+          <div class="drow"><span class="dlbl">มุมกล้อง</span><span class="dval" id="dAng">0°</span></div>
+          <div class="drow"><span class="dlbl">อัปเดต</span><span class="dval" id="dTime"></span></div>
         </div>
-        <!-- Rotate controls -->
-        <div style="display:flex;gap:6px;margin-top:10px;">
-          <button class="rotate-btn" onclick="rotateSelected(-45)" title="หมุนซ้าย 45°">↺ 45°</button>
-          <button class="rotate-btn" onclick="rotateSelected(-15)" title="หมุนซ้าย 15°">↺ 15°</button>
-          <button class="rotate-btn" onclick="rotateSelected(15)"  title="หมุนขวา 15°">15° ↻</button>
-          <button class="rotate-btn" onclick="rotateSelected(45)"  title="หมุนขวา 45°">45° ↻</button>
+        <div class="rot-row">
+          <button class="rbtn" onclick="rotateSel(-45)">↺ 45°</button>
+          <button class="rbtn" onclick="rotateSel(-15)">↺ 15°</button>
+          <button class="rbtn" onclick="rotateSel(15)">15° ↻</button>
+          <button class="rbtn" onclick="rotateSel(45)">45° ↻</button>
         </div>
-        <button class="toggle-btn" id="toggleBtn" onclick="toggleStatus()">เปลี่ยนสถานะ</button>
-        <button class="del-cam-btn" id="delCamBtn" onclick="deleteCamera()">🗑 ลบกล้องนี้</button>
+        <div class="act-row">
+          <button class="actbtn toggle" onclick="toggleStatus()">⇄ เปลี่ยนสถานะ</button>
+          <button class="actbtn delbtn" onclick="delSelected()">🗑 ลบกล้อง</button>
+        </div>
       </div>
     </div>
   </div>
 
 </div>
 
-<!-- Add Camera Modal -->
-<div class="modal-overlay" id="addModal">
-  <div class="modal-box">
-    <div class="modal-title">▶ เพิ่มกล้อง CCTV ใหม่</div>
-    <div class="modal-field">
-      <label class="modal-label">รหัสกล้อง</label>
-      <input class="modal-input" id="mId" placeholder="เช่น CAM-099" />
+<!-- Modal: Add Camera -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>➕ เพิ่มกล้อง CCTV</h3>
+    <div class="mfield"><label>รหัสกล้อง</label><input id="mId" placeholder="CAM-099"></div>
+    <div class="mfield"><label>ชื่อตำแหน่ง</label><input id="mName" placeholder="เช่น ประตูทางเข้าด้านข้าง"></div>
+    <div class="mfield"><label>โซน</label><input id="mZone" placeholder="เช่น ทางเข้า-ออก"></div>
+    <div class="mfield"><label>ความละเอียด</label>
+      <select id="mRes"><option>1080p</option><option>2MP</option><option>720p</option><option>4K</option></select>
     </div>
-    <div class="modal-field">
-      <label class="modal-label">ชื่อตำแหน่ง</label>
-      <input class="modal-input" id="mName" placeholder="เช่น ประตูทางเข้าด้านข้าง" />
+    <div class="mfield"><label>สถานะ</label>
+      <select id="mSt"><option value="online">ทำงานปกติ</option><option value="maint">ซ่อมแซม</option></select>
     </div>
-    <div class="modal-field">
-      <label class="modal-label">โซน</label>
-      <input class="modal-input" id="mZone" placeholder="เช่น ทางเข้า-ออก" />
-    </div>
-    <div class="modal-field">
-      <label class="modal-label">ความละเอียด</label>
-      <select class="modal-select" id="mRes">
-        <option>1080p</option><option>2MP</option><option>720p</option><option>4K</option>
-      </select>
-    </div>
-    <div class="modal-field">
-      <label class="modal-label">สถานะ</label>
-      <select class="modal-select" id="mStatus">
-        <option value="online">ทำงานปกติ</option>
-        <option value="maintenance">ซ่อมแซม</option>
-      </select>
-    </div>
-    <div class="modal-btns">
-      <button class="modal-ok" onclick="confirmAddCamera()">✔ เพิ่มกล้อง</button>
-      <button class="modal-cancel" onclick="closeModal()">ยกเลิก</button>
+    <div class="mbtns">
+      <button class="mok" onclick="confirmAdd()">✔ เพิ่มกล้อง</button>
+      <button class="mcancel" onclick="closeModal()">ยกเลิก</button>
     </div>
   </div>
 </div>
 
-// =============================
-// BUILDING DATA (SVG coords 0-900 x 0-600)
-// type: 'solid' | 'dashed' | 'dotted'
-// =============================
+<script>
+// ═══════════════════════════════════════════════
+// BUILDINGS DATA
+// ═══════════════════════════════════════════════
 let buildings = [
-  { id:'B00', label:'เขตโรงงาน', x:30,  y:60,  w:840, h:480, type:'boundary' },
-  { id:'B01', label:'หอพักพนักงาน',          x:280, y:80,  w:120, h:80,  type:'solid' },
-  { id:'B02', label:'กรอกคาร์บอน/บดเศษยาง', x:430, y:70,  w:140, h:70,  type:'solid' },
-  { id:'B03', label:'คลังวัตถุดิบ',           x:610, y:70,  w:130, h:80,  type:'solid' },
-  { id:'B04', label:'เตรียมวัตถุดิบ',         x:760, y:70,  w:105, h:80,  type:'solid' },
-  { id:'B05', label:'อาคาร T10',              x:230, y:200, w:160, h:120, type:'solid' },
-  { id:'B06', label:'คลังสินค้าและพัสดุ',     x:400, y:200, w:230, h:200, type:'solid' },
-  { id:'B07', label:'เก็บรถโฟล์คลิฟท์',       x:395, y:185, w:80,  h:40,  type:'solid' },
-  { id:'B08', label:'ผสมยาง',                 x:650, y:175, w:230, h:110, type:'solid' },
-  { id:'B09', label:'ซ่อมบำรุงรถแทรค',        x:650, y:300, w:200, h:100, type:'solid' },
-  { id:'B10', label:'ซ่อมแบตเตอรี่',          x:550, y:300, w:90,  h:100, type:'solid' },
-  { id:'B11', label:'เก็บแม่พิมพ์',           x:130, y:260, w:90,  h:80,  type:'solid' },
-  { id:'B12', label:'เก็บปลอก',               x:145, y:355, w:80,  h:60,  type:'solid' },
-  { id:'B13', label:'ผลิตแม่พิมพ์',           x:145, y:430, w:110, h:70,  type:'solid' },
-  { id:'B14', label:'สำนักงาน',               x:60,  y:400, w:80,  h:70,  type:'solid' },
-  { id:'B15', label:'อาคาร R&D',              x:80,  y:485, w:90,  h:60,  type:'solid' },
-  { id:'B16', label:'โรงอาหาร',               x:115, y:180, w:80,  h:65,  type:'solid' },
-  { id:'B17', label:'อาคารการผลิต',           x:260, y:280, w:130, h:120, type:'solid' },
-  { id:'B18', label:'ซ่อมบำรุง',              x:760, y:160, w:105, h:90,  type:'solid' },
-  { id:'B19', label:'พื้นที่ทดสอบแทรค',       x:620, y:420, w:230, h:80,  type:'dashed' },
-  { id:'B20', label:'พื้นที่ว่างเปล่า',        x:620, y:510, w:240, h:40,  type:'dotted' },
-  { id:'B21', label:'ที่จอดรถพนักงาน',        x:250, y:430, w:180, h:80,  type:'dashed' },
+  {id:'b0',  label:'เขตโรงงาน',              x:30,  y:60,  w:840, h:480, type:'boundary'},
+  {id:'b1',  label:'หอพักพนักงาน',           x:285, y:80,  w:115, h:75,  type:'solid'},
+  {id:'b2',  label:'กรอกคาร์บอน/บดเศษยาง',  x:430, y:72,  w:140, h:68,  type:'solid'},
+  {id:'b3',  label:'คลังวัตถุดิบ',            x:615, y:72,  w:125, h:75,  type:'solid'},
+  {id:'b4',  label:'เตรียมวัตถุดิบ',          x:762, y:72,  w:100, h:75,  type:'solid'},
+  {id:'b5',  label:'อาคาร T10',               x:235, y:202, w:155, h:115, type:'solid'},
+  {id:'b6',  label:'คลังสินค้าและพัสดุ',      x:415, y:202, w:220, h:195, type:'solid'},
+  {id:'b7',  label:'เก็บรถโฟล์คลิฟท์',        x:398, y:187, w:78,  h:38,  type:'solid'},
+  {id:'b8',  label:'ผสมยาง',                  x:655, y:178, w:225, h:108, type:'solid'},
+  {id:'b9',  label:'ซ่อมบำรุงรถแทรค',         x:655, y:302, w:195, h:98,  type:'solid'},
+  {id:'b10', label:'ซ่อมแบตเตอรี่',           x:553, y:302, w:88,  h:98,  type:'solid'},
+  {id:'b11', label:'เก็บแม่พิมพ์',            x:135, y:263, w:88,  h:78,  type:'solid'},
+  {id:'b12', label:'เก็บปลอก',                x:148, y:358, w:78,  h:58,  type:'solid'},
+  {id:'b13', label:'ผลิตแม่พิมพ์',            x:148, y:432, w:108, h:68,  type:'solid'},
+  {id:'b14', label:'สำนักงาน',                x:62,  y:402, w:78,  h:68,  type:'solid'},
+  {id:'b15', label:'อาคาร R&D',               x:82,  y:487, w:88,  h:58,  type:'solid'},
+  {id:'b16', label:'โรงอาหาร',                x:118, y:182, w:78,  h:63,  type:'solid'},
+  {id:'b17', label:'อาคารการผลิต',            x:265, y:283, w:125, h:115, type:'solid'},
+  {id:'b18', label:'ซ่อมบำรุง',               x:762, y:163, w:100, h:88,  type:'solid'},
+  {id:'b19', label:'พื้นที่ทดสอบแทรค',        x:625, y:422, w:225, h:78,  type:'dashed'},
+  {id:'b20', label:'ที่จอดรถพนักงาน',         x:255, y:432, w:175, h:78,  type:'dashed'},
+  {id:'b21', label:'พื้นที่ว่างเปล่า',         x:625, y:508, w:235, h:38,  type:'dotted'},
 ];
+let bldCnt = 30;
+let selBldId = null;
 
-let bldIdCounter = 30;
-let buildingMode = false;
-let selectedBldId = null;
+// ═══════════════════════════════════════════════
+// CAMERAS DATA
+// ═══════════════════════════════════════════════
+let cameras = [
+  {id:'CAM-001',name:'ประตูหลักทางเข้า',     zone:'ทางเข้า-ออก',      x:4,  y:60, st:'online', res:'1080p',ang:0},
+  {id:'CAM-002',name:'ทางออกหลัก',            zone:'ทางเข้า-ออก',      x:4,  y:75, st:'online', res:'1080p',ang:180},
+  {id:'CAM-003',name:'รั้วด้านใต้',            zone:'ทางเข้า-ออก',      x:38, y:93, st:'maint',  res:'720p', ang:90},
+  {id:'CAM-011',name:'สำนักงาน (ด้านหน้า)',   zone:'สำนักงาน/R&D',     x:9,  y:66, st:'online', res:'1080p',ang:45},
+  {id:'CAM-012',name:'สำนักงาน (ภายใน)',      zone:'สำนักงาน/R&D',     x:11, y:72, st:'online', res:'1080p',ang:270},
+  {id:'CAM-013',name:'อาคาร R&D',             zone:'สำนักงาน/R&D',     x:12, y:84, st:'maint',  res:'720p', ang:135},
+  {id:'CAM-021',name:'โรงอาหาร',              zone:'โรงอาหาร/หอพัก',   x:16, y:32, st:'online', res:'1080p',ang:90},
+  {id:'CAM-022',name:'หอพักพนักงาน (หน้า)',   zone:'โรงอาหาร/หอพัก',   x:37, y:15, st:'online', res:'1080p',ang:180},
+  {id:'CAM-023',name:'หอพักพนักงาน (หลัง)',   zone:'โรงอาหาร/หอพัก',   x:44, y:15, st:'online', res:'720p', ang:225},
+  {id:'CAM-031',name:'อาคาร T10 (ทิศเหนือ)',  zone:'อาคาร T10/ผลิต',   x:28, y:36, st:'online', res:'1080p',ang:180},
+  {id:'CAM-032',name:'อาคาร T10 (ทิศใต้)',    zone:'อาคาร T10/ผลิต',   x:28, y:54, st:'online', res:'1080p',ang:0},
+  {id:'CAM-033',name:'อาคารการผลิต',          zone:'อาคาร T10/ผลิต',   x:34, y:59, st:'maint',  res:'720p', ang:315},
+  {id:'CAM-034',name:'เก็บแม่พิมพ์',          zone:'อาคาร T10/ผลิต',   x:19, y:48, st:'online', res:'1080p',ang:90},
+  {id:'CAM-041',name:'คลังสินค้า (หน้า)',      zone:'คลังสินค้า/พัสดุ', x:52, y:38, st:'online', res:'2MP',  ang:270},
+  {id:'CAM-042',name:'คลังสินค้า (กลาง)',      zone:'คลังสินค้า/พัสดุ', x:58, y:49, st:'online', res:'2MP',  ang:180},
+  {id:'CAM-043',name:'คลังสินค้า (หลัง)',      zone:'คลังสินค้า/พัสดุ', x:52, y:57, st:'online', res:'2MP',  ang:0},
+  {id:'CAM-044',name:'รถโฟล์คลิฟท์',          zone:'คลังสินค้า/พัสดุ', x:47, y:32, st:'maint',  res:'720p', ang:135},
+  {id:'CAM-051',name:'คลังวัตถุดิบ',           zone:'วัตถุดิบ/เตรียม',  x:72, y:14, st:'online', res:'1080p',ang:270},
+  {id:'CAM-052',name:'เตรียมวัตถุดิบ',         zone:'วัตถุดิบ/เตรียม',  x:87, y:14, st:'online', res:'1080p',ang:225},
+  {id:'CAM-053',name:'กรอกคาร์บอน/บดยาง',     zone:'วัตถุดิบ/เตรียม',  x:54, y:14, st:'online', res:'720p', ang:180},
+  {id:'CAM-061',name:'ผสมยาง (หน้า)',          zone:'ผสมยาง/ซ่อมบำรุง', x:76, y:33, st:'online', res:'2MP',  ang:270},
+  {id:'CAM-062',name:'ผสมยาง (หลัง)',          zone:'ผสมยาง/ซ่อมบำรุง', x:89, y:33, st:'online', res:'2MP',  ang:180},
+  {id:'CAM-063',name:'ซ่อมบำรุง',              zone:'ผสมยาง/ซ่อมบำรุง', x:89, y:28, st:'maint',  res:'720p', ang:90},
+  {id:'CAM-071',name:'ซ่อมรถแทรค',            zone:'ซ่อมรถ/แบตเตอรี่', x:80, y:58, st:'online', res:'1080p',ang:315},
+  {id:'CAM-072',name:'ซ่อมแบตเตอรี่',         zone:'ซ่อมรถ/แบตเตอรี่', x:64, y:58, st:'online', res:'720p', ang:45},
+  {id:'CAM-081',name:'พื้นที่ทดสอบแทรค',       zone:'ทดสอบ/กลางแจ้ง',  x:75, y:76, st:'online', res:'2MP',  ang:225},
+  {id:'CAM-082',name:'พื้นที่ทดสอบ (ปลาย)',    zone:'ทดสอบ/กลางแจ้ง',  x:89, y:76, st:'maint',  res:'720p', ang:270},
+  {id:'CAM-083',name:'ที่จอดรถพนักงาน',        zone:'ทดสอบ/กลางแจ้ง',  x:37, y:76, st:'online', res:'1080p',ang:90},
+];
+let camCnt = 90;
 
-// ── render ──────────────────────────────────────
-function renderBuildings() {
-  const g = document.getElementById('buildingLayer');
-  g.innerHTML = '';
+// ── state ──
+let selCamId = null;
+let filterMode = 'all';
+let camEditMode = false;
+let bldEditMode = false;
+let pendingPos = null; // {x,y} % for new camera
 
-  // Roads/boundary first
-  const ns = 'http://www.w3.org/2000/svg';
+// ═══════════════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════════════
+function tick(){
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    [n.getHours(),n.getMinutes(),n.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':');
+}
+setInterval(tick,1000); tick();
+setInterval(()=>{if(selCamId)document.getElementById('dTime').textContent=new Date().toLocaleTimeString('th-TH')},1000);
 
-  // Outer road lines
-  const r1 = document.createElementNS(ns,'line');
-  Object.assign(r1,{}); r1.setAttribute('x1','0'); r1.setAttribute('y1','520');
-  r1.setAttribute('x2','900'); r1.setAttribute('y2','520');
-  r1.setAttribute('class','road'); g.appendChild(r1);
-  const r2 = document.createElementNS(ns,'line');
-  r2.setAttribute('x1','30'); r2.setAttribute('y1','60');
-  r2.setAttribute('x2','30'); r2.setAttribute('y2','600');
-  r2.setAttribute('class','road'); g.appendChild(r2);
+// ═══════════════════════════════════════════════
+// BUILDINGS — render
+// ═══════════════════════════════════════════════
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs={}){
+  const e=document.createElementNS(NS,tag);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  return e;
+}
 
-  buildings.forEach(b => {
-    const isBoundary = b.type === 'boundary';
-    const isSelected = buildingMode && b.id === selectedBldId;
+function renderBuildings(){
+  const g=document.getElementById('bldLayer');
+  g.innerHTML='';
+
+  // roads
+  g.appendChild(el('line',{x1:0,y1:520,x2:900,y2:520,class:'road'}));
+  g.appendChild(el('line',{x1:30,y1:60,x2:30,y2:600,class:'road'}));
+
+  buildings.forEach(b=>{
+    const isBound=b.type==='boundary';
+    const isSel=bldEditMode && b.id===selBldId;
 
     // rect
-    const rect = document.createElementNS(ns,'rect');
-    rect.setAttribute('x', b.x); rect.setAttribute('y', b.y);
-    rect.setAttribute('width', b.w); rect.setAttribute('height', b.h);
-    rect.setAttribute('rx', isBoundary ? 4 : 3);
-    rect.setAttribute('fill', isSelected ? 'rgba(26,95,168,0.10)' : (isBoundary ? 'none' : 'rgba(26,80,140,0.05)'));
-    rect.setAttribute('stroke', isSelected ? '#1a5fa8' : (isBoundary ? '#4a7aaa' : '#7aafd0'));
-    rect.setAttribute('stroke-width', isBoundary ? '2' : (isSelected ? '2' : '1.5'));
-    if (b.type === 'dashed') rect.setAttribute('stroke-dasharray','7,4');
-    if (b.type === 'dotted') rect.setAttribute('stroke-dasharray','3,5');
-    if (buildingMode && !isBoundary) rect.style.cursor = 'move';
+    const fillCol = isBound ? 'none' : (isSel ? 'rgba(26,95,168,0.10)' : 'rgba(26,80,140,0.05)');
+    const strokeCol = isBound ? '#4a7aaa' : (isSel ? '#1a5fa8' : '#7aafd0');
+    const sw = isBound ? '2' : (isSel ? '2' : '1.5');
+    const dash = b.type==='dashed' ? '7,4' : b.type==='dotted' ? '3,5' : null;
+
+    const attrs={x:b.x,y:b.y,width:b.w,height:b.h,rx:3,fill:fillCol,stroke:strokeCol,'stroke-width':sw};
+    if(dash) attrs['stroke-dasharray']=dash;
+    const rect=el('rect',attrs);
+    if(bldEditMode && !isBound) rect.style.cursor='move';
     g.appendChild(rect);
 
-    // label
-    const txt = document.createElementNS(ns,'text');
-    txt.setAttribute('x', b.x + b.w/2);
-    txt.setAttribute('y', b.y + b.h/2 + 4);
-    txt.setAttribute('text-anchor','middle');
-    txt.setAttribute('class','building-label-svg');
-    txt.setAttribute('font-size', b.w < 100 ? '8' : '9');
-    txt.style.fill = isBoundary ? '#4a7aaa'
-                   : b.type !== 'solid' ? '#6a90b0'
-                   : '#1e4a7a';
-    txt.textContent = b.label;
-    g.appendChild(txt);
-
-    // selected highlight + resize handle
-    if (isSelected) {
-      const hl = document.createElementNS(ns,'rect');
-      hl.setAttribute('x', b.x-2); hl.setAttribute('y', b.y-2);
-      hl.setAttribute('width', b.w+4); hl.setAttribute('height', b.h+4);
-      hl.setAttribute('fill','none');
-      hl.setAttribute('stroke','#2e7dd1');
-      hl.setAttribute('stroke-width','1.5');
-      hl.setAttribute('stroke-dasharray','5,3');
-      hl.setAttribute('rx','4');
-      g.appendChild(hl);
-
-      // Resize handle (bottom-right corner)
-      const rh = document.createElementNS(ns,'rect');
-      rh.setAttribute('x', b.x+b.w-7); rh.setAttribute('y', b.y+b.h-7);
-      rh.setAttribute('width','12'); rh.setAttribute('height','12');
-      rh.setAttribute('rx','3');
-      rh.setAttribute('fill','#2e7dd1'); rh.setAttribute('stroke','white');
-      rh.setAttribute('stroke-width','1.5');
-      rh.style.cursor = 'se-resize';
-      rh.dataset.role = 'resize';
-      rh.dataset.bid = b.id;
-      g.appendChild(rh);
-
-      // Label edit hint
-      const hint = document.createElementNS(ns,'text');
-      hint.setAttribute('x', b.x + b.w/2);
-      hint.setAttribute('y', b.y - 6);
-      hint.setAttribute('text-anchor','middle');
-      hint.setAttribute('font-size','8');
-      hint.setAttribute('fill','#2e7dd1');
-      hint.textContent = '✎ ดับเบิลคลิกแก้ชื่อ | คลิกขวาลบ';
-      g.appendChild(hint);
+    // label (split long text at '/')
+    const parts=b.label.split('/');
+    if(parts.length>1){
+      parts.forEach((part,i)=>{
+        const t=el('text',{x:b.x+b.w/2,y:b.y+b.h/2+(i-parts.length/2+0.7)*11,
+          'text-anchor':'middle','font-size':b.w<90?'8':'9',
+          fill: isBound?'#4a7aaa':b.type!=='solid'?'#6a90b0':'#1e4a7a',
+          'font-family':"'Sarabun',sans-serif",'font-weight':'700'});
+        t.style.pointerEvents='none';
+        t.textContent=part;
+        g.appendChild(t);
+      });
+    } else {
+      const t=el('text',{x:b.x+b.w/2,y:b.y+b.h/2+4,
+        'text-anchor':'middle','font-size':b.w<90?'8':'9',
+        fill: isBound?'#4a7aaa':b.type!=='solid'?'#6a90b0':'#1e4a7a',
+        'font-family':"'Sarabun',sans-serif",'font-weight':'700'});
+      t.style.pointerEvents='none';
+      t.textContent=b.label;
+      g.appendChild(t);
     }
 
-    // Interaction in building mode
-    if (buildingMode && !isBoundary) {
-      attachBuildingEvents(rect, txt, b);
+    // selected styling
+    if(isSel){
+      const hl=el('rect',{x:b.x-2,y:b.y-2,width:b.w+4,height:b.h+4,rx:4,
+        fill:'none',stroke:'#2e7dd1','stroke-width':'1.8','stroke-dasharray':'5,3'});
+      hl.style.pointerEvents='none';
+      g.appendChild(hl);
+
+      // resize handle
+      const rh=el('rect',{x:b.x+b.w-6,y:b.y+b.h-6,width:14,height:14,rx:3,
+        fill:'#2e7dd1',stroke:'white','stroke-width':'1.5'});
+      rh.style.cursor='se-resize';
+      rh.dataset.role='resize'; rh.dataset.bid=b.id;
+      g.appendChild(rh);
+
+      // hint text
+      const ht=el('text',{x:b.x+b.w/2,y:b.y-5,'text-anchor':'middle',
+        'font-size':'8',fill:'#2e7dd1','font-family':"'Sarabun',sans-serif"});
+      ht.style.pointerEvents='none';
+      ht.textContent='✎ ดับเบิลคลิก=แก้ชื่อ  คลิกขวา=ลบ';
+      g.appendChild(ht);
+    }
+
+    // attach events in bld edit mode
+    if(bldEditMode && !isBound){
+      attachBldEvents(rect, b);
     }
   });
 }
 
-// ── attach drag / select / rename / delete ──────
-function svgPt(svg, e) {
-  const pt = svg.createSVGPoint();
-  pt.x = e.clientX; pt.y = e.clientY;
+// ── building interaction ──
+function svgPoint(e){
+  const svg=document.getElementById('mapSvg');
+  const pt=svg.createSVGPoint();
+  pt.x=e.clientX; pt.y=e.clientY;
   return pt.matrixTransform(svg.getScreenCTM().inverse());
 }
 
-function attachBuildingEvents(rect, txt, b) {
-  const svg = document.getElementById('mapSvg');
-
-  // Select on click
-  rect.addEventListener('mousedown', (e) => {
-    if (e.button !== 0) return;
+function attachBldEvents(rect, b){
+  rect.addEventListener('mousedown', e=>{
+    if(e.button!==0) return;
     e.stopPropagation();
-    selectedBldId = b.id;
-
-    const origin = svgPt(svg, e);
-    const startX = b.x, startY = b.y;
-    let dragging = false;
-
-    const onMove = (me) => {
-      dragging = true;
-      const cur = svgPt(svg, me);
-      b.x = Math.max(32, Math.min(870 - b.w, startX + cur.x - origin.x));
-      b.y = Math.max(62, Math.min(538 - b.h, startY + cur.y - origin.y));
+    selBldId=b.id;
+    const o=svgPoint(e), sx=b.x, sy=b.y;
+    let moved=false;
+    const onM=me=>{
+      moved=true;
+      const c=svgPoint(me);
+      b.x=Math.max(32,Math.min(868-b.w, sx+c.x-o.x));
+      b.y=Math.max(62,Math.min(538-b.h, sy+c.y-o.y));
       renderBuildings();
     };
-    const onUp = () => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-      if (!dragging) renderBuildings(); // just select
+    const onU=()=>{
+      document.removeEventListener('mousemove',onM);
+      document.removeEventListener('mouseup',onU);
+      if(!moved) renderBuildings();
     };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    document.addEventListener('mousemove',onM);
+    document.addEventListener('mouseup',onU);
   });
 
-  // Double-click → rename
-  rect.addEventListener('dblclick', (e) => {
+  rect.addEventListener('dblclick', e=>{
     e.stopPropagation();
-    const newName = prompt('ชื่ออาคาร:', b.label);
-    if (newName !== null && newName.trim()) {
-      b.label = newName.trim();
-      renderBuildings();
-    }
-  });
-  txt.addEventListener('dblclick', (e) => {
-    e.stopPropagation();
-    const newName = prompt('ชื่ออาคาร:', b.label);
-    if (newName !== null && newName.trim()) {
-      b.label = newName.trim();
-      renderBuildings();
-    }
+    const n=prompt('ชื่ออาคาร:',b.label);
+    if(n && n.trim()){ b.label=n.trim(); renderBuildings(); }
   });
 
-  // Right-click → delete
-  rect.addEventListener('contextmenu', (e) => {
+  rect.addEventListener('contextmenu', e=>{
     e.preventDefault(); e.stopPropagation();
-    if (confirm(`ลบอาคาร "${b.label}" ออกจากแผนผัง?`)) {
-      buildings = buildings.filter(bd => bd.id !== b.id);
-      if (selectedBldId === b.id) selectedBldId = null;
+    if(confirm(`ลบอาคาร "${b.label}"?`)){
+      buildings=buildings.filter(bd=>bd.id!==b.id);
+      if(selBldId===b.id) selBldId=null;
       renderBuildings();
     }
   });
 }
 
-// ── resize handle mousedown ──────────────────────
-document.addEventListener('mousedown', (e) => {
-  if (!buildingMode) return;
-  const rh = e.target.closest('[data-role="resize"]');
-  if (!rh) return;
+// resize handle global mousedown
+document.addEventListener('mousedown', e=>{
+  if(!bldEditMode) return;
+  const rh=e.target.closest?.('[data-role="resize"]');
+  if(!rh) return;
   e.stopPropagation(); e.preventDefault();
-  const bid = rh.dataset.bid;
-  const b = buildings.find(bd => bd.id === bid);
-  if (!b) return;
-  const svg = document.getElementById('mapSvg');
-  const origin = svgPt(svg, e);
-  const startW = b.w, startH = b.h;
-
-  const onMove = (me) => {
-    const cur = svgPt(svg, me);
-    b.w = Math.max(40, startW + cur.x - origin.x);
-    b.h = Math.max(30, startH + cur.y - origin.y);
+  const b=buildings.find(bd=>bd.id===rh.dataset.bid);
+  if(!b) return;
+  const o=svgPoint(e), sw=b.w, sh=b.h;
+  const onM=me=>{
+    const c=svgPoint(me);
+    b.w=Math.max(50, sw+c.x-o.x);
+    b.h=Math.max(30, sh+c.y-o.y);
     renderBuildings();
   };
-  const onUp = () => {
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup', onUp);
-  };
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', onUp);
+  const onU=()=>{ document.removeEventListener('mousemove',onM); document.removeEventListener('mouseup',onU); };
+  document.addEventListener('mousemove',onM);
+  document.addEventListener('mouseup',onU);
 });
 
-// ── click map background to add building ─────────
-function onMapBgClick(e) {
-  if (!buildingMode) return;
-  if (e.target.closest('rect[stroke]') || e.target.closest('[data-role]')) return;
-  const svg = document.getElementById('mapSvg');
-  const pt = svgPt(svg, e);
-  const name = prompt('ชื่ออาคารใหม่:', 'อาคารใหม่');
-  if (!name) return;
-  bldIdCounter++;
-  buildings.push({
-    id: 'B' + bldIdCounter,
-    label: name.trim(),
-    x: Math.round(pt.x - 60), y: Math.round(pt.y - 40),
-    w: 120, h: 80, type: 'solid'
-  });
-  selectedBldId = 'B' + bldIdCounter;
+// click map bg to add building
+function onMapClick(e){
+  if(!bldEditMode) return;
+  // only fire on svg bg or bldLayer group (not on rect/text)
+  if(e.target.tagName==='rect' || e.target.tagName==='text') return;
+  const p=svgPoint(e);
+  const name=prompt('ชื่ออาคารใหม่:','อาคารใหม่');
+  if(!name) return;
+  bldCnt++;
+  const nb={id:'b'+bldCnt,label:name.trim(),x:Math.round(p.x-60),y:Math.round(p.y-40),w:120,h:80,type:'solid'};
+  buildings.push(nb);
+  selBldId=nb.id;
   renderBuildings();
 }
 
-// ── toggle building edit mode ────────────────────
-function toggleBuildingMode() {
-  // exit camera edit mode if on
-  if (editMode) toggleEditMode();
-
-  buildingMode = !buildingMode;
-  const btn = document.getElementById('editBldBtn');
-  const toolbar = document.getElementById('editBldToolbar');
-  const svg = document.getElementById('mapSvg');
-
-  if (buildingMode) {
-    btn.classList.add('active');
-    btn.textContent = '✔ เสร็จสิ้น';
-    toolbar.classList.add('visible');
-    svg.style.cursor = 'crosshair';
-    svg.addEventListener('click', onMapBgClick);
+// toggle building edit mode
+function toggleBldMode(){
+  if(camEditMode) toggleCamMode();
+  bldEditMode=!bldEditMode;
+  const btn=document.getElementById('btnBldEdit');
+  const hint=document.getElementById('hintBld');
+  const svg=document.getElementById('mapSvg');
+  if(bldEditMode){
+    btn.classList.add('active-bld'); btn.textContent='✔ เสร็จสิ้น';
+    hint.classList.add('show');
+    svg.style.cursor='crosshair';
+    svg.addEventListener('click',onMapClick);
   } else {
-    btn.classList.remove('active');
-    btn.textContent = '🏢 แก้ไขอาคาร';
-    toolbar.classList.remove('visible');
-    svg.style.cursor = '';
-    svg.removeEventListener('click', onMapBgClick);
-    selectedBldId = null;
+    btn.classList.remove('active-bld'); btn.textContent='🏢 แก้ไขอาคาร';
+    hint.classList.remove('show');
+    svg.style.cursor='';
+    svg.removeEventListener('click',onMapClick);
+    selBldId=null;
   }
   renderBuildings();
 }
 
+// ═══════════════════════════════════════════════
+// CAMERAS — render dots
+// ═══════════════════════════════════════════════
+function renderCams(){
+  const layer=document.getElementById('camLayer');
+  layer.innerHTML='';
+  const wrap=document.getElementById('mapWrap');
+  const mapCont=document.getElementById('mapWrap');
 
-let editMode = false;
-let pendingAddPos = null; // {x%, y%} where user clicked to add
+  cameras.forEach(cam=>{
+    const dot=document.createElement('div');
+    dot.className=`cdot ${cam.st}`;
+    dot.style.left=cam.x+'%';
+    dot.style.top=cam.y+'%';
+    dot.dataset.id=cam.id;
 
-function toggleEditMode() {
-  editMode = !editMode;
-  const btn = document.getElementById('editModeBtn');
-  const toolbar = document.getElementById('editToolbar');
-  const mapCont = document.querySelector('.map-container');
-  if (editMode) {
-    btn.classList.add('active');
-    btn.textContent = '✔ เสร็จสิ้น';
-    toolbar.classList.add('visible');
-    mapCont.classList.add('edit-mode');
-  } else {
-    btn.classList.remove('active');
-    btn.textContent = '✏ แก้ไขตำแหน่ง';
-    toolbar.classList.remove('visible');
-    mapCont.classList.remove('edit-mode');
-  }
-  renderMapDots();
-}
+    const isOk=cam.st==='online';
+    const col=isOk?'#1a7a46':'#b86c00';
+    const fov=isOk?'rgba(26,122,70,0.15)':'rgba(184,108,0,0.12)';
+    const rec=isOk?'#e03030':'#aaa';
 
-// =============================
-// CAMERA DATA
-// =============================
-// Positions are % of map container (left%, top%)
-const cameras = [
-  // Zone: ทางเข้า-ออก
-  { id:'CAM-001', name:'ประตูหลักทางเข้า', zone:'ทางเข้า-ออก', x:4.5, y:60, status:'online', res:'1080p', angle:0 },
-  { id:'CAM-002', name:'ทางออกหลัก', zone:'ทางเข้า-ออก', x:4.5, y:75, status:'online', res:'1080p', angle:180 },
-  { id:'CAM-003', name:'รั้วด้านใต้', zone:'ทางเข้า-ออก', x:38, y:92, status:'maintenance', res:'720p', angle:90 },
-
-  // Zone: สำนักงาน / R&D
-  { id:'CAM-011', name:'สำนักงาน (ด้านหน้า)', zone:'สำนักงาน/R&D', x:8.5, y:65, status:'online', res:'1080p', angle:45 },
-  { id:'CAM-012', name:'สำนักงาน (ภายใน)', zone:'สำนักงาน/R&D', x:11, y:71, status:'online', res:'1080p', angle:270 },
-  { id:'CAM-013', name:'อาคาร R&D', zone:'สำนักงาน/R&D', x:12, y:83, status:'maintenance', res:'720p', angle:135 },
-
-  // Zone: โรงอาหาร / หอพัก
-  { id:'CAM-021', name:'โรงอาหาร', zone:'โรงอาหาร/หอพัก', x:16, y:31, status:'online', res:'1080p', angle:90 },
-  { id:'CAM-022', name:'หอพักพนักงาน (หน้า)', zone:'โรงอาหาร/หอพัก', x:37, y:15, status:'online', res:'1080p', angle:180 },
-  { id:'CAM-023', name:'หอพักพนักงาน (หลัง)', zone:'โรงอาหาร/หอพัก', x:44, y:15, status:'online', res:'720p', angle:225 },
-
-  // Zone: อาคาร T10 / ผลิต
-  { id:'CAM-031', name:'อาคาร T10 (ทิศเหนือ)', zone:'อาคาร T10/ผลิต', x:28, y:36, status:'online', res:'1080p', angle:180 },
-  { id:'CAM-032', name:'อาคาร T10 (ทิศใต้)', zone:'อาคาร T10/ผลิต', x:28, y:53, status:'online', res:'1080p', angle:0 },
-  { id:'CAM-033', name:'อาคารการผลิต', zone:'อาคาร T10/ผลิต', x:34, y:58, status:'maintenance', res:'720p', angle:315 },
-  { id:'CAM-034', name:'เก็บแม่พิมพ์', zone:'อาคาร T10/ผลิต', x:19, y:47, status:'online', res:'1080p', angle:90 },
-
-  // Zone: คลังสินค้า
-  { id:'CAM-041', name:'คลังสินค้า (ด้านหน้า)', zone:'คลังสินค้า/พัสดุ', x:52, y:38, status:'online', res:'2MP', angle:270 },
-  { id:'CAM-042', name:'คลังสินค้า (กลาง)', zone:'คลังสินค้า/พัสดุ', x:58, y:48, status:'online', res:'2MP', angle:180 },
-  { id:'CAM-043', name:'คลังสินค้า (หลัง)', zone:'คลังสินค้า/พัสดุ', x:52, y:56, status:'online', res:'2MP', angle:0 },
-  { id:'CAM-044', name:'รถโฟล์คลิฟท์', zone:'คลังสินค้า/พัสดุ', x:47, y:32, status:'maintenance', res:'720p', angle:135 },
-
-  // Zone: วัตถุดิบ
-  { id:'CAM-051', name:'คลังวัตถุดิบ', zone:'วัตถุดิบ/เตรียม', x:72, y:14, status:'online', res:'1080p', angle:270 },
-  { id:'CAM-052', name:'เตรียมวัตถุดิบ', zone:'วัตถุดิบ/เตรียม', x:86, y:14, status:'online', res:'1080p', angle:225 },
-  { id:'CAM-053', name:'กรอกคาร์บอน/บดยาง', zone:'วัตถุดิบ/เตรียม', x:54, y:13, status:'online', res:'720p', angle:180 },
-
-  // Zone: ผสมยาง / ซ่อมบำรุง
-  { id:'CAM-061', name:'ผสมยาง (ด้านหน้า)', zone:'ผสมยาง/ซ่อมบำรุง', x:76, y:33, status:'online', res:'2MP', angle:270 },
-  { id:'CAM-062', name:'ผสมยาง (ด้านหลัง)', zone:'ผสมยาง/ซ่อมบำรุง', x:89, y:33, status:'online', res:'2MP', angle:180 },
-  { id:'CAM-063', name:'ซ่อมบำรุง', zone:'ผสมยาง/ซ่อมบำรุง', x:89, y:28, status:'maintenance', res:'720p', angle:90 },
-
-  // Zone: ซ่อมรถ / แบตเตอรี่
-  { id:'CAM-071', name:'ซ่อมรถแทรค', zone:'ซ่อมรถ/แบตเตอรี่', x:80, y:57, status:'online', res:'1080p', angle:315 },
-  { id:'CAM-072', name:'ซ่อมแบตเตอรี่', zone:'ซ่อมรถ/แบตเตอรี่', x:64, y:57, status:'online', res:'720p', angle:45 },
-
-  // Zone: ทดสอบ / พื้นที่กลางแจ้ง
-  { id:'CAM-081', name:'พื้นที่ทดสอบแทรค', zone:'ทดสอบ/กลางแจ้ง', x:75, y:75, status:'online', res:'2MP', angle:225 },
-  { id:'CAM-082', name:'พื้นที่ทดสอบ (ปลาย)', zone:'ทดสอบ/กลางแจ้ง', x:89, y:75, status:'maintenance', res:'720p', angle:270 },
-  { id:'CAM-083', name:'ที่จอดรถพนักงาน', zone:'ทดสอบ/กลางแจ้ง', x:37, y:75, status:'online', res:'1080p', angle:90 },
-];
-
-let selectedId = null;
-let currentFilter = 'all';
-
-// =============================
-// CLOCK
-// =============================
-function updateClock() {
-  const now = new Date();
-  const h = String(now.getHours()).padStart(2,'0');
-  const m = String(now.getMinutes()).padStart(2,'0');
-  const s = String(now.getSeconds()).padStart(2,'0');
-  document.getElementById('clock').textContent = h+':'+m+':'+s;
-}
-setInterval(updateClock, 1000);
-updateClock();
-
-// =============================
-// RENDER CAMERAS ON MAP — WITH DRAG & DROP
-// =============================
-function renderMapDots() {
-  const layer = document.getElementById('cameraLayer');
-  layer.innerHTML = '';
-  const mapCont = document.querySelector('.map-container');
-
-  cameras.forEach(cam => {
-    const dot = document.createElement('div');
-    dot.className = `cam-dot ${cam.status}`;
-    dot.style.left = cam.x + '%';
-    dot.style.top = cam.y + '%';
-    dot.dataset.id = cam.id;
-
-    const isOnline = cam.status === 'online';
-    const bodyColor  = isOnline ? '#1a7a46' : '#b86c00';
-    const fillOp     = '0.15';
-    const recColor   = isOnline ? '#e03030' : '#aaaaaa';
-    const recOp      = isOnline ? '1' : '0.4';
-    const fovColor   = isOnline ? 'rgba(26,122,70,0.18)' : 'rgba(184,108,0,0.12)';
-    const ang        = cam.angle || 0;
-
-    dot.innerHTML = `
-      <div class="cam-icon-wrap" style="transform: rotate(${ang}deg); transition: transform 0.35s cubic-bezier(.4,0,.2,1);">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- FOV cone -->
-          <path d="M16 12 L22 7 L22 17 Z" fill="${fovColor}" stroke="${bodyColor}" stroke-width="0.6" stroke-linejoin="round" opacity="0.7"/>
-          <!-- Camera body -->
-          <rect x="2" y="8" width="14" height="8" rx="2"
-            fill="${bodyColor}" fill-opacity="${fillOp}"
-            stroke="${bodyColor}" stroke-width="1.5"/>
-          <!-- Lens ring -->
-          <circle cx="9" cy="12" r="2.6" stroke="${bodyColor}" stroke-width="1.3"
-            fill="${bodyColor}" fill-opacity="0.2"/>
-          <!-- Lens center -->
-          <circle cx="9" cy="12" r="1.1" fill="${bodyColor}"/>
-          <!-- Lens glint -->
-          <circle cx="8.2" cy="11.2" r="0.45" fill="white" opacity="0.6"/>
-          <!-- Mount pole -->
-          <line x1="9" y1="16" x2="9" y2="19" stroke="${bodyColor}" stroke-width="1.4" stroke-linecap="round"/>
-          <line x1="6" y1="19" x2="12" y2="19" stroke="${bodyColor}" stroke-width="1.4" stroke-linecap="round"/>
-          <!-- REC dot -->
-          <circle cx="14.5" cy="9.5" r="1.3" fill="${recColor}" opacity="${recOp}"/>
+    dot.innerHTML=`
+      <div class="icon-wrap" style="transform:rotate(${cam.ang||0}deg)">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+          <path d="M16 12 L22 7 L22 17 Z" fill="${fov}" stroke="${col}" stroke-width=".7" stroke-linejoin="round" opacity=".8"/>
+          <rect x="2" y="8" width="14" height="8" rx="2" fill="${col}" fill-opacity=".15" stroke="${col}" stroke-width="1.5"/>
+          <circle cx="9" cy="12" r="2.5" stroke="${col}" stroke-width="1.3" fill="${col}" fill-opacity=".2"/>
+          <circle cx="9" cy="12" r="1" fill="${col}"/>
+          <circle cx="8.2" cy="11.2" r=".45" fill="white" opacity=".6"/>
+          <line x1="9" y1="16" x2="9" y2="19" stroke="${col}" stroke-width="1.3" stroke-linecap="round"/>
+          <line x1="6" y1="19" x2="12" y2="19" stroke="${col}" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="14.5" cy="9.5" r="1.2" fill="${rec}"/>
         </svg>
       </div>
-      <div class="cam-status-pip"></div>
-      <div class="cam-tooltip">
-        <div class="tt-id">${cam.id}</div>
-        <div class="tt-name">${cam.name}</div>
-        <div class="tt-angle">🔄 ${ang}°</div>
-        <div class="tt-status ${cam.status}">${isOnline ? '● ทำงานปกติ' : '● ซ่อมแซม'}</div>
+      <div class="pip"></div>
+      <div class="tip">
+        <div class="tip-id">${cam.id}</div>
+        <div class="tip-name">${cam.name}</div>
+        <div class="tip-ang">🔄 ${cam.ang||0}°</div>
+        <div class="tip-st ${cam.st}">${isOk?'● ทำงานปกติ':'● ซ่อมแซม'}</div>
       </div>`;
 
-    if (editMode) {
-      // DRAG logic
-      dot.addEventListener('mousedown', (e) => {
-        e.stopPropagation(); // prevent map click-to-add
-        e.preventDefault();
+    if(camEditMode){
+      // drag
+      dot.addEventListener('mousedown', e=>{
+        if(e.button!==0) return;
+        e.stopPropagation(); e.preventDefault();
         dot.classList.add('dragging');
-        const rect = mapCont.getBoundingClientRect();
-
-        const onMove = (me) => {
-          const xPct = Math.min(99, Math.max(1, (me.clientX - rect.left) / rect.width * 100));
-          const yPct = Math.min(99, Math.max(1, (me.clientY - rect.top) / rect.height * 100));
-          dot.style.left = xPct + '%';
-          dot.style.top = yPct + '%';
-          document.getElementById('coordDisplay').textContent = `X: ${xPct.toFixed(1)}%  Y: ${yPct.toFixed(1)}%`;
+        const rect=mapCont.getBoundingClientRect();
+        const onM=me=>{
+          const x=Math.min(99,Math.max(1,(me.clientX-rect.left)/rect.width*100));
+          const y=Math.min(99,Math.max(1,(me.clientY-rect.top)/rect.height*100));
+          dot.style.left=x+'%'; dot.style.top=y+'%';
+          document.getElementById('coordDisp').textContent=`X:${x.toFixed(1)}% Y:${y.toFixed(1)}%`;
         };
-
-        const onUp = (me) => {
+        const onU=me=>{
           dot.classList.remove('dragging');
-          const xPct = Math.min(99, Math.max(1, (me.clientX - rect.left) / rect.width * 100));
-          const yPct = Math.min(99, Math.max(1, (me.clientY - rect.top) / rect.height * 100));
-          cam.x = parseFloat(xPct.toFixed(2));
-          cam.y = parseFloat(yPct.toFixed(2));
-          document.removeEventListener('mousemove', onMove);
-          document.removeEventListener('mouseup', onUp);
+          const x=Math.min(99,Math.max(1,(me.clientX-rect.left)/rect.width*100));
+          const y=Math.min(99,Math.max(1,(me.clientY-rect.top)/rect.height*100));
+          cam.x=+x.toFixed(2); cam.y=+y.toFixed(2);
+          document.removeEventListener('mousemove',onM);
+          document.removeEventListener('mouseup',onU);
         };
-
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onUp);
+        document.addEventListener('mousemove',onM);
+        document.addEventListener('mouseup',onU);
       });
 
-      // SCROLL to rotate (mouse wheel)
-      dot.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const step = e.shiftKey ? 5 : 15;
-        cam.angle = ((cam.angle || 0) + (e.deltaY > 0 ? step : -step) + 360) % 360;
-        const wrap = dot.querySelector('.cam-icon-wrap');
-        if (wrap) wrap.style.transform = `rotate(${cam.angle}deg)`;
-        const ttAngle = dot.querySelector('.tt-angle');
-        if (ttAngle) ttAngle.textContent = `🔄 ${cam.angle}°`;
-        document.getElementById('coordDisplay').textContent = `🔄 ${cam.angle}°`;
-        if (selectedId === cam.id) updateDetailAngle(cam.angle);
-      }, { passive: false });
+      // scroll = rotate
+      dot.addEventListener('wheel', e=>{
+        e.preventDefault(); e.stopPropagation();
+        cam.ang=((cam.ang||0)+(e.deltaY>0?15:-15)+360)%360;
+        dot.querySelector('.icon-wrap').style.transform=`rotate(${cam.ang}deg)`;
+        dot.querySelector('.tip-ang').textContent=`🔄 ${cam.ang}°`;
+        if(selCamId===cam.id) document.getElementById('dAng').textContent=cam.ang+'°';
+      },{passive:false});
 
-      // RIGHT-CLICK to rotate 45°
-      dot.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        cam.angle = ((cam.angle || 0) + 45) % 360;
-        const wrap = dot.querySelector('.cam-icon-wrap');
-        if (wrap) wrap.style.transform = `rotate(${cam.angle}deg)`;
-        const ttAngle = dot.querySelector('.tt-angle');
-        if (ttAngle) ttAngle.textContent = `🔄 ${cam.angle}°`;
-        document.getElementById('coordDisplay').textContent = `🔄 ${cam.angle}°`;
-        if (selectedId === cam.id) updateDetailAngle(cam.angle);
+      // right-click = rotate 45
+      dot.addEventListener('contextmenu', e=>{
+        e.preventDefault(); e.stopPropagation();
+        cam.ang=((cam.ang||0)+45)%360;
+        dot.querySelector('.icon-wrap').style.transform=`rotate(${cam.ang}deg)`;
+        dot.querySelector('.tip-ang').textContent=`🔄 ${cam.ang}°`;
+        if(selCamId===cam.id) document.getElementById('dAng').textContent=cam.ang+'°';
       });
-        e.stopPropagation();
-        e.preventDefault();
-        dot.classList.add('dragging');
-        const rect = mapCont.getBoundingClientRect();
 
-        const onTouchMove = (te) => {
-          const touch = te.touches[0];
-          const xPct = Math.min(99, Math.max(1, (touch.clientX - rect.left) / rect.width * 100));
-          const yPct = Math.min(99, Math.max(1, (touch.clientY - rect.top) / rect.height * 100));
-          dot.style.left = xPct + '%';
-          dot.style.top = yPct + '%';
-        };
-
-        const onTouchEnd = (te) => {
-          dot.classList.remove('dragging');
-          const touch = te.changedTouches[0];
-          const xPct = Math.min(99, Math.max(1, (touch.clientX - rect.left) / rect.width * 100));
-          const yPct = Math.min(99, Math.max(1, (touch.clientY - rect.top) / rect.height * 100));
-          cam.x = parseFloat(xPct.toFixed(2));
-          cam.y = parseFloat(yPct.toFixed(2));
-          document.removeEventListener('touchmove', onTouchMove);
-          document.removeEventListener('touchend', onTouchEnd);
-        };
-
-        document.addEventListener('touchmove', onTouchMove, { passive: false });
-        document.addEventListener('touchend', onTouchEnd);
-      }, { passive: false });
-
+      // click on map bg = add camera
+      mapCont.onclick=e=>{
+        if(e.target.closest('.cdot')) return;
+        const rect=mapCont.getBoundingClientRect();
+        pendingPos={x:+((e.clientX-rect.left)/rect.width*100).toFixed(2),
+                    y:+((e.clientY-rect.top)/rect.height*100).toFixed(2)};
+        openAddCam();
+      };
     } else {
-      dot.addEventListener('click', () => selectCamera(cam.id));
+      dot.addEventListener('click',()=>selectCam(cam.id));
+      mapCont.onclick=null;
     }
 
     layer.appendChild(dot);
   });
+}
 
-  // Click on map to add camera (edit mode only)
-  layer.onclick = null;
-  if (editMode) {
-    mapCont.onclick = (e) => {
-      if (e.target.closest('.cam-dot')) return; // ignore dot clicks
-      const rect = mapCont.getBoundingClientRect();
-      const xPct = ((e.clientX - rect.left) / rect.width * 100).toFixed(2);
-      const yPct = ((e.clientY - rect.top) / rect.height * 100).toFixed(2);
-      openAddModal(parseFloat(xPct), parseFloat(yPct));
-    };
-
-    // Track mouse coords
-    mapCont.onmousemove = (e) => {
-      const rect = mapCont.getBoundingClientRect();
-      const xPct = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
-      const yPct = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
-      document.getElementById('coordDisplay').textContent = `X: ${xPct}%  Y: ${yPct}%`;
-    };
+// cam edit mode toggle
+function toggleCamMode(){
+  if(bldEditMode) toggleBldMode();
+  camEditMode=!camEditMode;
+  const btn=document.getElementById('btnCamEdit');
+  const hint=document.getElementById('hintCam');
+  if(camEditMode){
+    btn.classList.add('active-cam'); btn.textContent='✔ เสร็จสิ้น';
+    hint.classList.add('show');
   } else {
-    mapCont.onclick = null;
-    mapCont.onmousemove = null;
+    btn.classList.remove('active-cam'); btn.textContent='✏ แก้ไขกล้อง';
+    hint.classList.remove('show');
+    document.getElementById('coordDisp').textContent='';
+    document.getElementById('mapWrap').onclick=null;
+  }
+  renderCams();
+}
+
+// ═══════════════════════════════════════════════
+// CAMERA SELECTION + DETAIL
+// ═══════════════════════════════════════════════
+function selectCam(id){
+  selCamId=id;
+  const cam=cameras.find(c=>c.id===id);
+  if(!cam) return;
+  document.getElementById('detEmpty').style.display='none';
+  const body=document.getElementById('detBody');
+  body.classList.add('show');
+  document.getElementById('dId').textContent=cam.id;
+  document.getElementById('dName').textContent=cam.name;
+  document.getElementById('dSt').innerHTML=`<span class="badge ${cam.st}">${cam.st==='online'?'ทำงานปกติ':'ซ่อมแซม'}</span>`;
+  document.getElementById('dZone').textContent=cam.zone;
+  document.getElementById('dRes').textContent=cam.res;
+  document.getElementById('dAng').textContent=(cam.ang||0)+'°';
+  document.getElementById('dTime').textContent=new Date().toLocaleTimeString('th-TH');
+  renderList(); renderCams();
+}
+
+function toggleStatus(){
+  const cam=cameras.find(c=>c.id===selCamId);
+  if(!cam) return;
+  cam.st=cam.st==='online'?'maint':'online';
+  selectCam(cam.id); updateStats();
+}
+
+function rotateSel(deg){
+  const cam=cameras.find(c=>c.id===selCamId);
+  if(!cam) return;
+  cam.ang=((cam.ang||0)+deg+360)%360;
+  document.getElementById('dAng').textContent=cam.ang+'°';
+  const dot=document.querySelector(`.cdot[data-id="${cam.id}"]`);
+  if(dot){
+    dot.querySelector('.icon-wrap').style.transform=`rotate(${cam.ang}deg)`;
+    const ta=dot.querySelector('.tip-ang');
+    if(ta) ta.textContent=`🔄 ${cam.ang}°`;
   }
 }
 
-// Quick add — opens modal centered on map
-function quickAddCamera() {
-  openAddModal(50, 50);
+function delSelected(){
+  if(!selCamId){ alert('กรุณาเลือกกล้องก่อน'); return; }
+  const cam=cameras.find(c=>c.id===selCamId);
+  if(!cam || !confirm(`ลบกล้อง ${cam.id} (${cam.name})?`)) return;
+  cameras=cameras.filter(c=>c.id!==selCamId);
+  selCamId=null;
+  document.getElementById('detEmpty').style.display='';
+  document.getElementById('detBody').classList.remove('show');
+  renderAll();
 }
 
-// Quick remove — removes currently selected camera
-function quickRemoveCamera() {
-  if (!selectedId) {
-    alert('กรุณาเลือกกล้องในรายการก่อนกดลบ');
-    return;
-  }
-  deleteCamera();
-}
-
-
-function openAddModal(x, y) {
-  pendingAddPos = { x, y };
-  // Auto-generate ID
-  const ids = cameras.map(c => c.id);
-  let num = cameras.length + 1;
-  let newId = 'CAM-' + String(num).padStart(3, '0');
-  while (ids.includes(newId)) { num++; newId = 'CAM-' + String(num).padStart(3, '0'); }
-  document.getElementById('mId').value = newId;
-  document.getElementById('mName').value = '';
-  document.getElementById('mZone').value = '';
-  document.getElementById('addModal').classList.add('visible');
-}
-
-function closeModal() {
-  document.getElementById('addModal').classList.remove('visible');
-  pendingAddPos = null;
-}
-
-function confirmAddCamera() {
-  const id = document.getElementById('mId').value.trim();
-  const name = document.getElementById('mName').value.trim() || 'กล้องใหม่';
-  const zone = document.getElementById('mZone').value.trim() || 'ทั่วไป';
-  const res = document.getElementById('mRes').value;
-  const status = document.getElementById('mStatus').value;
-
-  if (!id) { alert('กรุณาระบุรหัสกล้อง'); return; }
-  if (cameras.find(c => c.id === id)) { alert('รหัสกล้องซ้ำ กรุณาใช้รหัสอื่น'); return; }
-
-  cameras.push({
-    id, name, zone, res, status, angle: 0,
-    x: pendingAddPos ? pendingAddPos.x : 50,
-    y: pendingAddPos ? pendingAddPos.y : 50
-  });
-
-  closeModal();
-  renderMapDots();
-  renderList();
-  updateStats();
-  selectCamera(id);
-}
-
-// =============================
-// DELETE CAMERA
-// =============================
-function deleteCamera() {
-  if (!selectedId) return;
-  const cam = cameras.find(c => c.id === selectedId);
-  if (!cam) return;
-  if (!confirm(`ลบกล้อง ${cam.id} (${cam.name}) ออกจากระบบ?`)) return;
-  const idx = cameras.indexOf(cam);
-  cameras.splice(idx, 1);
-  selectedId = null;
-  document.getElementById('detailEmpty').style.display = '';
-  document.getElementById('detailContent').classList.remove('visible');
-  renderMapDots();
-  renderList();
-  updateStats();
-}
-
-// =============================
-// RENDER SIDEBAR LIST
-// =============================
-function renderList() {
-  const list = document.getElementById('camList');
-  list.innerHTML = '';
-  const filtered = cameras.filter(c => currentFilter === 'all' || c.status === currentFilter);
-
-  // Group by zone
-  const zones = {};
-  filtered.forEach(c => {
-    if (!zones[c.zone]) zones[c.zone] = [];
-    zones[c.zone].push(c);
-  });
-
-  Object.entries(zones).forEach(([zone, cams]) => {
-    const zLabel = document.createElement('div');
-    zLabel.className = 'zone-label';
-    zLabel.textContent = zone;
-    list.appendChild(zLabel);
-
-    cams.forEach(cam => {
-      const item = document.createElement('div');
-      item.className = 'cam-item' + (cam.id === selectedId ? ' selected' : '');
-      item.dataset.id = cam.id;
-      item.innerHTML = `
-        <div class="cam-item-icon">${cam.status === 'online' ? '📷' : '🔧'}</div>
-        <div class="cam-item-info">
-          <div class="cam-item-id">${cam.id}</div>
-          <div class="cam-item-name">${cam.name}</div>
+// ═══════════════════════════════════════════════
+// LIST
+// ═══════════════════════════════════════════════
+function renderList(){
+  const list=document.getElementById('camList');
+  list.innerHTML='';
+  const filtered=cameras.filter(c=>filterMode==='all'||c.st===filterMode);
+  const zones={};
+  filtered.forEach(c=>{ if(!zones[c.zone]) zones[c.zone]=[]; zones[c.zone].push(c); });
+  Object.entries(zones).forEach(([zone,cams])=>{
+    const zh=document.createElement('div');
+    zh.className='zone-hd'; zh.textContent=zone;
+    list.appendChild(zh);
+    cams.forEach(cam=>{
+      const item=document.createElement('div');
+      item.className='citem'+(cam.id===selCamId?' sel':'');
+      item.innerHTML=`
+        <div style="font-size:15px">${cam.st==='online'?'📷':'🔧'}</div>
+        <div class="ci-info">
+          <div class="ci-id">${cam.id}</div>
+          <div class="ci-name">${cam.name}</div>
         </div>
-        <div class="cam-item-status ${cam.status}">${cam.status === 'online' ? 'ปกติ' : 'ซ่อม'}</div>`;
-      item.addEventListener('click', () => selectCamera(cam.id));
+        <div class="ci-st ${cam.st}">${cam.st==='online'?'ปกติ':'ซ่อม'}</div>`;
+      item.addEventListener('click',()=>selectCam(cam.id));
       list.appendChild(item);
     });
   });
 }
 
-// =============================
-// UPDATE STATS
-// =============================
-function updateStats() {
-  const ok = cameras.filter(c => c.status === 'online').length;
-  const maint = cameras.filter(c => c.status === 'maintenance').length;
-  const total = cameras.length;
-  const pct = Math.round((ok/total)*100);
-
-  document.getElementById('stat-ok').textContent = `● ปกติ: ${ok}`;
-  document.getElementById('stat-maint').textContent = `● ซ่อมแซม: ${maint}`;
-  document.getElementById('sum-total').textContent = total;
-  document.getElementById('sum-ok').textContent = ok;
-  document.getElementById('sum-maint').textContent = maint;
-  document.getElementById('sum-pct').textContent = pct + '%';
-}
-
-// =============================
-// SELECT CAMERA
-// =============================
-function selectCamera(id) {
-  selectedId = id;
-  const cam = cameras.find(c => c.id === id);
-  if (!cam) return;
-
-  document.getElementById('detailEmpty').style.display = 'none';
-  const dc = document.getElementById('detailContent');
-  dc.classList.add('visible');
-
-  document.getElementById('dId').textContent = cam.id;
-  document.getElementById('dName').textContent = cam.name;
-  document.getElementById('dStatus').innerHTML = `<span class="status-badge ${cam.status}">${cam.status === 'online' ? 'ทำงานปกติ' : 'ซ่อมแซม'}</span>`;
-  document.getElementById('dZone').textContent = cam.zone;
-  document.getElementById('dTime').textContent = new Date().toLocaleTimeString('th-TH');
-  document.getElementById('dRes').textContent = cam.res;
-  document.getElementById('dAngle').textContent = (cam.angle || 0) + '°';
-
-  renderList();
-  renderMapDots();
-}
-
-// Update angle display in detail panel (without full re-render)
-function updateDetailAngle(angle) {
-  const el = document.getElementById('dAngle');
-  if (el) el.textContent = angle + '°';
-}
-
-// Rotate selected camera by delta degrees
-function rotateSelected(delta) {
-  const cam = cameras.find(c => c.id === selectedId);
-  if (!cam) return;
-  cam.angle = ((cam.angle || 0) + delta + 360) % 360;
-  updateDetailAngle(cam.angle);
-  // update the dot on map directly
-  const dot = document.querySelector(`.cam-dot[data-id="${cam.id}"]`);
-  if (dot) {
-    const wrap = dot.querySelector('.cam-icon-wrap');
-    if (wrap) wrap.style.transform = `rotate(${cam.angle}deg)`;
-    const ttAngle = dot.querySelector('.tt-angle');
-    if (ttAngle) ttAngle.textContent = `🔄 ${cam.angle}°`;
-  }
-}
-
-// =============================
-// TOGGLE STATUS
-// =============================
-function toggleStatus() {
-  const cam = cameras.find(c => c.id === selectedId);
-  if (!cam) return;
-  cam.status = cam.status === 'online' ? 'maintenance' : 'online';
-  selectCamera(cam.id);
-  updateStats();
-}
-
-// =============================
-// FILTER
-// =============================
-function filterCams(type, btn) {
-  currentFilter = type;
-  // Update tab styles
-  document.querySelectorAll('.filter-tab').forEach(t => {
-    t.className = 'filter-tab';
-  });
-  if (type === 'all') btn.classList.add('active-all');
-  else if (type === 'online') btn.classList.add('active-ok');
-  else btn.classList.add('active-maint');
+function setFilter(mode,btn){
+  filterMode=mode;
+  document.querySelectorAll('.ftab').forEach(t=>t.className='ftab');
+  btn.classList.add(mode==='all'?'a-all':mode==='online'?'a-ok':'a-maint');
   renderList();
 }
 
-// =============================
-// SIMULATE REAL-TIME UPDATES
-// =============================
-function simulateRealtime() {
-  // Occasionally flicker a random camera status (just one random)
-  const idx = Math.floor(Math.random() * cameras.length);
-  const cam = cameras[idx];
-  // Small chance of status change simulation
-  if (Math.random() < 0.06) {
-    cam.status = cam.status === 'online' ? 'maintenance' : 'online';
-    renderMapDots();
-    renderList();
-    updateStats();
-    if (cam.id === selectedId) selectCamera(cam.id);
-  }
+// ═══════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════
+function updateStats(){
+  const ok=cameras.filter(c=>c.st==='online').length;
+  const maint=cameras.filter(c=>c.st==='maint').length;
+  const total=cameras.length;
+  document.getElementById('chipOk').textContent=`● ปกติ: ${ok}`;
+  document.getElementById('chipMaint').textContent=`● ซ่อมแซม: ${maint}`;
+  document.getElementById('sTotal').textContent=total;
+  document.getElementById('sOk').textContent=ok;
+  document.getElementById('sMaint').textContent=maint;
+  document.getElementById('sPct').textContent=Math.round(ok/total*100)+'%';
 }
 
-// Update time in detail panel live
-setInterval(() => {
-  if (selectedId) {
-    document.getElementById('dTime').textContent = new Date().toLocaleTimeString('th-TH');
+// ═══════════════════════════════════════════════
+// ADD CAMERA MODAL
+// ═══════════════════════════════════════════════
+function openAddCam(){
+  camCnt++;
+  document.getElementById('mId').value='CAM-'+camCnt;
+  document.getElementById('mName').value='';
+  document.getElementById('mZone').value='';
+  document.getElementById('modalBg').classList.add('show');
+}
+
+function closeModal(){
+  document.getElementById('modalBg').classList.remove('show');
+  pendingPos=null;
+}
+
+function confirmAdd(){
+  const id=document.getElementById('mId').value.trim();
+  const name=document.getElementById('mName').value.trim()||'กล้องใหม่';
+  const zone=document.getElementById('mZone').value.trim()||'ทั่วไป';
+  const res=document.getElementById('mRes').value;
+  const st=document.getElementById('mSt').value;
+  if(!id){ alert('กรุณาระบุรหัสกล้อง'); return; }
+  if(cameras.find(c=>c.id===id)){ alert('รหัสซ้ำ'); return; }
+  cameras.push({id,name,zone,res,st,ang:0,
+    x:pendingPos?pendingPos.x:50,
+    y:pendingPos?pendingPos.y:50});
+  closeModal();
+  renderAll();
+  selectCam(id);
+}
+
+// ═══════════════════════════════════════════════
+// SIMULATE REAL-TIME
+// ═══════════════════════════════════════════════
+setInterval(()=>{
+  if(Math.random()<0.05){
+    const cam=cameras[Math.floor(Math.random()*cameras.length)];
+    cam.st=cam.st==='online'?'maint':'online';
+    renderCams(); renderList(); updateStats();
+    if(cam.id===selCamId) selectCam(cam.id);
   }
-}, 1000);
+},9000);
 
-setInterval(simulateRealtime, 8000);
-
-// =============================
+// ═══════════════════════════════════════════════
 // INIT
-// =============================
-renderBuildings();
-renderMapDots();
-renderList();
-updateStats();
+// ═══════════════════════════════════════════════
+function renderAll(){ renderBuildings(); renderCams(); renderList(); updateStats(); }
+renderAll();
 </script>
 </body>
 </html>
