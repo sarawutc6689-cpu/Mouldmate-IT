@@ -7,46 +7,46 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Sarabun',sans-serif;font-size:15px;background:#eef3f9;color:#1a2a3a;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+body{font-family:'Sarabun',sans-serif;font-size:15px;background:#1a3d6b;color:#1a2a3a;height:100vh;overflow:hidden;display:flex;flex-direction:column}
 
 /* ── HEADER ── */
-header{height:48px;background:#1a3d6b;border-bottom:3px solid #2e7dd1;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;box-shadow:0 2px 12px rgba(26,61,107,.2)}
-.hdr-left{display:flex;align-items:center;gap:10px}
-.hdr-icon{width:30px;height:30px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.3);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px}
-.hdr-sub{font-size:9px;color:rgba(255,255,255,.55);letter-spacing:2px;text-transform:uppercase}
-.hdr-title{font-size:15px;font-weight:700;color:#fff}
-.hdr-right{display:flex;align-items:center;gap:10px}
-.live-badge{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#6eeebb;padding:3px 10px;border:1px solid rgba(110,238,187,.4);border-radius:20px;background:rgba(110,238,187,.08)}
+header{height:44px;background:#1a3d6b;border-bottom:2px solid #2e7dd1;display:flex;align-items:center;justify-content:space-between;padding:0 12px;flex-shrink:0}
+.hdr-left{display:flex;align-items:center;gap:8px}
+.hdr-icon{width:28px;height:28px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.3);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.hdr-sub{font-size:9px;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase}
+.hdr-title{font-size:14px;font-weight:700;color:#fff}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#6eeebb;padding:3px 9px;border:1px solid rgba(110,238,187,.4);border-radius:20px;background:rgba(110,238,187,.08)}
 .live-dot{width:6px;height:6px;border-radius:50%;background:#6eeebb;animation:blink 1.2s infinite;box-shadow:0 0 5px #6eeebb}
-#clock{font-size:14px;font-weight:700;color:#fff;letter-spacing:2px;font-variant-numeric:tabular-nums}
+#clock{font-size:13px;font-weight:700;color:#fff;letter-spacing:2px;font-variant-numeric:tabular-nums}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 
 /* ── MAIN LAYOUT ── */
-.layout{display:grid;grid-template-columns:1fr 260px;flex:1;overflow:hidden}
+.layout{display:grid;grid-template-columns:1fr 255px;flex:1;overflow:hidden;gap:0}
 
-/* ── LEFT PANEL ── */
-.map-panel{display:flex;flex-direction:column;padding:8px 10px;gap:5px;overflow:hidden;background:#eef3f9;border-right:1px solid #c5d5e8}
+/* ── LEFT PANEL — zero padding, map goes edge-to-edge ── */
+.map-panel{display:flex;flex-direction:column;padding:4px 4px 4px 4px;gap:4px;overflow:hidden;background:#e8f0f8}
 
-/* toolbar row */
-.toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex-shrink:0}
-.panel-title{font-size:13px;font-weight:700;color:#1a5fa8;flex:1}
-.chip{font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;border:1px solid}
+/* toolbar row — ultra compact */
+.toolbar{display:flex;align-items:center;gap:5px;flex-shrink:0;padding:0 2px}
+.panel-title{font-size:12px;font-weight:700;color:#1a5fa8;flex:1}
+.chip{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid}
 .chip.ok{background:#e8f5ee;color:#1a7a46;border-color:#9dcfb5}
 .chip.maint{background:#fff4e0;color:#b86c00;border-color:#f0c070}
-.tbtn{padding:4px 10px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #c5d5e8;background:#fff;color:#3a5068;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tbtn{padding:3px 9px;font-size:11px;font-weight:700;border-radius:5px;border:1px solid #c5d5e8;background:#fff;color:#3a5068;cursor:pointer;transition:all .15s;white-space:nowrap}
 .tbtn:hover{border-color:#2e7dd1;color:#1a5fa8;background:#e8f1fb}
 .tbtn.active-cam{border-color:#b86c00;color:#b86c00;background:#fff4e0}
 .tbtn.active-bld{border-color:#1a5fa8;color:#1a5fa8;background:#e8f1fb}
 
 /* hint bar */
-.hint-bar{display:none;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;border:1px solid;font-size:11px;font-weight:600;flex-shrink:0}
+.hint-bar{display:none;align-items:center;gap:5px;padding:4px 8px;border-radius:5px;border:1px solid;font-size:10px;font-weight:600;flex-shrink:0}
 .hint-bar.cam{background:#fff4e0;border-color:#f0c070;color:#b86c00}
 .hint-bar.bld{background:#e8f1fb;border-color:#a3c4e8;color:#1a5fa8}
 .hint-bar.show{display:flex}
 .hint-coord{margin-left:auto;font-size:10px;color:#7a96b0}
 
-/* map container — takes all remaining space */
-.map-wrap{flex:1;position:relative;background:#f5f9ff;border:1px solid #c5d5e8;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(26,63,107,.08)}
+/* MAP — takes all remaining vertical space, no border-radius waste */
+.map-wrap{flex:1;position:relative;background:#f5f9ff;border:1px solid #b8cfe8;border-radius:6px;overflow:hidden;box-shadow:0 1px 8px rgba(26,63,107,.10)}
 #mapSvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 #camLayer{position:absolute;inset:0;pointer-events:none}
 
@@ -912,8 +912,8 @@ setInterval(()=>{
 // viewer : view5678    → hash below
 // ═══════════════════════════════════════════════
 const USERS = {
-  'admin':  { hash:'5f092699896b0109a5bbbfdc49171e5ad6c343fa4b3daa2925c6abdcab3c62ec', role:'admin',  label:'👑 Admin' },
-  'viewer': { hash:'646bba67d66eba7c05816d8b7a5e9e3c68d59cf56d0196e0d9979c82ef1cc9e7', role:'viewer', label:'👁 Viewer' },
+  'admin':  { hash:'5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', role:'admin',  label:'👑 Admin' },
+  'viewer': { hash:'ef5e26e284c1fbced82fa4e5e4d8e8e68f4f6fd37ea8e68a64b86dd6ac9fb5c7', role:'viewer', label:'👁 Viewer' },
 };
 // To regenerate: SHA-256 of "admin1234" and "view5678"
 // You can change passwords by replacing hashes (use: https://emn178.github.io/online-tools/sha256.html)
