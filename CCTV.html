@@ -346,6 +346,21 @@ header{height:44px;background:#1a3d6b;border-bottom:2px solid #2e7dd1;display:fl
 
 </div>
 
+<!-- Modal: Rename Building -->
+<div class="modal-bg" id="renameModalBg">
+  <div class="modal">
+    <h3>✎ แก้ไขชื่ออาคาร</h3>
+    <div class="mfield">
+      <label>ชื่ออาคาร</label>
+      <input id="renameInput" placeholder="ชื่ออาคาร" onkeydown="if(event.key==='Enter')confirmRename()">
+    </div>
+    <div class="mbtns">
+      <button class="mok" onclick="confirmRename()">✔ บันทึก</button>
+      <button class="mcancel" onclick="closeRenameModal()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Add Camera -->
 <div class="modal-bg" id="modalBg">
   <div class="modal">
@@ -486,24 +501,29 @@ function renderBuildings(){
 
     // label (split long text at '/')
     const parts=b.label.split('/');
+    const labelEls=[];
     if(parts.length>1){
       parts.forEach((part,i)=>{
         const t=el('text',{x:b.x+b.w/2,y:b.y+b.h/2+(i-parts.length/2+0.7)*11,
           'text-anchor':'middle','font-size':b.w<90?'8':'9',
           fill: isBound?'#4a7aaa':b.type!=='solid'?'#6a90b0':'#1e4a7a',
           'font-family':"'Sarabun',sans-serif",'font-weight':'700'});
-        t.style.pointerEvents='none';
+        t.style.pointerEvents = (bldEditMode && !isBound) ? 'all' : 'none';
+        if(bldEditMode && !isBound) t.style.cursor='move';
         t.textContent=part;
         g.appendChild(t);
+        labelEls.push(t);
       });
     } else {
       const t=el('text',{x:b.x+b.w/2,y:b.y+b.h/2+4,
         'text-anchor':'middle','font-size':b.w<90?'8':'9',
         fill: isBound?'#4a7aaa':b.type!=='solid'?'#6a90b0':'#1e4a7a',
         'font-family':"'Sarabun',sans-serif",'font-weight':'700'});
-      t.style.pointerEvents='none';
+      t.style.pointerEvents = (bldEditMode && !isBound) ? 'all' : 'none';
+      if(bldEditMode && !isBound) t.style.cursor='move';
       t.textContent=b.label;
       g.appendChild(t);
+      labelEls.push(t);
     }
 
     // selected styling
@@ -531,6 +551,18 @@ function renderBuildings(){
     // attach events in bld edit mode
     if(bldEditMode && !isBound){
       attachBldEvents(rect, b);
+      // also attach dblclick to label text elements
+      labelEls.forEach(t=>{
+        t.addEventListener('dblclick', e=>{ e.stopPropagation(); e.preventDefault(); openRenameModal(b); });
+        t.addEventListener('contextmenu', e=>{
+          e.preventDefault(); e.stopPropagation();
+          if(confirm(`ลบอาคาร "${b.label}"?`)){
+            buildings=buildings.filter(bd=>bd.id!==b.id);
+            if(selBldId===b.id) selBldId=null;
+            renderBuildings();
+          }
+        });
+      });
     }
   });
 }
@@ -544,6 +576,7 @@ function svgPoint(e){
 }
 
 function attachBldEvents(rect, b){
+  // ── drag (move) ──
   rect.addEventListener('mousedown', e=>{
     if(e.button!==0) return;
     e.stopPropagation();
@@ -551,27 +584,32 @@ function attachBldEvents(rect, b){
     const o=svgPoint(e), sx=b.x, sy=b.y;
     let moved=false;
     const onM=me=>{
-      moved=true;
       const c=svgPoint(me);
-      b.x=Math.max(32,Math.min(868-b.w, sx+c.x-o.x));
-      b.y=Math.max(62,Math.min(538-b.h, sy+c.y-o.y));
+      const dx=c.x-o.x, dy=c.y-o.y;
+      if(!moved && Math.abs(dx)<3 && Math.abs(dy)<3) return; // dead zone
+      moved=true;
+      b.x=Math.max(32,Math.min(868-b.w, sx+dx));
+      b.y=Math.max(62,Math.min(538-b.h, sy+dy));
       renderBuildings();
     };
     const onU=()=>{
       document.removeEventListener('mousemove',onM);
       document.removeEventListener('mouseup',onU);
-      if(!moved) renderBuildings();
+      if(!moved) renderBuildings(); // just select, no drag
     };
     document.addEventListener('mousemove',onM);
     document.addEventListener('mouseup',onU);
   });
 
-  rect.addEventListener('dblclick', e=>{
+  // ── rename on dblclick (rect AND label text) ──
+  const openRename = e=>{
     e.stopPropagation();
-    const n=prompt('ชื่ออาคาร:',b.label);
-    if(n && n.trim()){ b.label=n.trim(); renderBuildings(); }
-  });
+    e.preventDefault();
+    openRenameModal(b);
+  };
+  rect.addEventListener('dblclick', openRename);
 
+  // ── right-click delete ──
   rect.addEventListener('contextmenu', e=>{
     e.preventDefault(); e.stopPropagation();
     if(confirm(`ลบอาคาร "${b.label}"?`)){
@@ -861,6 +899,28 @@ function updateStats(){
   document.getElementById('sPct').textContent=Math.round(ok/total*100)+'%';
 }
 
+// ── rename modal ──
+let renamingBld = null;
+function openRenameModal(b){
+  renamingBld = b;
+  const inp = document.getElementById('renameInput');
+  inp.value = b.label;
+  document.getElementById('renameModalBg').classList.add('show');
+  setTimeout(()=>{ inp.focus(); inp.select(); }, 50);
+}
+function closeRenameModal(){
+  document.getElementById('renameModalBg').classList.remove('show');
+  renamingBld = null;
+}
+function confirmRename(){
+  const val = document.getElementById('renameInput').value.trim();
+  if(val && renamingBld){
+    renamingBld.label = val;
+    renderBuildings();
+  }
+  closeRenameModal();
+}
+
 // ═══════════════════════════════════════════════
 // ADD CAMERA MODAL
 // ═══════════════════════════════════════════════
@@ -912,8 +972,8 @@ setInterval(()=>{
 // viewer : view5678    → hash below
 // ═══════════════════════════════════════════════
 const USERS = {
-  'admin':  { hash:'5f092699896b0109a5bbbfdc49171e5ad6c343fa4b3daa2925c6abdcab3c62ec', role:'admin',  label:'👑 Admin' },
-  'viewer': { hash:'646bba67d66eba7c05816d8b7a5e9e3c68d59cf56d0196e0d9979c82ef1cc9e7', role:'viewer', label:'👁 Viewer' },
+  'admin':  { hash:'5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', role:'admin',  label:'👑 Admin' },
+  'viewer': { hash:'ef5e26e284c1fbced82fa4e5e4d8e8e68f4f6fd37ea8e68a64b86dd6ac9fb5c7', role:'viewer', label:'👁 Viewer' },
 };
 // To regenerate: SHA-256 of "admin1234" and "view5678"
 // You can change passwords by replacing hashes (use: https://emn178.github.io/online-tools/sha256.html)
