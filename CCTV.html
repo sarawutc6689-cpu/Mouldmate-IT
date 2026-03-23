@@ -156,9 +156,96 @@ header{height:58px;background:#1a3d6b;border-bottom:3px solid #2e7dd1;display:fl
 .bld-sel-outline{fill:none;stroke:#2e7dd1;stroke-width:1.8;stroke-dasharray:5,3}
 .bld-hint{fill:#2e7dd1;font-size:8px;font-family:'Sarabun',sans-serif}
 .road{fill:none;stroke:#c5d5e8;stroke-width:2}
+
+/* ── LOGIN SCREEN ── */
+#loginScreen{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(135deg,#0f2744 0%,#1a3d6b 50%,#1a5fa8 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Sarabun',sans-serif;
+}
+#loginScreen::before{
+  content:'';position:absolute;inset:0;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(255,255,255,.03) 40px,rgba(255,255,255,.03) 41px),
+    repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,255,255,.03) 40px,rgba(255,255,255,.03) 41px);
+  pointer-events:none;
+}
+.login-box{
+  background:rgba(255,255,255,.97);
+  border-radius:16px;
+  padding:40px 36px 32px;
+  width:360px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  position:relative;z-index:1;
+  animation:loginIn .4s cubic-bezier(.4,0,.2,1);
+}
+@keyframes loginIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.login-logo{text-align:center;margin-bottom:24px}
+.login-logo .cam-ico{font-size:40px;background:#e8f1fb;width:72px;height:72px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:3px solid #c5d5e8;margin-bottom:10px}
+.login-logo h2{font-size:18px;font-weight:800;color:#1a3d6b;margin-bottom:2px}
+.login-logo p{font-size:12px;color:#7a96b0;font-weight:500;letter-spacing:.5px}
+.login-field{margin-bottom:14px}
+.login-field label{font-size:12px;font-weight:700;color:#3a5068;display:block;margin-bottom:5px}
+.login-field input{
+  width:100%;padding:10px 14px;
+  border:1.5px solid #c5d5e8;border-radius:8px;
+  font-family:'Sarabun',sans-serif;font-size:15px;color:#1a2a3a;
+  background:#f8fafc;outline:none;transition:all .15s;
+}
+.login-field input:focus{border-color:#2e7dd1;background:#fff;box-shadow:0 0 0 3px rgba(46,125,209,.12)}
+.login-btn{
+  width:100%;padding:11px;margin-top:6px;
+  background:#1a3d6b;border:none;border-radius:8px;
+  color:#fff;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:background .15s;letter-spacing:.3px;
+}
+.login-btn:hover{background:#2e7dd1}
+.login-err{
+  display:none;text-align:center;margin-top:10px;
+  font-size:13px;font-weight:600;color:#c0392b;
+  background:#fdf0ef;border:1px solid #f0c0bc;border-radius:6px;padding:6px 10px;
+}
+.login-err.show{display:block}
+.login-footer{text-align:center;margin-top:18px;font-size:11px;color:#aab8c8}
+
+/* ── ROLE BADGE in header ── */
+.role-badge{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.10);color:#fff;
+}
+.logout-btn{
+  padding:5px 12px;font-size:12px;font-weight:700;
+  border-radius:6px;border:1px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.12);color:#fff;cursor:pointer;
+  transition:all .15s;font-family:'Sarabun',sans-serif;
+}
+.logout-btn:hover{background:rgba(255,255,255,.22)}
 </style>
 </head>
 <body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="cam-ico">📹</div>
+      <h2>ระบบ CCTV โมลด์เมท</h2>
+      <p>MOLD-MATE CO., LTD. — กรุณาเข้าสู่ระบบ</p>
+    </div>
+    <div class="login-field">
+      <label>ชื่อผู้ใช้งาน</label>
+      <input id="loginUser" type="text" placeholder="username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-field">
+      <label>รหัสผ่าน</label>
+      <input id="loginPass" type="password" placeholder="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="login-err" id="loginErr">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+    <div class="login-footer">ติดต่อผู้ดูแลระบบหากลืมรหัสผ่าน</div>
+  </div>
+</div>
 
 <header>
   <div class="hdr-left">
@@ -170,7 +257,9 @@ header{height:58px;background:#1a3d6b;border-bottom:3px solid #2e7dd1;display:fl
   </div>
   <div class="hdr-right">
     <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="role-badge" id="roleBadge">👤 —</div>
     <div id="clock">--:--:--</div>
+    <button class="logout-btn" onclick="doLogout()">ออกจากระบบ</button>
   </div>
 </header>
 
@@ -821,6 +910,70 @@ setInterval(()=>{
     if(cam.id===selCamId) selectCam(cam.id);
   }
 },9000);
+
+// ═══════════════════════════════════════════════
+// AUTH — role-based login
+// passwords stored as SHA-256 hashes
+// admin  : admin1234   → hash below
+// viewer : view5678    → hash below
+// ═══════════════════════════════════════════════
+const USERS = {
+  'admin':  { hash:'5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', role:'admin',  label:'👑 Admin' },
+  'viewer': { hash:'ef5e26e284c1fbced82fa4e5e4d8e8e68f4f6fd37ea8e68a64b86dd6ac9fb5c7', role:'viewer', label:'👁 Viewer' },
+};
+// To regenerate: SHA-256 of "admin1234" and "view5678"
+// You can change passwords by replacing hashes (use: https://emn178.github.io/online-tools/sha256.html)
+
+let currentRole = null; // 'admin' | 'viewer' | null
+
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin(){
+  const user = document.getElementById('loginUser').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginErr');
+  errEl.classList.remove('show');
+
+  if(!user || !pass){ errEl.classList.add('show'); return; }
+
+  const record = USERS[user];
+  if(!record){ errEl.classList.add('show'); return; }
+
+  const hash = await sha256(pass);
+  if(hash !== record.hash){ errEl.classList.add('show'); return; }
+
+  // ✅ login success
+  currentRole = record.role;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('roleBadge').textContent = record.label;
+  applyRole();
+  renderAll();
+}
+
+function doLogout(){
+  currentRole = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginErr').classList.remove('show');
+  document.getElementById('roleBadge').textContent = '👤 —';
+}
+
+function applyRole(){
+  const isAdmin = currentRole === 'admin';
+  // hide edit buttons for viewers
+  ['btnCamEdit','btnBldEdit'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.style.display = isAdmin ? '' : 'none';
+  });
+  // hide add/delete camera buttons
+  document.querySelectorAll('.abtn').forEach(b => b.style.display = isAdmin ? '' : 'none');
+  // hide rotate + action buttons in detail panel
+  document.querySelectorAll('.rot-row,.act-row').forEach(r => r.style.display = isAdmin ? '' : 'none');
+}
 
 // ═══════════════════════════════════════════════
 // INIT
