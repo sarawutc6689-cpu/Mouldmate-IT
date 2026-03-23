@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบ CCTV — บริษัท โมลด์เมท จำกัด</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070b10;
+    --panel: #0c1420;
+    --border: #1a2d45;
+    --accent: #00d4ff;
+    --accent2: #00ff9d;
+    --warn: #ff6b2b;
+    --ok: #00ff9d;
+    --bad: #ff3c3c;
+    --maint: #ffb800;
+    --text: #c8dff0;
+    --dim: #4a6880;
+    --grid: rgba(0,212,255,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Sarabun', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* Grid background */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px;
+    background: linear-gradient(90deg, #0a1825 0%, #0c1e30 100%);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 20px rgba(0,212,255,0.08);
+  }
+
+  .logo-area {
+    display: flex; align-items: center; gap: 14px;
+  }
+
+  .logo-icon {
+    width: 38px; height: 38px;
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 0 12px rgba(0,212,255,0.3);
+    animation: pulse-border 3s infinite;
+  }
+
+  @keyframes pulse-border {
+    0%,100% { box-shadow: 0 0 8px rgba(0,212,255,0.3); }
+    50% { box-shadow: 0 0 20px rgba(0,212,255,0.6); }
+  }
+
+  .company-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .system-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-shadow: 0 0 20px rgba(0,212,255,0.4);
+  }
+
+  .header-right {
+    display: flex; align-items: center; gap: 24px;
+  }
+
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--ok);
+    letter-spacing: 2px;
+    padding: 5px 12px;
+    border: 1px solid rgba(0,255,157,0.3);
+    border-radius: 4px;
+    background: rgba(0,255,157,0.05);
+  }
+
+  .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--ok);
+    animation: blink 1s infinite;
+    box-shadow: 0 0 6px var(--ok);
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  #clock {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  .main-layout {
+    position: relative; z-index: 5;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 0;
+    height: calc(100vh - 64px);
+  }
+
+  /* ===== MAP PANEL ===== */
+  .map-panel {
+    position: relative;
+    padding: 20px;
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .map-panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .panel-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .stats-row {
+    display: flex; gap: 16px;
+  }
+
+  .stat-chip {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+  }
+
+  .stat-chip.ok { background: rgba(0,255,157,0.1); color: var(--ok); border: 1px solid rgba(0,255,157,0.3); }
+  .stat-chip.maint { background: rgba(255,184,0,0.1); color: var(--maint); border: 1px solid rgba(255,184,0,0.3); }
+
+  .map-container {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 50px);
+    background: #0a1420;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .map-svg-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .map-svg-wrapper svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ===== CAMERA DOTS ===== */
+  .cam-dot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.2s;
+  }
+
+  .cam-dot:hover { transform: translate(-50%, -50%) scale(1.4); z-index: 20; }
+
+  .cam-dot .dot-outer {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+
+  .cam-dot.online .dot-outer {
+    border-color: var(--ok);
+    background: rgba(0,255,157,0.15);
+    box-shadow: 0 0 10px rgba(0,255,157,0.5);
+    animation: ripple-green 2.5s infinite;
+  }
+
+  .cam-dot.maintenance .dot-outer {
+    border-color: var(--maint);
+    background: rgba(255,184,0,0.15);
+    box-shadow: 0 0 10px rgba(255,184,0,0.5);
+    animation: ripple-yellow 2.5s infinite;
+  }
+
+  .cam-dot .dot-inner {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+  }
+
+  .cam-dot.online .dot-inner { background: var(--ok); }
+  .cam-dot.maintenance .dot-inner { background: var(--maint); }
+
+  @keyframes ripple-green {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,255,157,0.4), 0 0 10px rgba(0,255,157,0.3); }
+    50% { box-shadow: 0 0 0 6px rgba(0,255,157,0), 0 0 16px rgba(0,255,157,0.5); }
+  }
+
+  @keyframes ripple-yellow {
+    0%,100% { box-shadow: 0 0 0 0 rgba(255,184,0,0.4), 0 0 10px rgba(255,184,0,0.3); }
+    50% { box-shadow: 0 0 0 6px rgba(255,184,0,0), 0 0 16px rgba(255,184,0,0.5); }
+  }
+
+  /* Tooltip */
+  .cam-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0f1e2e;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    white-space: nowrap;
+    font-size: 11px;
+    pointer-events: none;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+
+  .cam-dot:hover .cam-tooltip { display: block; }
+
+  .cam-tooltip .tt-id {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--accent);
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+
+  .cam-tooltip .tt-name { color: var(--text); font-weight: 600; }
+  .cam-tooltip .tt-status { font-size: 10px; margin-top: 4px; }
+  .cam-tooltip .tt-status.online { color: var(--ok); }
+  .cam-tooltip .tt-status.maintenance { color: var(--maint); }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #090f18;
+  }
+
+  .sidebar-header {
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .filter-tabs {
+    display: flex; gap: 6px;
+  }
+
+  .filter-tab {
+    flex: 1;
+    padding: 5px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .filter-tab.active-all { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.08); }
+  .filter-tab.active-ok { border-color: var(--ok); color: var(--ok); background: rgba(0,255,157,0.08); }
+  .filter-tab.active-maint { border-color: var(--maint); color: var(--maint); background: rgba(255,184,0,0.08); }
+
+  .cam-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+  }
+
+  .cam-list::-webkit-scrollbar { width: 4px; }
+  .cam-list::-webkit-scrollbar-track { background: transparent; }
+  .cam-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .zone-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 6px 4px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
+
+  .zone-label:first-child { border-top: none; margin-top: 0; }
+
+  .cam-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: 1px solid transparent;
+    margin-bottom: 2px;
+  }
+
+  .cam-item:hover { background: rgba(255,255,255,0.04); border-color: var(--border); }
+  .cam-item.selected { background: rgba(0,212,255,0.06); border-color: rgba(0,212,255,0.3); }
+
+  .cam-item-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .cam-item-info { flex: 1; min-width: 0; }
+
+  .cam-item-id {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--dim);
+    letter-spacing: 1px;
+  }
+
+  .cam-item-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cam-item-status {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .cam-item-status.online { color: var(--ok); background: rgba(0,255,157,0.1); }
+  .cam-item-status.maintenance { color: var(--maint); background: rgba(255,184,0,0.1); }
+
+  /* Detail panel at bottom of sidebar */
+  .detail-panel {
+    border-top: 1px solid var(--border);
+    padding: 14px 18px;
+    background: #080f1a;
+    min-height: 160px;
+  }
+
+  .detail-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .detail-empty {
+    color: var(--dim);
+    font-size: 11px;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .detail-content { display: none; }
+  .detail-content.visible { display: block; }
+
+  .detail-cam-id {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 18px;
+    color: var(--accent);
+    text-shadow: 0 0 20px rgba(0,212,255,0.4);
+    margin-bottom: 4px;
+  }
+
+  .detail-cam-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .detail-rows { display: flex; flex-direction: column; gap: 6px; }
+
+  .detail-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px;
+  }
+
+  .detail-row-label { color: var(--dim); }
+  .detail-row-val { font-family: 'Share Tech Mono', monospace; font-size: 10px; }
+
+  .status-badge {
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .status-badge.online { color: var(--ok); background: rgba(0,255,157,0.1); border: 1px solid rgba(0,255,157,0.3); }
+  .status-badge.maintenance { color: var(--maint); background: rgba(255,184,0,0.1); border: 1px solid rgba(255,184,0,0.3); }
+
+  /* Toggle button */
+  .toggle-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 7px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .toggle-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.05); }
+
+  /* Map building labels */
+  .map-wrapper {
+    position: relative;
+    width: 100%; height: 100%;
+  }
+
+  .bld-label {
+    position: absolute;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 9px;
+    color: rgba(0,212,255,0.5);
+    white-space: nowrap;
+    pointer-events: none;
+    letter-spacing: 0.5px;
+    transform: translateX(-50%);
+  }
+
+  /* Summary bar at top of map */
+  .summary-bar {
+    display: flex; gap: 12px; margin-bottom: 12px;
+  }
+
+  .summary-card {
+    flex: 1;
+    background: #0c1825;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+
+  .summary-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 26px;
+    line-height: 1;
+    font-weight: bold;
+  }
+
+  .summary-num.green { color: var(--ok); text-shadow: 0 0 20px rgba(0,255,157,0.4); }
+  .summary-num.yellow { color: var(--maint); text-shadow: 0 0 20px rgba(255,184,0,0.4); }
+  .summary-num.blue { color: var(--accent); text-shadow: 0 0 20px rgba(0,212,255,0.4); }
+
+  .summary-label {
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 1px;
+  }
+
+  /* MAP SVG styles */
+  .map-bg { fill: #0a1420; }
+  .building { fill: none; stroke: #1e3a55; stroke-width: 1.5; }
+  .road { fill: none; stroke: #152840; stroke-width: 2; }
+  .building-label-svg {
+    fill: rgba(0,212,255,0.45);
+    font-size: 9px;
+    font-family: 'Sarabun', sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <div class="logo-icon">📹</div>
+    <div>
+      <div class="company-name">MOLD-MATE CO., LTD.</div>
+      <div class="system-title">ระบบติดตาม CCTV — แผนผังโรงงาน</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div> LIVE MONITORING</div>
+    <div id="clock">--:--:--</div>
+  </div>
+</header>
+
+<div class="main-layout">
+
+  <!-- MAP PANEL -->
+  <div class="map-panel">
+    <div class="map-panel-header">
+      <span class="panel-title">▶ แผนผังการติดตั้งกล้อง CCTV</span>
+      <div class="stats-row">
+        <div class="stat-chip ok" id="stat-ok">● ปกติ: 0</div>
+        <div class="stat-chip maint" id="stat-maint">● ซ่อมแซม: 0</div>
+      </div>
+    </div>
+
+    <div class="summary-bar">
+      <div class="summary-card">
+        <div class="summary-num blue" id="sum-total">0</div>
+        <div class="summary-label">กล้องทั้งหมด</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-num green" id="sum-ok">0</div>
+        <div class="summary-label">ทำงานปกติ</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-num yellow" id="sum-maint">0</div>
+        <div class="summary-label">ซ่อมแซม</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-num green" id="sum-pct">0%</div>
+        <div class="summary-label">อัตราการทำงาน</div>
+      </div>
+    </div>
+
+    <div class="map-container">
+      <div class="map-wrapper" id="mapWrapper">
+        <!-- SVG Map Background -->
+        <svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;">
+          <rect class="map-bg" width="900" height="600"/>
+
+          <!-- Outer boundary -->
+          <polygon class="building" style="stroke:#243d55;stroke-width:2" points="30,60 870,60 870,540 30,540"/>
+
+          <!-- Roads -->
+          <line class="road" x1="0" y1="520" x2="900" y2="520"/>
+          <line class="road" x1="30" y1="60" x2="30" y2="600"/>
+
+          <!-- Buildings -->
+          <!-- Employee Dormitory -->
+          <rect class="building" x="280" y="80" width="120" height="80"/>
+          <text class="building-label-svg" x="340" y="128" text-anchor="middle">หอพักพนักงาน</text>
+
+          <!-- Carbon/Rubber Additive Storage -->
+          <rect class="building" x="430" y="70" width="140" height="70"/>
+          <text class="building-label-svg" x="500" y="108" text-anchor="middle" font-size="7">กรอกคาร์บอน/บดเศษยาง</text>
+
+          <!-- Raw Material Warehouse -->
+          <rect class="building" x="610" y="70" width="130" height="80"/>
+          <text class="building-label-svg" x="675" y="114" text-anchor="middle">คลังวัตถุดิบ</text>
+
+          <!-- Raw Material Prep -->
+          <rect class="building" x="760" y="70" width="105" height="80"/>
+          <text class="building-label-svg" x="812" y="114" text-anchor="middle" font-size="7">เตรียมวัตถุดิบ</text>
+
+          <!-- T10 Building -->
+          <rect class="building" x="230" y="200" width="160" height="120"/>
+          <text class="building-label-svg" x="310" y="268" text-anchor="middle" font-size="11">อาคาร T10</text>
+
+          <!-- Production Hall (main large) -->
+          <rect class="building" x="400" y="200" width="230" height="200"/>
+          <text class="building-label-svg" x="515" y="285" text-anchor="middle">คลังสินค้า</text>
+          <text class="building-label-svg" x="515" y="300" text-anchor="middle">และคลังพัสดุ</text>
+
+          <!-- Forklift Garage -->
+          <rect class="building" x="395" y="185" width="80" height="40"/>
+          <text class="building-label-svg" x="435" y="200" text-anchor="middle" font-size="7">เก็บรถโฟล์คลิฟท์</text>
+
+          <!-- Rubber Mix Building -->
+          <rect class="building" x="650" y="175" width="230" height="110"/>
+          <text class="building-label-svg" x="765" y="235" text-anchor="middle">ผสมยาง</text>
+
+          <!-- Truck Maintenance -->
+          <rect class="building" x="650" y="300" width="200" height="100"/>
+          <text class="building-label-svg" x="750" y="355" text-anchor="middle" font-size="7">บริษัทซ่อมบำรุงรถแทรค</text>
+
+          <!-- Battery Repair -->
+          <rect class="building" x="550" y="300" width="90" height="100"/>
+          <text class="building-label-svg" x="595" y="358" text-anchor="middle" font-size="7">ซ่อมแบตเตอรี่</text>
+
+          <!-- Mold Storage -->
+          <rect class="building" x="130" y="260" width="90" height="80"/>
+          <text class="building-label-svg" x="175" y="305" text-anchor="middle" font-size="7">เก็บแม่พิมพ์</text>
+
+          <!-- Plug/Mold Storage -->
+          <rect class="building" x="145" y="355" width="80" height="60"/>
+          <text class="building-label-svg" x="185" y="390" text-anchor="middle" font-size="7">เก็บปลอก</text>
+
+          <!-- Medicine Production -->
+          <rect class="building" x="145" y="430" width="110" height="70"/>
+          <text class="building-label-svg" x="200" y="472" text-anchor="middle" font-size="7">ผลิตแม่พิมพ์</text>
+
+          <!-- Office -->
+          <rect class="building" x="60" y="400" width="80" height="70"/>
+          <text class="building-label-svg" x="100" y="440" text-anchor="middle">สำนักงาน</text>
+
+          <!-- R&D -->
+          <rect class="building" x="80" y="485" width="90" height="60"/>
+          <text class="building-label-svg" x="125" y="520" text-anchor="middle">อาคาร R&amp;D</text>
+
+          <!-- Canteen -->
+          <rect class="building" x="115" y="180" width="80" height="65"/>
+          <text class="building-label-svg" x="155" y="217" text-anchor="middle" font-size="7">โรงอาหาร</text>
+
+          <!-- Main Production -->
+          <rect class="building" x="260" y="280" width="130" height="120"/>
+          <text class="building-label-svg" x="325" y="345" text-anchor="middle" font-size="7">อาคารการผลิต</text>
+
+          <!-- Maintenance/Library -->
+          <rect class="building" x="760" y="160" width="105" height="90"/>
+          <text class="building-label-svg" x="812" y="210" text-anchor="middle" font-size="7">ซ่อมบำรุง</text>
+
+          <!-- Test track -->
+          <rect class="building" style="stroke:#152840;stroke-dasharray:6,4" x="620" y="420" width="230" height="80"/>
+          <text class="building-label-svg" x="735" y="465" text-anchor="middle" style="fill:rgba(0,212,255,0.25)">พื้นที่ทดสอบแทรค</text>
+
+          <!-- Empty land -->
+          <rect class="building" style="stroke:#101e2e;stroke-dasharray:4,5" x="620" y="510" width="240" height="40"/>
+          <text class="building-label-svg" x="740" y="535" text-anchor="middle" style="fill:rgba(0,212,255,0.2)">พื้นที่ว่างเปล่า</text>
+
+          <!-- Parking -->
+          <rect class="building" style="stroke:#152840;stroke-dasharray:5,5" x="250" y="430" width="180" height="80"/>
+          <text class="building-label-svg" x="340" y="475" text-anchor="middle" style="fill:rgba(0,212,255,0.25)">ที่จอดรถพนักงาน</text>
+
+          <!-- Well -->
+          <circle style="fill:none;stroke:#1e3a55;stroke-width:1.5" cx="65" cy="520" r="12"/>
+          <text class="building-label-svg" x="65" y="548" text-anchor="middle" font-size="8">บ่อน้ำ</text>
+        </svg>
+
+        <!-- Camera dots will be injected here -->
+        <div id="cameraLayer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">▶ รายการกล้อง CCTV</div>
+      <div class="filter-tabs">
+        <button class="filter-tab active-all" onclick="filterCams('all', this)">ทั้งหมด</button>
+        <button class="filter-tab" onclick="filterCams('online', this)">ปกติ</button>
+        <button class="filter-tab" onclick="filterCams('maintenance', this)">ซ่อมแซม</button>
+      </div>
+    </div>
+
+    <div class="cam-list" id="camList"></div>
+
+    <div class="detail-panel">
+      <div class="detail-title">▶ รายละเอียดกล้อง</div>
+      <div class="detail-empty" id="detailEmpty">เลือกกล้องเพื่อดูรายละเอียด</div>
+      <div class="detail-content" id="detailContent">
+        <div class="detail-cam-id" id="dId"></div>
+        <div class="detail-cam-name" id="dName"></div>
+        <div class="detail-rows">
+          <div class="detail-row">
+            <span class="detail-row-label">สถานะ</span>
+            <span class="detail-row-val" id="dStatus"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-row-label">ตำแหน่ง</span>
+            <span class="detail-row-val" id="dZone"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-row-label">อัปเดตล่าสุด</span>
+            <span class="detail-row-val" id="dTime"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-row-label">ความละเอียด</span>
+            <span class="detail-row-val" id="dRes"></span>
+          </div>
+        </div>
+        <button class="toggle-btn" id="toggleBtn" onclick="toggleStatus()">เปลี่ยนสถานะ</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// =============================
+// CAMERA DATA
+// =============================
+// Positions are % of map container (left%, top%)
+const cameras = [
+  // Zone: ทางเข้า-ออก
+  { id:'CAM-001', name:'ประตูหลักทางเข้า', zone:'ทางเข้า-ออก', x:4.5, y:60, status:'online', res:'1080p' },
+  { id:'CAM-002', name:'ทางออกหลัก', zone:'ทางเข้า-ออก', x:4.5, y:75, status:'online', res:'1080p' },
+  { id:'CAM-003', name:'รั้วด้านใต้', zone:'ทางเข้า-ออก', x:38, y:92, status:'maintenance', res:'720p' },
+
+  // Zone: สำนักงาน / R&D
+  { id:'CAM-011', name:'สำนักงาน (ด้านหน้า)', zone:'สำนักงาน/R&D', x:8.5, y:65, status:'online', res:'1080p' },
+  { id:'CAM-012', name:'สำนักงาน (ภายใน)', zone:'สำนักงาน/R&D', x:11, y:71, status:'online', res:'1080p' },
+  { id:'CAM-013', name:'อาคาร R&D', zone:'สำนักงาน/R&D', x:12, y:83, status:'maintenance', res:'720p' },
+
+  // Zone: โรงอาหาร / หอพัก
+  { id:'CAM-021', name:'โรงอาหาร', zone:'โรงอาหาร/หอพัก', x:16, y:31, status:'online', res:'1080p' },
+  { id:'CAM-022', name:'หอพักพนักงาน (หน้า)', zone:'โรงอาหาร/หอพัก', x:37, y:15, status:'online', res:'1080p' },
+  { id:'CAM-023', name:'หอพักพนักงาน (หลัง)', zone:'โรงอาหาร/หอพัก', x:44, y:15, status:'online', res:'720p' },
+
+  // Zone: อาคาร T10 / ผลิต
+  { id:'CAM-031', name:'อาคาร T10 (ทิศเหนือ)', zone:'อาคาร T10/ผลิต', x:28, y:36, status:'online', res:'1080p' },
+  { id:'CAM-032', name:'อาคาร T10 (ทิศใต้)', zone:'อาคาร T10/ผลิต', x:28, y:53, status:'online', res:'1080p' },
+  { id:'CAM-033', name:'อาคารการผลิต', zone:'อาคาร T10/ผลิต', x:34, y:58, status:'maintenance', res:'720p' },
+  { id:'CAM-034', name:'เก็บแม่พิมพ์', zone:'อาคาร T10/ผลิต', x:19, y:47, status:'online', res:'1080p' },
+
+  // Zone: คลังสินค้า
+  { id:'CAM-041', name:'คลังสินค้า (ด้านหน้า)', zone:'คลังสินค้า/พัสดุ', x:52, y:38, status:'online', res:'2MP' },
+  { id:'CAM-042', name:'คลังสินค้า (กลาง)', zone:'คลังสินค้า/พัสดุ', x:58, y:48, status:'online', res:'2MP' },
+  { id:'CAM-043', name:'คลังสินค้า (หลัง)', zone:'คลังสินค้า/พัสดุ', x:52, y:56, status:'online', res:'2MP' },
+  { id:'CAM-044', name:'รถโฟล์คลิฟท์', zone:'คลังสินค้า/พัสดุ', x:47, y:32, status:'maintenance', res:'720p' },
+
+  // Zone: วัตถุดิบ
+  { id:'CAM-051', name:'คลังวัตถุดิบ', zone:'วัตถุดิบ/เตรียม', x:72, y:14, status:'online', res:'1080p' },
+  { id:'CAM-052', name:'เตรียมวัตถุดิบ', zone:'วัตถุดิบ/เตรียม', x:86, y:14, status:'online', res:'1080p' },
+  { id:'CAM-053', name:'กรอกคาร์บอน/บดยาง', zone:'วัตถุดิบ/เตรียม', x:54, y:13, status:'online', res:'720p' },
+
+  // Zone: ผสมยาง / ซ่อมบำรุง
+  { id:'CAM-061', name:'ผสมยาง (ด้านหน้า)', zone:'ผสมยาง/ซ่อมบำรุง', x:76, y:33, status:'online', res:'2MP' },
+  { id:'CAM-062', name:'ผสมยาง (ด้านหลัง)', zone:'ผสมยาง/ซ่อมบำรุง', x:89, y:33, status:'online', res:'2MP' },
+  { id:'CAM-063', name:'ซ่อมบำรุง', zone:'ผสมยาง/ซ่อมบำรุง', x:89, y:28, status:'maintenance', res:'720p' },
+
+  // Zone: ซ่อมรถ / แบตเตอรี่
+  { id:'CAM-071', name:'ซ่อมรถแทรค', zone:'ซ่อมรถ/แบตเตอรี่', x:80, y:57, status:'online', res:'1080p' },
+  { id:'CAM-072', name:'ซ่อมแบตเตอรี่', zone:'ซ่อมรถ/แบตเตอรี่', x:64, y:57, status:'online', res:'720p' },
+
+  // Zone: ทดสอบ / พื้นที่กลางแจ้ง
+  { id:'CAM-081', name:'พื้นที่ทดสอบแทรค', zone:'ทดสอบ/กลางแจ้ง', x:75, y:75, status:'online', res:'2MP' },
+  { id:'CAM-082', name:'พื้นที่ทดสอบ (ปลาย)', zone:'ทดสอบ/กลางแจ้ง', x:89, y:75, status:'maintenance', res:'720p' },
+  { id:'CAM-083', name:'ที่จอดรถพนักงาน', zone:'ทดสอบ/กลางแจ้ง', x:37, y:75, status:'online', res:'1080p' },
+];
+
+let selectedId = null;
+let currentFilter = 'all';
+
+// =============================
+// CLOCK
+// =============================
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = h+':'+m+':'+s;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// =============================
+// RENDER CAMERAS ON MAP
+// =============================
+function renderMapDots() {
+  const layer = document.getElementById('cameraLayer');
+  layer.innerHTML = '';
+  cameras.forEach(cam => {
+    const dot = document.createElement('div');
+    dot.className = `cam-dot ${cam.status}`;
+    dot.style.left = cam.x + '%';
+    dot.style.top = cam.y + '%';
+    dot.dataset.id = cam.id;
+
+    dot.innerHTML = `
+      <div class="dot-outer">
+        <div class="dot-inner"></div>
+      </div>
+      <div class="cam-tooltip">
+        <div class="tt-id">${cam.id}</div>
+        <div class="tt-name">${cam.name}</div>
+        <div class="tt-status ${cam.status}">${cam.status === 'online' ? '● ทำงานปกติ' : '● ซ่อมแซม'}</div>
+      </div>`;
+
+    dot.addEventListener('click', () => selectCamera(cam.id));
+    layer.appendChild(dot);
+  });
+}
+
+// =============================
+// RENDER SIDEBAR LIST
+// =============================
+function renderList() {
+  const list = document.getElementById('camList');
+  list.innerHTML = '';
+  const filtered = cameras.filter(c => currentFilter === 'all' || c.status === currentFilter);
+
+  // Group by zone
+  const zones = {};
+  filtered.forEach(c => {
+    if (!zones[c.zone]) zones[c.zone] = [];
+    zones[c.zone].push(c);
+  });
+
+  Object.entries(zones).forEach(([zone, cams]) => {
+    const zLabel = document.createElement('div');
+    zLabel.className = 'zone-label';
+    zLabel.textContent = zone;
+    list.appendChild(zLabel);
+
+    cams.forEach(cam => {
+      const item = document.createElement('div');
+      item.className = 'cam-item' + (cam.id === selectedId ? ' selected' : '');
+      item.dataset.id = cam.id;
+      item.innerHTML = `
+        <div class="cam-item-icon">${cam.status === 'online' ? '📷' : '🔧'}</div>
+        <div class="cam-item-info">
+          <div class="cam-item-id">${cam.id}</div>
+          <div class="cam-item-name">${cam.name}</div>
+        </div>
+        <div class="cam-item-status ${cam.status}">${cam.status === 'online' ? 'ปกติ' : 'ซ่อม'}</div>`;
+      item.addEventListener('click', () => selectCamera(cam.id));
+      list.appendChild(item);
+    });
+  });
+}
+
+// =============================
+// UPDATE STATS
+// =============================
+function updateStats() {
+  const ok = cameras.filter(c => c.status === 'online').length;
+  const maint = cameras.filter(c => c.status === 'maintenance').length;
+  const total = cameras.length;
+  const pct = Math.round((ok/total)*100);
+
+  document.getElementById('stat-ok').textContent = `● ปกติ: ${ok}`;
+  document.getElementById('stat-maint').textContent = `● ซ่อมแซม: ${maint}`;
+  document.getElementById('sum-total').textContent = total;
+  document.getElementById('sum-ok').textContent = ok;
+  document.getElementById('sum-maint').textContent = maint;
+  document.getElementById('sum-pct').textContent = pct + '%';
+}
+
+// =============================
+// SELECT CAMERA
+// =============================
+function selectCamera(id) {
+  selectedId = id;
+  const cam = cameras.find(c => c.id === id);
+  if (!cam) return;
+
+  document.getElementById('detailEmpty').style.display = 'none';
+  const dc = document.getElementById('detailContent');
+  dc.classList.add('visible');
+
+  document.getElementById('dId').textContent = cam.id;
+  document.getElementById('dName').textContent = cam.name;
+  document.getElementById('dStatus').innerHTML = `<span class="status-badge ${cam.status}">${cam.status === 'online' ? 'ทำงานปกติ' : 'ซ่อมแซม'}</span>`;
+  document.getElementById('dZone').textContent = cam.zone;
+  document.getElementById('dTime').textContent = new Date().toLocaleTimeString('th-TH');
+  document.getElementById('dRes').textContent = cam.res;
+
+  renderList();
+  renderMapDots();
+}
+
+// =============================
+// TOGGLE STATUS
+// =============================
+function toggleStatus() {
+  const cam = cameras.find(c => c.id === selectedId);
+  if (!cam) return;
+  cam.status = cam.status === 'online' ? 'maintenance' : 'online';
+  selectCamera(cam.id);
+  updateStats();
+}
+
+// =============================
+// FILTER
+// =============================
+function filterCams(type, btn) {
+  currentFilter = type;
+  // Update tab styles
+  document.querySelectorAll('.filter-tab').forEach(t => {
+    t.className = 'filter-tab';
+  });
+  if (type === 'all') btn.classList.add('active-all');
+  else if (type === 'online') btn.classList.add('active-ok');
+  else btn.classList.add('active-maint');
+  renderList();
+}
+
+// =============================
+// SIMULATE REAL-TIME UPDATES
+// =============================
+function simulateRealtime() {
+  // Occasionally flicker a random camera status (just one random)
+  const idx = Math.floor(Math.random() * cameras.length);
+  const cam = cameras[idx];
+  // Small chance of status change simulation
+  if (Math.random() < 0.06) {
+    cam.status = cam.status === 'online' ? 'maintenance' : 'online';
+    renderMapDots();
+    renderList();
+    updateStats();
+    if (cam.id === selectedId) selectCamera(cam.id);
+  }
+}
+
+// Update time in detail panel live
+setInterval(() => {
+  if (selectedId) {
+    document.getElementById('dTime').textContent = new Date().toLocaleTimeString('th-TH');
+  }
+}, 1000);
+
+setInterval(simulateRealtime, 8000);
+
+// =============================
+// INIT
+// =============================
+renderMapDots();
+renderList();
+updateStats();
+</script>
+</body>
+</html>
