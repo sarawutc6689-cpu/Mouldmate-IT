@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ระบบจัดการกล้อง CCTV แบบ Real-time - แผนผังโต้ตอบ</title>
+    <!-- Font Awesome 6 (ฟรี) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- jQuery UI สำหรับ Drag and Drop ที่ยืดหยุ่น -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none; /* ป้องกันข้อความถูกเลือกขณะลาก แต่ไม่รบกวนการพิมพ์ */
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e9f0f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .main-container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            padding: 20px 24px 30px 24px;
+        }
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 1.9rem;
+            color: #1e466e;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        h1 small {
+            font-size: 0.85rem;
+            font-weight: normal;
+            background: #eef2fc;
+            padding: 6px 14px;
+            border-radius: 40px;
+            color: #2c5a8c;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0 20px 0;
+            background: #f8fafd;
+            padding: 12px 18px;
+            border-radius: 60px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        button, .mode-btn {
+            background: white;
+            border: 1px solid #cbdbe0;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #1f3a5f;
+        }
+        button i, .mode-btn i {
+            font-size: 1rem;
+        }
+        button.primary {
+            background: #1e6f3f;
+            border-color: #1e6f3f;
+            color: white;
+        }
+        button.primary:hover {
+            background: #0f5a34;
+        }
+        button.warning {
+            background: #d9534f;
+            border-color: #b93b37;
+            color: white;
+        }
+        button.warning:hover {
+            background: #c9302c;
+        }
+        button:hover {
+            background: #e6edf4;
+            transform: scale(0.97);
+        }
+        .status-badge {
+            display: flex;
+            gap: 20px;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+        }
+        .legend {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+        .legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .camera-normal {
+            color: #28a745;
+        }
+        .camera-broken {
+            color: #dc3545;
+        }
+        /* พื้นที่ layout (canvas-like) */
+        .layout-area {
+            background: #fef9e6;
+            background-image: radial-gradient(circle at 10px 10px, rgba(0,0,0,0.02) 1px, transparent 1px);
+            background-size: 28px 28px;
+            border: 2px dashed #cfdde6;
+            border-radius: 32px;
+            min-height: 650px;
+            position: relative;
+            margin-top: 15px;
+            transition: all 0.1s;
+            padding: 20px;
+            /* ใช้ grid พื้นฐานเพื่อให้วางกล้องได้อิสระ แต่จะใช้ absolute จริงๆ */
+        }
+        /* แต่ละกล้องเป็น widget แบบลาก-วางได้ */
+        .camera-widget {
+            position: absolute;
+            min-width: 110px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+            padding: 8px 12px;
+            cursor: grab;
+            transition: box-shadow 0.1s, transform 0.05s;
+            z-index: 10;
+            border-left: 6px solid #28a745;
+            backdrop-filter: blur(2px);
+            background-color: rgba(255,255,255,0.95);
+        }
+        .camera-widget:active {
+            cursor: grabbing;
+        }
+        .camera-widget.broken {
+            border-left-color: #dc3545;
+            background-color: #fff4f2;
+        }
+        .camera-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        .cam-id {
+            background: #eef2fa;
+            padding: 2px 8px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-family: monospace;
+        }
+        .cam-status-icon {
+            font-size: 1rem;
+        }
+        .cam-status-text {
+            font-size: 0.7rem;
+            margin-top: 4px;
+            text-align: center;
+            background: #f0f0f0;
+            border-radius: 20px;
+            padding: 2px;
+        }
+        .controls-widget {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            gap: 6px;
+        }
+        .controls-widget button {
+            padding: 4px 8px;
+            font-size: 0.65rem;
+            background: #f4f6f9;
+            border-radius: 30px;
+        }
+        /* โหมดลบ / เพิ่ม */
+        .add-mode-active {
+            background: #2c7da0;
+            color: white;
+            border-color: #1f5e7a;
+        }
+        .delete-mode-active {
+            background: #b33b2c;
+            color: white;
+            border-color: #8e2c1f;
+        }
+        .info-message {
+            font-size: 0.8rem;
+            color: #3e6b8c;
+            margin-top: 12px;
+            text-align: center;
+        }
+        /* ปุ่มซ่อมแซมด่วน */
+        .fix-btn {
+            background: #ffc107;
+            color: #2d2a1e;
+        }
+        hr {
+            margin: 12px 0;
+        }
+        @media (max-width: 700px) {
+            .toolbar { flex-direction: column; align-items: stretch; border-radius: 28px; }
+            .btn-group { justify-content: center; }
+            .camera-widget { min-width: 90px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <h1>
+        <span><i class="fas fa-video"></i> ระบบกล้องวงจรปิดอัจฉริยะ</span>
+        <small>ลาก-วางปรับตำแหน่งได้ • สถานะ Real-time</small>
+    </h1>
+    <div class="toolbar">
+        <div class="btn-group">
+            <button id="addCameraBtn" class="mode-btn"><i class="fas fa-plus-circle"></i> เพิ่มกล้อง</button>
+            <button id="deleteModeBtn" class="mode-btn"><i class="fas fa-trash-alt"></i> โหมดลบ</button>
+            <button id="resetLayoutBtn"><i class="fas fa-undo-alt"></i> รีเซ็ตตำแหน่ง</button>
+        </div>
+        <div class="legend">
+            <span><i class="fas fa-circle camera-normal"></i> ปกติ</span>
+            <span><i class="fas fa-circle camera-broken"></i> กำลังซ่อมแซม</span>
+            <span><i class="fas fa-arrows-alt"></i> ลากปรับตำแหน่ง</span>
+            <span><i class="fas fa-plus-square"></i> คลิกเพิ่ม (โหมดปกติ)</span>
+        </div>
+        <div class="status-badge" id="liveStats">
+            <span><i class="fas fa-check-circle"></i> ปกติ: <strong id="normalCount">0</strong></span>
+            <span><i class="fas fa-tools"></i> ซ่อมแซม: <strong id="brokenCount">0</strong></span>
+            <span><i class="fas fa-camera"></i> ทั้งหมด: <strong id="totalCount">0</strong></span>
+        </div>
+    </div>
+    <div id="layoutContainer" class="layout-area" style="position: relative; min-height: 650px;">
+        <!-- กล้องทั้งหมดจะถูกสร้างแบบไดนามิกที่นี่ -->
+    </div>
+    <div class="info-message">
+        <i class="fas fa-info-circle"></i> วิธีใช้งาน: คลิกที่ปุ่ม "เพิ่มกล้อง" เพื่อเพิ่มกล้องใหม่ ณ ตำแหน่งสุ่ม (หรือลากไปวางใหม่) • คลิกปุ่มสถานะ (ปกติ/ซ่อม) เพื่อสลับสถานะ • เปิดโหมดลบเพื่อลบกล้อง • ทุกตำแหน่งบันทึกอัตโนมัติในเครื่องคุณ
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script>
+    // ---------- โมเดลข้อมูล ----------
+    let cameras = [];     // แต่ละตัว { id, label, status, left, top }
+    let nextId = 200;    // เริ่มจากเลขสูงเพื่อไม่ชน ID เดิม (ใช้ internal)
+    let deleteMode = false;
+    let addMode = false;   // โหมดเพิ่ม: คลิกที่ layout เพิ่มกล้องตรงจุดนั้น
+    let originalPositions = []; // สำหรับรีเซ็ต
+    
+    // ฟังก์ชันดึงข้อมูลจาก localStorage
+    function loadFromStorage() {
+        const saved = localStorage.getItem('cctv_layout_data');
+        if(saved) {
+            try {
+                const data = JSON.parse(saved);
+                cameras = data.cameras || [];
+                nextId = data.nextId || 200;
+                // ตรวจสอบให้แน่ใจทุกตัวมี left/top อยู่ในขอบเขต container
+                if(cameras.length === 0) {
+                    initDefaultCameras();
+                }
+            } catch(e) { initDefaultCameras(); }
+        } else {
+            initDefaultCameras();
+        }
+        // บันทึก original positions สำหรับรีเซ็ต
+        backupOriginalPositions();
+    }
+    
+    // กล้องเริ่มต้นจากข้อมูลใน PDF (บางส่วนจากหมายเลขที่ให้มา) แต่เพื่อความสมจริงและจัดการพื้นที่ทับซ้อน
+    // ใช้เลขรหัสเดิม เช่น 105-1,105-2,... ,118-16,119-1 ฯลฯ พร้อมตำแหน่งสุ่มที่เหมาะสมไม่ทับซ้อนกันเกินไป
+    function initDefaultCameras() {
+        const defaultIds = [
+            "105-1","105-2","105-3","105-4","105-5","105-6","105-7","105-8",
+            "106-1","106-2","106-3","106-4","106-5","106-6","106-7","106-8","106-9",
+            "108-1","108-2","108-3","108-4","108-5","108-6","108-7","108-8","108-9","108-10","108-11","108-12","108-13",
+            "110-1","110-2","110-3","110-4","110-5","110-6",
+            "111-1","111-2","111-3","111-4","111-5","111-6","111-7","111-8","111-9","111-10",
+            "112-1","112-2","112-3","112-4","112-5","112-6","112-7","112-8",
+            "113-1","113-2","113-3","113-4","113-5","113-6","113-7","113-8",
+            "114-1","114-2","114-3","114-4","114-5","114-6","114-7","114-8",
+            "115-1","115-2","115-3","115-4","115-5","115-6","115-7","115-8",
+            "116-1","116-2","116-3","116-4","116-5","116-6","116-7","116-8",
+            "117-1","117-2","117-3","117-4",
+            "118-1","118-2","118-3","118-4","118-5","118-6","118-7","118-8","118-9","118-10","118-11","118-12","118-13","118-14","118-15","118-16",
+            "119-1","119-2","119-3","119-4","119-5","119-6","119-7","119-8",
+            "120-1","120-2",
+            "121-1","121-2","121-3","121-4","121-5","121-6","121-7","121-8"
+        ];
+        cameras = [];
+        // สุ่มตำแหน่งแบบไม่ทับซ้อนเกิน (ใช้ grid offset)
+        const container = document.getElementById('layoutContainer');
+        let containerWidth = 1100;
+        let containerHeight = 600;
+        if(container) {
+            containerWidth = container.clientWidth > 100 ? container.clientWidth : 1100;
+            containerHeight = container.clientHeight > 200 ? container.clientHeight : 600;
+        }
+        const usedPositions = [];
+        function isOverlap(x, y, w=130, h=85) {
+            for(let p of usedPositions) {
+                if(Math.abs(p.x - x) < w && Math.abs(p.y - y) < h) return true;
+            }
+            return false;
+        }
+        for(let i=0; i<defaultIds.length; i++) {
+            let marginX = 30;
+            let marginY = 30;
+            let maxAttempts = 300;
+            let placed = false;
+            let leftPos = 20, topPos = 20;
+            for(let att=0; att<maxAttempts; att++) {
+                leftPos = 20 + Math.random() * (containerWidth - 150);
+                topPos = 20 + Math.random() * (containerHeight - 100);
+                if(!isOverlap(leftPos, topPos, 130, 90)) {
+                    placed = true;
+                    break;
+                }
+            }
+            if(!placed) {
+                leftPos = 20 + (i % 12) * 105;
+                topPos = 30 + Math.floor(i / 12) * 95;
+            }
+            usedPositions.push({x: leftPos, y: topPos});
+            const status = Math.random() > 0.85 ? 'broken' : 'normal';   // เริ่มต้นซ่อมแซม 15% เพื่อให้เห็นความแตกต่าง
+            cameras.push({
+                id: defaultIds[i],
+                label: defaultIds[i],
+                status: status,
+                left: Math.min(leftPos, containerWidth - 130),
+                top: Math.min(topPos, containerHeight - 90),
+            });
+        }
+        nextId = 500;  // สำหรับ id ที่เพิ่มใหม่ใช้รหัสเช่น "NEW-201"
+    }
+    
+    function backupOriginalPositions() {
+        originalPositions = cameras.map(c => ({ id: c.id, left: c.left, top: c.top }));
+    }
+    
+    function resetToOriginalLayout() {
+        if(originalPositions.length === 0) backupOriginalPositions();
+        for(let i=0; i<cameras.length; i++) {
+            const orig = originalPositions.find(o => o.id === cameras[i].id);
+            if(orig) {
+                cameras[i].left = orig.left;
+                cameras[i].top = orig.top;
+            }
+        }
+        renderCameras();
+        saveToStorage();
+        showToast("รีเซ็ตตำแหน่งกล้องเรียบร้อย");
+    }
+    
+    function saveToStorage() {
+        const dataToSave = {
+            cameras: cameras,
+            nextId: nextId
+        };
+        localStorage.setItem('cctv_layout_data', JSON.stringify(dataToSave));
+        updateStats();
+    }
+    
+    // แสดงผลทั้งหมด (สร้าง DOM ใหม่ทุกครั้งเพื่อ sync drag)
+    function renderCameras() {
+        const container = document.getElementById('layoutContainer');
+        if(!container) return;
+        container.innerHTML = '';
+        cameras.forEach((cam, idx) => {
+            const widget = document.createElement('div');
+            widget.className = `camera-widget ${cam.status === 'broken' ? 'broken' : ''}`;
+            widget.setAttribute('data-id', cam.id);
+            widget.style.left = cam.left + 'px';
+            widget.style.top = cam.top + 'px';
+            widget.style.position = 'absolute';
+            // เนื้อหาใน widget
+            const statusIcon = cam.status === 'normal' ? '<i class="fas fa-check-circle camera-normal"></i>' : '<i class="fas fa-exclamation-triangle camera-broken"></i>';
+            const statusText = cam.status === 'normal' ? 'ปกติ' : 'ซ่อมแซม';
+            widget.innerHTML = `
+                <div class="camera-header">
+                    <span class="cam-id">${escapeHtml(cam.label)}</span>
+                    <span class="cam-status-icon">${statusIcon}</span>
+                </div>
+                <div class="cam-status-text" style="background:${cam.status === 'broken' ? '#ffe0db' : '#e0f2e3'}">
+                    ${statusText}
+                </div>
+                <div class="controls-widget">
+                    <button class="toggle-status-btn" data-id="${cam.id}" title="เปลี่ยนสถานะ"><i class="fas fa-sync-alt"></i> สถานะ</button>
+                    ${deleteMode ? `<button class="delete-cam-btn" data-id="${cam.id}" style="background:#f8d7da; color:#a71d2a;"><i class="fas fa-trash"></i> ลบ</button>` : ''}
+                </div>
+            `;
+            // ทำให้สามารถ drag ได้ด้วย jQuery UI draggable (ผูกทีละตัว)
+            container.appendChild(widget);
+            // ผูก draggable
+            $(widget).draggable({
+                containment: "parent",
+                scroll: false,
+                stop: function(event, ui) {
+                    // อัพเดทตำแหน่งใน array cameras
+                    const id = $(this).attr('data-id');
+                    const camera = cameras.find(c => c.id === id);
+                    if(camera) {
+                        camera.left = ui.position.left;
+                        camera.top = ui.position.top;
+                        saveToStorage();
+                    }
+                },
+                start: function() {
+                    if(deleteMode || addMode) {
+                        // ถ้ากำลังอยู่ในโหมดลบ/เพิ่ม ให้ยกเลิกการลาก? แต่เราอนุญาตให้ลากได้ แต่ก็ดี
+                        // ไม่ทำอะไร
+                    }
+                }
+            });
+        });
+        // ผูก event กับปุ่ม toggle และ delete
+        document.querySelectorAll('.toggle-status-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = btn.getAttribute('data-id');
+                toggleCameraStatus(id);
+            });
+        });
+        if(deleteMode) {
+            document.querySelectorAll('.delete-cam-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-id');
+                    deleteCameraById(id);
+                });
+            });
+        }
+        updateStats();
+    }
+    
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    function toggleCameraStatus(id) {
+        const cam = cameras.find(c => c.id === id);
+        if(cam) {
+            cam.status = cam.status === 'normal' ? 'broken' : 'normal';
+            renderCameras();    // re-render เพื่ออัปเดต style และปุ่ม
+            saveToStorage();
+            showToast(`กล้อง ${cam.label} เปลี่ยนสถานะเป็น ${cam.status === 'normal' ? 'ปกติ' : 'ซ่อมแซม'} แล้ว`);
+        }
+    }
+    
+    function deleteCameraById(id) {
+        const idx = cameras.findIndex(c => c.id === id);
+        if(idx !== -1) {
+            const removed = cameras[idx];
+            cameras.splice(idx, 1);
+            renderCameras();
+            saveToStorage();
+            showToast(`ลบกล้อง ${removed.label} เรียบร้อย`);
+        }
+    }
+    
+    // เพิ่มกล้องใหม่ (ตำแหน่งสุ่ม หรือ ตามพิกัดที่คลิกถ้าอยู่ในโหมดเพิ่ม)
+    function addNewCameraAt(x, y) {
+        const container = document.getElementById('layoutContainer');
+        const rect = container.getBoundingClientRect();
+        let leftPos, topPos;
+        if(x !== undefined && y !== undefined) {
+            // แปลงพิกัดคลิกสัมพัทธ์กับ container
+            const relativeX = x - rect.left;
+            const relativeY = y - rect.top;
+            leftPos = Math.min(Math.max(relativeX - 60, 10), container.clientWidth - 130);
+            topPos = Math.min(Math.max(relativeY - 40, 10), container.clientHeight - 90);
+        } else {
+            leftPos = 20 + Math.random() * (container.clientWidth - 150);
+            topPos = 20 + Math.random() * (container.clientHeight - 100);
+        }
+        const newLabel = `CAM-${nextId}`;
+        cameras.push({
+            id: newLabel,
+            label: newLabel,
+            status: 'normal',
+            left: leftPos,
+            top: topPos,
+        });
+        nextId++;
+        renderCameras();
+        saveToStorage();
+        showToast(`เพิ่มกล้อง ${newLabel} ที่ตำแหน่ง (${Math.round(leftPos)},${Math.round(topPos)})`);
+    }
+    
+    // โหมดเพิ่มกล้องด้วยการคลิกบน layout
+    let layoutClickListener = null;
+    function setAddMode(active) {
+        addMode = active;
+        deleteMode = false;   // ปิดโหมดลบ
+        updateModeButtons();
+        const container = document.getElementById('layoutContainer');
+        if(active) {
+            // เพิ่ม event listener คลิกบน layout
+            if(layoutClickListener) container.removeEventListener('click', layoutClickListener);
+            layoutClickListener = (e) => {
+                // ตรวจสอบว่า target ไม่ใช่ปุ่มหรือ widget (ถ้าคลิกที่ widget ต้องไม่เพิ่ม)
+                if(e.target.closest('.camera-widget')) return;
+                addNewCameraAt(e.clientX, e.clientY);
+                // หลังจากเพิ่มแล้วอาจจะยังคงโหมดเพิ่มอยู่
+            };
+            container.addEventListener('click', layoutClickListener);
+            container.style.cursor = 'crosshair';
+            showToast('โหมดเพิ่มกล้อง: คลิกบนพื้นที่ว่างเพื่อเพิ่มกล้อง ณ จุดนั้น');
+        } else {
+            if(layoutClickListener) container.removeEventListener('click', layoutClickListener);
+            layoutClickListener = null;
+            container.style.cursor = 'default';
+        }
+    }
+    
+    function setDeleteMode(active) {
+        deleteMode = active;
+        addMode = false;
+        if(addMode) setAddMode(false); // ปิด add mode ก่อน
+        updateModeButtons();
+        renderCameras();   // render ใหม่เพื่อแสดงปุ่มลบ
+        const container = document.getElementById('layoutContainer');
+        if(active) {
+            container.style.cursor = 'no-drop';
+            showToast('โหมดลบ: คลิกปุ่ม "ลบ" บนตัวกล้อง หรือกดปุ่มลบที่ปรากฏ');
+        } else {
+            container.style.cursor = 'default';
+        }
+    }
+    
+    function updateModeButtons() {
+        const addBtn = document.getElementById('addCameraBtn');
+        const delBtn = document.getElementById('deleteModeBtn');
+        if(addMode) {
+            addBtn.classList.add('add-mode-active');
+            delBtn.classList.remove('delete-mode-active');
+        } else if(deleteMode) {
+            delBtn.classList.add('delete-mode-active');
+            addBtn.classList.remove('add-mode-active');
+        } else {
+            addBtn.classList.remove('add-mode-active');
+            delBtn.classList.remove('delete-mode-active');
+        }
+    }
+    
+    function updateStats() {
+        const normal = cameras.filter(c => c.status === 'normal').length;
+        const broken = cameras.filter(c => c.status === 'broken').length;
+        document.getElementById('normalCount').innerText = normal;
+        document.getElementById('brokenCount').innerText = broken;
+        document.getElementById('totalCount').innerText = cameras.length;
+    }
+    
+    function showToast(msg) {
+        // สร้าง toast ชั่วคราว
+        let toast = document.createElement('div');
+        toast.innerText = msg;
+        toast.style.position = 'fixed';
+        toast.style.bottom = '30px';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%)';
+        toast.style.backgroundColor = '#2c3e4e';
+        toast.style.color = 'white';
+        toast.style.padding = '10px 24px';
+        toast.style.borderRadius = '40px';
+        toast.style.zIndex = '9999';
+        toast.style.fontSize = '0.9rem';
+        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 500);
+        }, 2000);
+    }
+    
+    // ฟังก์ชันจัดการปรับขนาด container ตอน resize window เพื่อคงสัดส่วน
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            // ตรวจสอบกล้องอยู่นอกขอบเขตหรือไม่?
+            const container = document.getElementById('layoutContainer');
+            if(container) {
+                let changed = false;
+                cameras.forEach(cam => {
+                    let maxLeft = container.clientWidth - 130;
+                    let maxTop = container.clientHeight - 90;
+                    if(cam.left > maxLeft && maxLeft > 30) { cam.left = Math.max(10, maxLeft - 10); changed=true; }
+                    if(cam.top > maxTop && maxTop > 30) { cam.top = Math.max(10, maxTop - 10); changed=true; }
+                    if(cam.left < 5) cam.left = 10;
+                    if(cam.top < 5) cam.top = 10;
+                });
+                if(changed) {
+                    renderCameras();
+                    saveToStorage();
+                }
+            }
+        }, 200);
+    });
+    
+    // เริ่มต้นโหลด
+    $(document).ready(() => {
+        loadFromStorage();
+        renderCameras();
+        updateStats();
+        
+        // ผูกปุ่มต่างๆ
+        document.getElementById('addCameraBtn').addEventListener('click', () => {
+            if(deleteMode) setDeleteMode(false);
+            setAddMode(!addMode);
+        });
+        document.getElementById('deleteModeBtn').addEventListener('click', () => {
+            if(addMode) setAddMode(false);
+            setDeleteMode(!deleteMode);
+        });
+        document.getElementById('resetLayoutBtn').addEventListener('click', () => {
+            if(addMode) setAddMode(false);
+            if(deleteMode) setDeleteMode(false);
+            resetToOriginalLayout();
+        });
+        
+        // คลิกปกติถ้าต้องการเพิ่มแบบสุ่มโดยไม่เปิดโหมด ให้กดเพิ่มแบบสุ่ม? มีปุ่มเพิ่มกล้อง แต่ถ้าต้องการเพิ่มแบบสุ่มโดยไม่คลิกจุด
+        // เพิ่มฟังก์ชัน: ปุ่มเพิ่มแบบดั้งเดิม (สุ่มตำแหน่ง)
+        const originAdd = document.getElementById('addCameraBtn');
+        // เพิ่มเมนู context: ปุ่มขวาหรือ shift? แต่ใช้ปุ่มเพิ่มแล้วถ้าไม่ใช่โหมดให้เพิ่มแบบสุ่ม
+        // ทำให้ปุ่มเพิ่มทำงาน: ถ้าโหมด add เปิดอยู่ ให้ปิดโหมด add แต่ถ้าปิดอยู่ ให้เพิ่มแบบสุ่มตำแหน่ง
+        // เปลี่ยนพฤติกรรม: คลิกปุ่ม "เพิ่มกล้อง" ปกติจะเพิ่มแบบสุ่ม (ถ้าไม่ได้อยู่ในโหมดคลิกเพิ่ม)
+        const originalAddHandler = () => {
+            if(addMode) {
+                setAddMode(false);
+                showToast('ปิดโหมดเพิ่มกล้องแบบคลิกแล้ว');
+            } else {
+                if(deleteMode) setDeleteMode(false);
+                addNewCameraAt(); // สุ่มตำแหน่ง
+            }
+        };
+        // แทนที่ event listener ใหม่
+        const addBtn = document.getElementById('addCameraBtn');
+        const newAddBtn = addBtn.cloneNode(true);
+        addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+        newAddBtn.id = 'addCameraBtn';
+        newAddBtn.addEventListener('click', originalAddHandler);
+        
+        // รีเซ็ตการอ้างอิงปุ่ม deleteModeBtn
+        const delBtnNew = document.getElementById('deleteModeBtn');
+        if(delBtnNew) {
+            delBtnNew.addEventListener('click', () => {
+                if(addMode) setAddMode(false);
+                setDeleteMode(!deleteMode);
+            });
+        }
+        // ปรับปรุงโหมดเริ่มต้นให้ clear ค่า
+        setAddMode(false);
+        setDeleteMode(false);
+    });
+</script>
+</body>
+</html>
