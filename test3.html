@@ -1090,10 +1090,10 @@ function renderBuildings() {
     const strokeCol = isBound ? '#4a7aaa' : (isSel ? '#1a5fa8' : '#7aafd0');
     const strokeWidth = isSel ? '2.5' : '1.5';
     
-    const rect = el('rect', {
-      x: b.x, y: b.y, width: b.w, height: b.h, rx: 4,
-      fill: fillCol, stroke: strokeCol, 'stroke-width': strokeWidth
-    });
+   const rect = el('rect', {
+  x: b.x, y: b.y, width: b.w, height: b.h, rx: 4,
+  fill: fillCol, stroke: 'none', 'stroke-width': '0'
+});
     
     if(b.type === 'dashed') rect.setAttribute('stroke-dasharray', '7,4');
     if(b.type === 'dotted') rect.setAttribute('stroke-dasharray', '3,5');
