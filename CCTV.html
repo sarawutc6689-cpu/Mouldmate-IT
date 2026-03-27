@@ -765,7 +765,7 @@ header {
     <div class="toolbar">
       <span class="panel-title">▶ แผนผังการติดตั้งกล้อง CCTV</span>
       <div class="chip ok" id="chipOk">● ปกติ: 0</div>
-      <div class="chip maint" id="chipMaint">● ซ่อมแซม: 0</div>
+      <div class="chip maint" id="chipMaint">● ซ่อมแซม/ออฟไลน์: 0</div>
       <button class="tbtn" id="btnCamEdit" onclick="toggleCamMode()">✏ แก้ไขกล้อง</button>
       <button class="tbtn" id="btnBldEdit" onclick="toggleBldMode()">🏢 แก้ไขอาคาร</button>
       <button class="tbtn save-btn" onclick="manualSync()">💾 บันทึก</button>
@@ -791,13 +791,13 @@ header {
       <div class="sb-stats">
         <div class="sstat"><div class="sstat-num blue" id="sTotal">0</div><div class="sstat-lbl">ทั้งหมด</div></div>
         <div class="sstat"><div class="sstat-num green" id="sOk">0</div><div class="sstat-lbl">ปกติ</div></div>
-        <div class="sstat"><div class="sstat-num yellow" id="sMaint">0</div><div class="sstat-lbl">ซ่อม</div></div>
+        <div class="sstat"><div class="sstat-num yellow" id="sMaint">0</div><div class="sstat-lbl">ซ่อม/ออฟไลน์</div></div>
         <div class="sstat"><div class="sstat-num green" id="sPct">0%</div><div class="sstat-lbl">อัตรา</div></div>
       </div>
       <div class="ftabs">
         <button class="ftab a-all" onclick="setFilter('all',this)">ทั้งหมด</button>
         <button class="ftab" onclick="setFilter('online',this)">ปกติ</button>
-        <button class="ftab" onclick="setFilter('maint',this)">ซ่อมแซม</button>
+        <button class="ftab" onclick="setFilter('maint',this)">ซ่อมแซม/ออฟไลน์</button>
       </div>
       <div class="addrow">
         <button class="abtn add" onclick="openAddCam()">＋ เพิ่มกล้อง</button>
@@ -831,7 +831,7 @@ header {
 </div>
 
 <div class="modal-bg" id="renameModalBg"><div class="modal"><h3>✎ แก้ไขชื่ออาคาร</h3><div class="mfield"><input id="renameInput" placeholder="ชื่ออาคาร"></div><div class="mbtns"><button class="mok" onclick="confirmRename()">บันทึก</button><button class="mcancel" onclick="closeRenameModal()">ยกเลิก</button></div></div></div>
-<div class="modal-bg" id="modalBg"><div class="modal"><h3>➕ เพิ่มกล้อง CCTV</h3><div class="mfield"><label>รหัสกล้อง</label><input id="mId"></div><div class="mfield"><label>ชื่อตำแหน่ง</label><input id="mName"></div><div class="mfield"><label>โซน</label><input id="mZone"></div><div class="mfield"><label>ความละเอียด</label><select id="mRes"><option>1080p</option><option>2MP</option><option>720p</option><option>4K</option></select></div><div class="mfield"><label>สถานะ</label><select id="mSt"><option value="online">ปกติ</option><option value="maint">ซ่อมแซม</option></select></div><div class="mbtns"><button class="mok" onclick="confirmAdd()">เพิ่มกล้อง</button><button class="mcancel" onclick="closeModal()">ยกเลิก</button></div></div></div>
+<div class="modal-bg" id="modalBg"><div class="modal"><h3>➕ เพิ่มกล้อง CCTV</h3><div class="mfield"><label>รหัสกล้อง</label><input id="mId"></div><div class="mfield"><label>ชื่อตำแหน่ง</label><input id="mName"></div><div class="mfield"><label>โซน</label><input id="mZone"></div><div class="mfield"><label>ความละเอียด</label><select id="mRes"><option>1080p</option><option>2MP</option><option>720p</option><option>4K</option></select></div><div class="mfield"><label>สถานะ</label><select id="mSt"><option value="online">ปกติ</option><option value="maint">ซ่อมแซม/ออฟไลน์</option></select></div><div class="mbtns"><button class="mok" onclick="confirmAdd()">เพิ่มกล้อง</button><button class="mcancel" onclick="closeModal()">ยกเลิก</button></div></div></div>
 
 <script>
 // ==================== FIREBASE CONFIG ====================
@@ -1251,7 +1251,7 @@ function renderCams() {
         <div class="tip-id">${cam.id}</div>
         <div class="tip-name">${cam.name}</div>
         <div class="tip-ang">🔄 ${cam.ang || 0}°</div>
-        <div class="tip-st ${cam.st}">${isOk ? '● ปกติ' : '● ซ่อม'}</div>
+        <div class="tip-st ${cam.st}">${isOk ? '● ปกติ' : '● ซ่อม/ออฟไลน์'}</div>
       </div>
     `;
     
@@ -1327,7 +1327,7 @@ function selectCam(id) {
   document.getElementById('detBody').classList.add('show');
   document.getElementById('dId').textContent = cam.id;
   document.getElementById('dName').textContent = cam.name;
-  document.getElementById('dSt').innerHTML = `<span class="badge ${cam.st}">${cam.st === 'online' ? 'ทำงานปกติ' : 'ซ่อมแซม'}</span>`;
+  document.getElementById('dSt').innerHTML = `<span class="badge ${cam.st}">${cam.st === 'online' ? 'ทำงานปกติ' : 'ซ่อมแซม/ออฟไลน์'}</span>`;
   document.getElementById('dZone').textContent = cam.zone;
   document.getElementById('dRes').textContent = cam.res;
   document.getElementById('dAng').textContent = (cam.ang || 0) + '°';
@@ -1357,7 +1357,7 @@ function renderList() {
           <div class="ci-id">${cam.id}</div>
           <div class="ci-name">${cam.name}</div>
         </div>
-        <div class="ci-st ${cam.st}">${cam.st === 'online' ? 'ปกติ' : 'ซ่อม'}</div>
+        <div class="ci-st ${cam.st}">${cam.st === 'online' ? 'ปกติ' : 'ซ่อม/ออฟไลน์'}</div>
       `;
       item.addEventListener('click', () => selectCam(cam.id));
       list.appendChild(item);
@@ -1370,7 +1370,7 @@ function updateStats() {
   const maint = cameras.filter(c => c.st === 'maint').length;
   const total = cameras.length;
   document.getElementById('chipOk').textContent = `● ปกติ: ${ok}`;
-  document.getElementById('chipMaint').textContent = `● ซ่อมแซม: ${maint}`;
+  document.getElementById('chipMaint').textContent = `● ซ่อมแซม/ออฟไลน์: ${maint}`;
   document.getElementById('sTotal').textContent = total;
   document.getElementById('sOk').textContent = ok;
   document.getElementById('sMaint').textContent = maint;
