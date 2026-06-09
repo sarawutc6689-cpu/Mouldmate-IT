@@ -361,11 +361,7 @@ async function sendOTPSilent() {
 
 // ---- Dashboard ----
 function showDashboard() {
-  const email = sessionStorage.getItem("userEmail") || currentEmail;
-  const initial = email ? email[0].toUpperCase() : "?";
-  document.getElementById("user-avatar").textContent = initial;
-  document.getElementById("user-email-display").textContent = email;
-  showView("view-dashboard");
+  window.location.href = "https://sarawutc6689-cpu.github.io/Mouldmate-IT/Privacy-Password.html";
 }
 
 function logout() {
