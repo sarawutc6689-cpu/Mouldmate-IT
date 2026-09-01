@@ -225,8 +225,8 @@
         // ============================================================
         // Supabase config — ใส่ Project URL และ anon key ของคุณตรงนี้
         // ============================================================
-        const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const SUPABASE_URL      = 'https://fuarmmweqxxhczavkvqp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allTickets = [], filteredTickets = [];
