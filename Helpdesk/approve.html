@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Helpdesk · อนุมัติงานซ่อม</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabaseClient/supabaseClient-js@2"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Sarabun',Tahoma,Geneva,Verdana,sans-serif;}
         :root{--primary:#2b6ed3;--primary-light:#e8f0fe;--primary-soft:#d4e2fc;--primary-bg:#f5f9ff;--white:#ffffff;--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-300:#cbd5e1;--gray-600:#475569;--gray-700:#334155;--gray-800:#1e293b;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;}
@@ -222,7 +222,7 @@
         // ============================================================
         const SUPABASE_URL      = 'https://fuarmmweqxxhczavkvqp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allTickets = [];
         let currentTicketId = null;
@@ -250,7 +250,7 @@
         async function loadTickets() {
             showLoading(true);
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('tickets')
                     .select('*')
                     .order('created_at', { ascending: false });
@@ -428,13 +428,13 @@
                 const updatePayload = { status: newStatus };
                 if (newStatus === 'เสร็จสิ้น') updatePayload.close_date = new Date().toISOString();
 
-                const { error: updateError } = await supabase
+                const { error: updateError } = await supabaseClient
                     .from('tickets')
                     .update(updatePayload)
                     .eq('ticket_id', ticketId);
                 if (updateError) throw updateError;
 
-                await supabase.from('ticket_history').insert({
+                await supabaseClient.from('ticket_history').insert({
                     ticket_id: ticketId,
                     action: 'STATUS_CHANGED',
                     old_value: oldStatus,
@@ -459,13 +459,13 @@
                 const ticket = allTickets.find(t => t.ticketId === ticketId);
                 const oldAssignee = ticket ? ticket.assignee : '';
 
-                const { error: updateError } = await supabase
+                const { error: updateError } = await supabaseClient
                     .from('tickets')
                     .update({ assignee })
                     .eq('ticket_id', ticketId);
                 if (updateError) throw updateError;
 
-                await supabase.from('ticket_history').insert({
+                await supabaseClient.from('ticket_history').insert({
                     ticket_id: ticketId,
                     action: 'ASSIGNED',
                     old_value: oldAssignee || '(ไม่มี)',
