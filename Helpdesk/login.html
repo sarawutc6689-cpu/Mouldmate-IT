@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Helpdesk · เข้าสู่ระบบ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Sarabun', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2b6ed3;
+            --primary-light: #e8f0fe;
+            --primary-soft: #d4e2fc;
+            --primary-bg: #f5f9ff;
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            background: var(--primary-bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .login-card {
+            background: var(--white);
+            border-radius: 28px;
+            padding: 40px 32px;
+            box-shadow: 0 20px 40px rgba(43, 110, 211, 0.1);
+            border: 1px solid var(--gray-200);
+            backdrop-filter: blur(10px);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-light);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: var(--primary);
+            font-size: 40px;
+        }
+
+        .login-header h1 {
+            color: var(--gray-800);
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .login-header p {
+            color: var(--gray-600);
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--gray-700);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--gray-400);
+            font-size: 16px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: 16px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: var(--gray-50);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+        .form-input::placeholder {
+            color: var(--gray-400);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            color: var(--gray-400);
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: var(--primary);
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray-600);
+            cursor: pointer;
+        }
+
+        .remember input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-login:hover {
+            background: #1e5bbf;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(43, 110, 211, 0.3);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-login i {
+            font-size: 18px;
+        }
+
+        .login-divider {
+            position: relative;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .login-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gray-200);
+        }
+
+        .login-divider span {
+            position: relative;
+            background: var(--white);
+            padding: 0 12px;
+            color: var(--gray-600);
+            font-size: 12px;
+        }
+
+        .demo-accounts {
+            background: var(--gray-50);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .demo-title {
+            font-size: 12px;
+            color: var(--gray-600);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .demo-title i {
+            color: var(--warning);
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .demo-item {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .demo-item:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .demo-role {
+            font-weight: 600;
+            color: var(--gray-800);
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .demo-pass {
+            color: var(--gray-600);
+            font-size: 10px;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+            color: var(--gray-600);
+            font-size: 12px;
+        }
+
+        .login-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+            color: var(--danger);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert i {
+            font-size: 16px;
+        }
+
+        .alert.success {
+            background: #ecfdf5;
+            border-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 20px;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h1>IT Helpdesk</h1>
+                <p>ระบบแจ้งซ่อมออนไลน์</p>
+            </div>
+
+            <!-- Alert Message -->
+            <div id="alertMessage" class="alert" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="alertText"></span>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">ชื่อผู้ใช้</label>
+                    <div class="input-group">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" class="form-input" id="username" 
+                               placeholder="กรอกชื่อผู้ใช้" autocomplete="off" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">รหัสผ่าน</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" class="form-input" id="password" 
+                               placeholder="กรอกรหัสผ่าน" required>
+                        <i class="fas fa-eye toggle-password" onclick="togglePassword()"></i>
+                    </div>
+                </div>
+
+                <div class="remember-forgot">
+                    <label class="remember">
+                        <input type="checkbox" id="rememberMe"> จดจำฉัน
+                    </label>
+                    <a href="#" class="forgot-link" onclick="showForgotPassword(event)">ลืมรหัสผ่าน?</a>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>เข้าสู่ระบบ</span>
+                </button>
+            </form>
+
+            <div class="login-divider">
+                <span>บัญชีทดลองใช้</span>
+            </div>
+
+            <div class="demo-accounts">
+                <div class="demo-title">
+                    <i class="fas fa-info-circle"></i>
+                    <span>คลิกเพื่อทดลองใช้ (สำหรับพนักงาน)</span>
+                </div>
+                <div class="demo-grid">
+                    <div class="demo-item" onclick="fillDemoAccount('admin', 'admin123')">
+                        <div class="demo-role">👤 แอดมิน</div>
+                        <div class="demo-pass">admin / admin123</div>
+                    </div>
+                    <div class="demo-item" onclick="fillDemoAccount('user', 'user123')">
+                        <div class="demo-role">👥 พนักงาน</div>
+                        <div class="demo-pass">user / user123</div>
+                    </div>
+                    <div class="demo-item" onclick="fillDemoAccount('technician', 'tech123')">
+                        <div class="demo-role">🔧 ช่างซ่อม</div>
+                        <div class="demo-pass">technician / tech123</div>
+                    </div>
+                    <div class="demo-item" onclick="fillDemoAccount('manager', 'manager123')">
+                        <div class="demo-role">📊 ผู้จัดการ</div>
+                        <div class="demo-pass">manager / manager123</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="login-footer">
+                <p>© 2026 Tokaisolidtire · <a href="#">ติดต่อผู้ดูแลระบบ</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ข้อมูลผู้ใช้ — ยังคง hardcode ไว้เหมือนเดิมตามที่ตกลงกัน (ไม่ย้ายไป Supabase Auth ในรอบนี้)
+        // ⚠️ ข้อควรระวัง: รหัสผ่านฝังอยู่ใน client-side JS นี้ ใครกด view-source ก็เห็นได้
+        const USERS = {
+            admin: { password: 'admin123', role: 'admin', name: 'ผู้ดูแลระบบ' },
+            user: { password: 'user123', role: 'user', name: 'พนักงานทั่วไป' },
+            technician: { password: 'tech123', role: 'technician', name: 'ช่างซ่อม' },
+            manager: { password: 'manager123', role: 'manager', name: 'ผู้จัดการ' }
+        };
+
+        // หน้าที่จะไปตามสิทธิ์ — เดิมมีแค่ admin (ที่เหลือกดแล้วพังเพราะ redirect ไม่ถูก define)
+        // สมมติฐาน: admin/technician จัดการ ticket, manager ดูแดชบอร์ด/รายงาน, user แจ้งซ่อม
+        // ปรับ path ให้ตรงกับที่คุณ deploy จริงได้เลย
+        const PAGE_REDIRECT = {
+            admin: 'approve.html',
+            technician: 'approve.html',
+            manager: 'dashboard.html',
+            user: 'index.html'
+        };
+
+        // ตรวจสอบว่ามีการจดจำผู้ใช้หรือไม่
+        window.onload = function() {
+            const savedUser = localStorage.getItem('rememberedUser');
+            if (savedUser) {
+                document.getElementById('username').value = savedUser;
+                document.getElementById('rememberMe').checked = true;
+            }
+        };
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const icon = document.querySelector('.toggle-password');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function showAlert(message, isSuccess = false) {
+            const alertDiv = document.getElementById('alertMessage');
+            const alertText = document.getElementById('alertText');
+            
+            alertDiv.style.display = 'flex';
+            alertDiv.className = isSuccess ? 'alert success' : 'alert';
+            alertText.textContent = message;
+            
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function setLoading(isLoading) {
+            const btn = document.getElementById('loginBtn');
+            if (isLoading) {
+                btn.innerHTML = '<span class="loading"></span><span> กำลังเข้าสู่ระบบ...</span>';
+                btn.disabled = true;
+            } else {
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>เข้าสู่ระบบ</span>';
+                btn.disabled = false;
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            if (!username || !password) {
+                showAlert('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
+                return;
+            }
+
+            setLoading(true);
+
+            // ตรวจสอบกับ USERS object ด้านบน (client-side เท่านั้น ตามที่ตกลงไว้)
+            setTimeout(() => {
+                const user = USERS[username.toLowerCase()];
+                
+                if (user && user.password === password) {
+                    // จดจำผู้ใช้
+                    if (rememberMe) {
+                        localStorage.setItem('rememberedUser', username);
+                    } else {
+                        localStorage.removeItem('rememberedUser');
+                    }
+                    
+                    // บันทึก session
+                    sessionStorage.setItem('currentUser', JSON.stringify({
+                        username: username,
+                        role: user.role,
+                        name: user.name
+                    }));
+                    
+                    showAlert('เข้าสู่ระบบสำเร็จ กำลังนำทาง...', true);
+                    
+                    // เปลี่ยนหน้าไปตามสิทธิ์
+                    setTimeout(() => {
+                        window.location.href = PAGE_REDIRECT[user.role];
+                    }, 1500);
+                } else {
+                    setLoading(false);
+                    showAlert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+                }
+            }, 1000);
+        }
+
+        function fillDemoAccount(username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            showAlert(`👉 คลิก "เข้าสู่ระบบ" เพื่อทดลองใช้บัญชี ${username}`, true);
+        }
+
+        function showForgotPassword(event) {
+            event.preventDefault();
+            showAlert('กรุณาติดต่อผู้ดูแลระบบที่ sarawut.c@tokaisolidtire.com', true);
+        }
+
+        // เพิ่มความปลอดภัยด้วยการป้องกันการกด Enter ซ้ำ
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') {
+                e.preventDefault();
+                document.getElementById('loginBtn').click();
+            }
+        });
+
+        // ตรวจสอบ Session (ถ้ามี session อยู่แล้วให้ข้ามไปเลย)
+        function checkExistingSession() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                window.location.href = PAGE_REDIRECT[user.role];
+            }
+        }
+
+        // เรียกใช้ตอนโหลดหน้า
+        checkExistingSession();
+    </script>
+</body>
+</html>
