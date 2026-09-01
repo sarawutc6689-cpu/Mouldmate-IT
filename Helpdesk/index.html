@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Helpdesk · แจ้งซ่อม</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabaseClient/supabaseClient-js@2"></script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI','Sarabun',Tahoma,Geneva,Verdana,sans-serif; }
         :root {
@@ -270,7 +270,7 @@
 
             <footer>
                 <p>IT Helpdesk © 2026 | Tokaisolidtire</p>
-                <p>ใช้สำหรับภายในบริษัทเท่านั้น | พัฒนาโดย Sarawut.C</p>
+                <p>ใช้สำหรับภายในบริษัทเท่านั้น</p>
             </footer>
         </div>
     </div>
@@ -284,7 +284,7 @@
         // ============================================================
         const SUPABASE_URL      = 'https://fuarmmweqxxhczavkvqp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let isLoading = false;
         let debounceTimer;
@@ -333,7 +333,7 @@ function setupFilePreview() {
         async function testConnection() {
             const el = document.getElementById('connectionStatus');
             try {
-                const { error } = await supabase.from('tickets').select('id', { count: 'exact', head: true });
+                const { error } = await supabaseClient.from('tickets').select('id', { count: 'exact', head: true });
                 if (error) throw error;
                 el.innerHTML = `<i class="fas fa-check-circle" style="color:#10b981;"></i><span>เชื่อมต่อสำเร็จ</span>`;
             } catch (err) {
@@ -344,9 +344,9 @@ function setupFilePreview() {
         async function loadDashboardStats() {
             try {
                 const [totalRes, pendingRes, completedRes] = await Promise.all([
-                    supabase.from('tickets').select('id', { count: 'exact', head: true }),
-                    supabase.from('tickets').select('id', { count: 'exact', head: true }).eq('status', 'รอดำเนินการ'),
-                    supabase.from('tickets').select('id', { count: 'exact', head: true }).eq('status', 'เสร็จสิ้น')
+                    supabaseClient.from('tickets').select('id', { count: 'exact', head: true }),
+                    supabaseClient.from('tickets').select('id', { count: 'exact', head: true }).eq('status', 'รอดำเนินการ'),
+                    supabaseClient.from('tickets').select('id', { count: 'exact', head: true }).eq('status', 'เสร็จสิ้น')
                 ]);
                 if (totalRes.error) throw totalRes.error;
                 const total = totalRes.count || 0;
@@ -393,7 +393,7 @@ function setupFilePreview() {
             }
             feedback.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> กำลังค้นหา...';
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('employees')
                     .select('name, section, department, position')
                     .ilike('emp_code', empCode)
@@ -434,7 +434,7 @@ function setupFilePreview() {
 
         // ค้นหาชื่อเครื่องจากตาราง assets — ใช้ logic การจับคู่ชื่อแบบเดียวกับต้นฉบับ (GAS)
         async function getComputerName(empName) {
-            const { data, error } = await supabase.from('assets').select('login_name, computer_name');
+            const { data, error } = await supabaseClient.from('assets').select('login_name, computer_name');
             if (error || !data) return '';
 
             const searchName = empName.toString().trim().toLowerCase();
@@ -564,7 +564,7 @@ if (hasError) return;
 
     try {
         // 1) สร้าง ticket ก่อน (ticket_id ถูก generate อัตโนมัติโดย DB trigger)
-        const { data: inserted, error: insertError } = await supabase
+        const { data: inserted, error: insertError } = await supabaseClient
             .from('tickets')
             .insert({
                 name: empName,
@@ -584,7 +584,7 @@ if (hasError) return;
         // 2) อัปโหลดรูป (ถ้ามี) ไปยัง Storage แล้วอัปเดตกลับเข้า ticket
         if (files.length > 0) {
             const imageUrls = await uploadTicketImages(files, ticketId);
-            const { error: updateError } = await supabase
+            const { error: updateError } = await supabaseClient
                 .from('tickets')
                 .update({ image_urls: imageUrls })
                 .eq('ticket_id', ticketId);
@@ -592,7 +592,7 @@ if (hasError) return;
         }
 
         // 3) บันทึกประวัติ CREATED (trigger จะอัปเดต history_count/last_updated ให้เอง)
-        await supabase.from('ticket_history').insert({
+        await supabaseClient.from('ticket_history').insert({
             ticket_id: ticketId,
             action: 'CREATED',
             old_value: '',
@@ -634,11 +634,11 @@ async function uploadTicketImages(files, ticketId) {
         const f = files[i];
         const path = `${ticketId}/${i + 1}_${f.name}`;
         const bytes = Uint8Array.from(atob(f.base64), c => c.charCodeAt(0));
-        const { error } = await supabase.storage
+        const { error } = await supabaseClient.storage
             .from('ticket-images')
             .upload(path, bytes, { contentType: 'image/jpeg', upsert: true });
         if (error) throw error;
-        const { data } = supabase.storage.from('ticket-images').getPublicUrl(path);
+        const { data } = supabaseClient.storage.from('ticket-images').getPublicUrl(path);
         urls.push(data.publicUrl);
     }
     return urls;
