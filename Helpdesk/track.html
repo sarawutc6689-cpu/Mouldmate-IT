@@ -371,7 +371,7 @@
     // ============================================================
     // Supabase config — ใส่ Project URL และ anon key ของคุณตรงนี้
     // ============================================================
-   const SUPABASE_URL      = 'https://fuarmmweqxxhczavkvqp.supabase.co';
+    const SUPABASE_URL      = 'https://fuarmmweqxxhczavkvqp.supabase.co';
  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -401,11 +401,30 @@
         };
     }
 
+    // PostgREST จำกัดสูงสุด 1000 แถวต่อคำขอ (default) — ดึงทีละหน้าจนกว่าจะครบทุก ticket
+    async function fetchAllTickets() {
+        const pageSize = 1000;
+        let from = 0;
+        let all = [];
+        while (true) {
+            const { data, error } = await supabaseClient
+                .from('tickets')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .range(from, from + pageSize - 1);
+            if (error) throw error;
+            if (!data || data.length === 0) break;
+            all = all.concat(data);
+            if (data.length < pageSize) break;
+            from += pageSize;
+        }
+        return all;
+    }
+
     window.onload = function() {
         setTimeout(async function() {
             try {
-                const { data, error } = await supabaseClient.from('tickets').select('*');
-                if (error) throw error;
+                const data = await fetchAllTickets();
                 allTickets = (data || []).map(mapTicketRow);
                 document.getElementById('menuTotal').textContent   = allTickets.length;
                 document.getElementById('menuPending').textContent = allTickets.filter(x => x.status === 'รอดำเนินการ').length;
