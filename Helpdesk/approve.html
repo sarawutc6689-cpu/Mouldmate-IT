@@ -247,14 +247,30 @@
             document.getElementById('dateFilter').value = new Date().toISOString().split('T')[0];
         }
 
-        async function loadTickets() {
-            showLoading(true);
-            try {
+        // PostgREST จำกัดสูงสุด 1000 แถวต่อคำขอ (default) — ดึงทีละหน้าจนกว่าจะครบทุก ticket
+        async function fetchAllTickets() {
+            const pageSize = 1000;
+            let from = 0;
+            let all = [];
+            while (true) {
                 const { data, error } = await supabaseClient
                     .from('tickets')
                     .select('*')
-                    .order('created_at', { ascending: false });
+                    .order('created_at', { ascending: false })
+                    .range(from, from + pageSize - 1);
                 if (error) throw error;
+                if (!data || data.length === 0) break;
+                all = all.concat(data);
+                if (data.length < pageSize) break;
+                from += pageSize;
+            }
+            return all;
+        }
+
+        async function loadTickets() {
+            showLoading(true);
+            try {
+                const data = await fetchAllTickets();
                 allTickets = (data || []).map(mapTicketRow);
                 updateStats(); renderTable(allTickets); updateMenuBadges(); showLoading(false);
             } catch (error) {
