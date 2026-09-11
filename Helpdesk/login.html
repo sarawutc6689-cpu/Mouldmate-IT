@@ -145,25 +145,10 @@
 
         .remember-forgot {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             margin-bottom: 24px;
             font-size: 13px;
-        }
-
-        .remember {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--gray-600);
-            cursor: pointer;
-        }
-
-        .remember input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            accent-color: var(--primary);
-            cursor: pointer;
         }
 
         .forgot-link {
@@ -389,9 +374,6 @@
                 </div>
 
                 <div class="remember-forgot">
-                    <label class="remember">
-                        <input type="checkbox" id="rememberMe"> จดจำฉัน
-                    </label>
                     <a href="#" class="forgot-link" onclick="showForgotPassword(event)">ลืมรหัสผ่าน?</a>
                 </div>
 
@@ -401,7 +383,34 @@
                 </button>
             </form>
 
-            
+            <div class="login-divider">
+                <span>บัญชีผู้ใช้งาน</span>
+            </div>
+
+            <div class="demo-accounts">
+                <div class="demo-title">
+                    <i class="fas fa-info-circle"></i>
+                    <span>คลิกเพื่อกรอกชื่อผู้ใช้อัตโนมัติ (ต้องใส่รหัสผ่านเอง)</span>
+                </div>
+                <div class="demo-grid">
+                    <div class="demo-item" onclick="fillUsername('admin')">
+                        <div class="demo-role">👤 แอดมิน</div>
+                        <div class="demo-pass">admin</div>
+                    </div>
+                    <div class="demo-item" onclick="fillUsername('user')">
+                        <div class="demo-role">👥 พนักงาน</div>
+                        <div class="demo-pass">user</div>
+                    </div>
+                    <div class="demo-item" onclick="fillUsername('technician')">
+                        <div class="demo-role">🔧 ช่างซ่อม</div>
+                        <div class="demo-pass">technician</div>
+                    </div>
+                    <div class="demo-item" onclick="fillUsername('manager')">
+                        <div class="demo-role">📊 ผู้จัดการ</div>
+                        <div class="demo-pass">manager</div>
+                    </div>
+                </div>
+            </div>
 
             <div class="login-footer">
                 <p>© 2026 Tokaisolidtire · <a href="#">ติดต่อผู้ดูแลระบบ</a></p>
@@ -409,33 +418,30 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ข้อมูลผู้ใช้ — ยังคง hardcode ไว้เหมือนเดิมตามที่ตกลงกัน (ไม่ย้ายไป Supabase Auth ในรอบนี้)
-        // ⚠️ ข้อควรระวัง: รหัสผ่านฝังอยู่ใน client-side JS นี้ ใครกด view-source ก็เห็นได้
-        const USERS = {
-            admin: { password: '18112562', role: 'admin', name: 'ผู้ดูแลระบบ' },
-            user: { password: 'user123', role: 'user', name: 'พนักงานทั่วไป' },
-            technician: { password: 'tech123', role: 'technician', name: 'ช่างซ่อม' },
-            manager: { password: 'manager123', role: 'manager', name: 'ผู้จัดการ' }
+        // ============================================================
+        // Supabase config — ใส่ Project URL และ anon key ของคุณตรงนี้
+        // ============================================================
+        const SUPABASE_URL      = 'https://fuarmmweqxxhczavkvqp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // แมป username เดิม (admin/user/technician/manager) -> email ที่ผูกไว้กับบัญชี Supabase Auth จริง
+        // (สร้างบัญชีเหล่านี้ผ่าน Dashboard > Authentication > Users ตามที่ระบุใน profiles_schema.sql)
+        const USERNAME_TO_EMAIL = {
+            admin: 'admin@ithelpdesk.local',
+            user: 'user@ithelpdesk.local',
+            technician: 'technician@ithelpdesk.local',
+            manager: 'manager@ithelpdesk.local'
         };
 
-        // หน้าที่จะไปตามสิทธิ์ — เดิมมีแค่ admin (ที่เหลือกดแล้วพังเพราะ redirect ไม่ถูก define)
-        // สมมติฐาน: admin/technician จัดการ ticket, manager ดูแดชบอร์ด/รายงาน, user แจ้งซ่อม
-        // ปรับ path ให้ตรงกับที่คุณ deploy จริงได้เลย
+        // หน้าที่จะไปตามสิทธิ์ (role มาจากตาราง profiles หลัง login สำเร็จ)
         const PAGE_REDIRECT = {
             admin: 'approve.html',
             technician: 'approve.html',
             manager: 'dashboard.html',
             user: 'index.html'
-        };
-
-        // ตรวจสอบว่ามีการจดจำผู้ใช้หรือไม่
-        window.onload = function() {
-            const savedUser = localStorage.getItem('rememberedUser');
-            if (savedUser) {
-                document.getElementById('username').value = savedUser;
-                document.getElementById('rememberMe').checked = true;
-            }
         };
 
         function togglePassword() {
@@ -477,56 +483,58 @@
             }
         }
 
-        function handleLogin(event) {
+        async function handleLogin(event) {
             event.preventDefault();
-            
-            const username = document.getElementById('username').value.trim();
+
+            const usernameInput = document.getElementById('username').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
-            
-            if (!username || !password) {
+
+            if (!usernameInput || !password) {
                 showAlert('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
                 return;
             }
 
+            // แปลง username -> email (ถ้าไม่อยู่ใน map ก็ลองใช้ค่าที่กรอกตรงๆ เผื่อเป็นอีเมลอยู่แล้ว)
+            const email = USERNAME_TO_EMAIL[usernameInput] || usernameInput;
+
             setLoading(true);
 
-            // ตรวจสอบกับ USERS object ด้านบน (client-side เท่านั้น ตามที่ตกลงไว้)
+            const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (authError || !authData.user) {
+                setLoading(false);
+                showAlert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+                return;
+            }
+
+            // ดึง role จริงจากตาราง profiles
+            const { data: profile, error: profileError } = await supabaseClient
+                .from('profiles')
+                .select('role, name')
+                .eq('id', authData.user.id)
+                .maybeSingle();
+
+            if (profileError || !profile) {
+                setLoading(false);
+                showAlert('ล็อกอินสำเร็จ แต่ไม่พบข้อมูลสิทธิ์การใช้งาน (profiles) กรุณาติดต่อผู้ดูแลระบบ');
+                await supabaseClient.auth.signOut();
+                return;
+            }
+
+            showAlert(`เข้าสู่ระบบสำเร็จ กำลังนำทาง...`, true);
+
             setTimeout(() => {
-                const user = USERS[username.toLowerCase()];
-                
-                if (user && user.password === password) {
-                    // จดจำผู้ใช้
-                    if (rememberMe) {
-                        localStorage.setItem('rememberedUser', username);
-                    } else {
-                        localStorage.removeItem('rememberedUser');
-                    }
-                    
-                    // บันทึก session
-                    sessionStorage.setItem('currentUser', JSON.stringify({
-                        username: username,
-                        role: user.role,
-                        name: user.name
-                    }));
-                    
-                    showAlert('เข้าสู่ระบบสำเร็จ กำลังนำทาง...', true);
-                    
-                    // เปลี่ยนหน้าไปตามสิทธิ์
-                    setTimeout(() => {
-                        window.location.href = PAGE_REDIRECT[user.role];
-                    }, 1500);
-                } else {
-                    setLoading(false);
-                    showAlert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
-                }
+                window.location.href = PAGE_REDIRECT[profile.role] || 'index.html';
             }, 1000);
         }
 
-        function fillDemoAccount(username, password) {
+        function fillUsername(username) {
             document.getElementById('username').value = username;
-            document.getElementById('password').value = password;
-            showAlert(`👉 คลิก "เข้าสู่ระบบ" เพื่อทดลองใช้บัญชี ${username}`, true);
+            document.getElementById('password').focus();
+            showAlert(`👉 กรอกรหัสผ่านของบัญชี "${username}" แล้วกด "เข้าสู่ระบบ"`, true);
         }
 
         function showForgotPassword(event) {
@@ -542,16 +550,21 @@
             }
         });
 
-        // ตรวจสอบ Session (ถ้ามี session อยู่แล้วให้ข้ามไปเลย)
-        function checkExistingSession() {
-            const currentUser = sessionStorage.getItem('currentUser');
-            if (currentUser) {
-                const user = JSON.parse(currentUser);
-                window.location.href = PAGE_REDIRECT[user.role];
+        // ถ้ามี session ของ Supabase Auth ค้างอยู่แล้ว (login ไว้ก่อนหน้า) ให้ข้ามไปเลย
+        async function checkExistingSession() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session && session.user) {
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .maybeSingle();
+                if (profile) {
+                    window.location.href = PAGE_REDIRECT[profile.role] || 'index.html';
+                }
             }
         }
 
-        // เรียกใช้ตอนโหลดหน้า
         checkExistingSession();
     </script>
 </body>
