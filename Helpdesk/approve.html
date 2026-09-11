@@ -145,8 +145,10 @@
         <div class="container">
             <div class="header">
                 <h1><i class="fas fa-clipboard-check"></i> อนุมัติงานซ่อม</h1>
-                <div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <span id="currentUserLabel" style="font-size:13px;color:var(--gray-600);"></span>
                     <button class="btn btn-refresh" onclick="loadTickets()"><i class="fas fa-sync-alt"></i></button>
+                    <button class="btn btn-refresh" onclick="logout()" title="ออกจากระบบ"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
             </div>
 
@@ -221,14 +223,40 @@
         // Supabase config — ใส่ Project URL และ anon key ของคุณตรงนี้
         // ============================================================
         const SUPABASE_URL      = 'https://fuarmmweqxxhczavkvqp.supabase.co';
- const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allTickets = [];
         let currentTicketId = null;
 
+        // ============================================================
+        // Auth guard — หน้านี้เป็นหน้าเดียวที่ต้อง login ก่อนเข้า
+        // ============================================================
+        async function requireAuth() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session || !session.user) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('name, role')
+                .eq('id', session.user.id)
+                .maybeSingle();
+            return profile;
+        }
+
+        async function logout() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'login.html';
+        }
+
         // [FIX] โหลดหน้าก่อน แล้วค่อยดึงข้อมูล
-        window.onload = function() {
+        window.onload = async function() {
+            const profile = await requireAuth();
+            if (!profile) return; // requireAuth เด้งกลับ login.html ให้แล้ว
+            const userLabel = document.getElementById('currentUserLabel');
+            if (userLabel) userLabel.textContent = `${profile.name} (${profile.role})`;
             setDefaultDate();
             setTimeout(loadTickets, 100);
         };
