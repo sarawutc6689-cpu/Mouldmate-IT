@@ -235,26 +235,27 @@
 
         // แปลงคอลัมน์ snake_case จาก Supabase ให้เป็น shape เดิม (camelCase) ที่โค้ดส่วนที่เหลือใช้อยู่
         function mapTicketRow(row) {
-            return {
-                timestamp: row.created_at,
-                name: row.name,
-                department: row.department,
-                issueType: row.issue_type,
-                device: row.device,
-                details: row.details,
-                phone: row.phone,
-                ticketId: row.ticket_id,
-                status: row.status,
-                assignee: row.assignee,
-                closeDate: row.close_date,
-                note: row.note,
-                computerName: row.computer_name,
-                historyCount: row.history_count,
-                lastUpdated: row.last_updated,
-                detailsUpdate: row.details_update,
-                imageUrls: row.image_urls || []
-            };
-        }
+    return {
+        timestamp: row.created_at,
+        name: row.name,
+        department: row.department,
+        currentDepartment: row.employees ? row.employees.department : null,  // ✅ เพิ่มบรรทัดนี้
+        issueType: row.issue_type,
+        device: row.device,
+        details: row.details,
+        phone: row.phone,
+        ticketId: row.ticket_id,
+        status: row.status,
+        assignee: row.assignee,
+        closeDate: row.close_date,
+        note: row.note,
+        computerName: row.computer_name,
+        historyCount: row.history_count,
+        lastUpdated: row.last_updated,
+        detailsUpdate: row.details_update,
+        imageUrls: row.image_urls || []
+    };
+}
 
         document.addEventListener('DOMContentLoaded', function() {
             setDefaultDates();
@@ -276,11 +277,12 @@
             let from = 0;
             let all = [];
             while (true) {
-                const { data, error } = await supabaseClient
-                    .from('tickets')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .range(from, from + pageSize - 1);
+               const { data, error } = await supabaseClient
+    .from('tickets')
+    .select('*, employees:emp_uuid(department, section)')
+    .order('created_at', { ascending: false })
+    .range(from, from + pageSize - 1);
+
                 if (error) throw error;
                 if (!data || data.length === 0) break;
                 all = all.concat(data);
@@ -418,7 +420,8 @@
                     <td><span class="ticket-id">${t.ticketId||'-'}</span></td>
                     <td>${formatDate(t.timestamp)}</td>
                     <td>${t.name||'-'}</td>
-                    <td>${t.department||'-'}</td>
+                   <td>${t.department||'-'}${t.currentDepartment && t.currentDepartment !== t.department ? ` <span style="color:#f59e0b;font-size:11px;" title="แผนกปัจจุบัน">→ ${t.currentDepartment}</span>` : ''}</td>
+
                     <td>${t.issueType||'-'}</td>
                     <td>${t.device||'-'}</td>
                     <td>${t.phone||'-'}</td>
