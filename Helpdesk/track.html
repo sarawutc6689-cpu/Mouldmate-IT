@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Sarabun','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
-        :root{--primary:#2b6ed3;--primary-light:#e8f0fe;--primary-soft:#d4e2fc;--primary-bg:#f5f9ff;--white:#ffffff;--gray-50:#f8fafc;--gray-200:#e2e8f0;--gray-600:#475569;--gray-700:#334155;--gray-800:#1e293b;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;}
+        :root{--primary:#2F7FB8;--primary-light:#E7F2FB;--primary-soft:#DCE9F5;--primary-bg:#F7FBFE;--white:#ffffff;--gray-50:#f8fafc;--gray-200:#e2e8f0;--gray-600:#475569;--gray-700:#334155;--gray-800:#1e293b;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;}
         body{background:var(--primary-bg);min-height:100vh;display:flex;font-size:14px;}
         .sidebar{width:280px;background:var(--white);height:100vh;position:fixed;left:0;top:0;box-shadow:4px 0 20px rgba(0,45,90,0.05);overflow-y:auto;z-index:1000;border-right:1px solid var(--gray-200);}
         .sidebar-header{padding:30px 24px;background:var(--white);border-bottom:1px solid var(--gray-200);text-align:center;}
@@ -164,10 +164,10 @@
         .pdf-wrap{padding:0;position:relative;height:1123px;display:flex;flex-direction:column;}
         .pdf-watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:60px;font-weight:700;color:rgba(43,110,211,0.04);pointer-events:none;white-space:nowrap;letter-spacing:4px;}
         /* Header — ลด padding */
-        .pdf-header{background:linear-gradient(135deg,#2b6ed3 0%,#1a4fa8 100%);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+        .pdf-header{background:linear-gradient(135deg,#2F7FB8 0%,#1a4fa8 100%);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
         .pdf-header-left{display:flex;align-items:center;}
         .pdf-logo-circle{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:12px;flex-shrink:0;}
-        .pdf-logo-inner{width:30px;height:30px;background:#e8f0fe;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#2b6ed3;}
+        .pdf-logo-inner{width:30px;height:30px;background:#E7F2FB;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#2F7FB8;}
         .pdf-header-title{color:#fff;}.pdf-header-title h1{font-size:16px;font-weight:700;margin-bottom:2px;letter-spacing:1px;}.pdf-header-title p{font-size:10px;color:rgba(200,220,255,0.9);}
         .pdf-header-right{text-align:right;}
         .pdf-doc-label{font-size:9px;color:rgba(200,220,255,0.8);margin-bottom:2px;letter-spacing:1px;}
@@ -182,7 +182,7 @@
         /* Body */
         .pdf-body{padding:12px 24px 8px;flex:1;}
         .pdf-section{margin-bottom:10px;}
-        .pdf-section-title{display:flex;align-items:center;gap:6px;background:#e8f0fe;border-left:3px solid #2b6ed3;padding:4px 10px;border-radius:0 6px 6px 0;font-size:10px;font-weight:700;color:#2b6ed3;margin-bottom:8px;}
+        .pdf-section-title{display:flex;align-items:center;gap:6px;background:#E7F2FB;border-left:3px solid #2F7FB8;padding:4px 10px;border-radius:0 6px 6px 0;font-size:10px;font-weight:700;color:#2F7FB8;margin-bottom:8px;}
         /* Grid fields */
         .pdf-grid{display:flex;gap:8px;margin-bottom:8px;}
         .pdf-field{flex:1;}
@@ -197,12 +197,12 @@
         .pdf-steps{display:flex;justify-content:space-around;position:relative;margin-top:6px;}
         .pdf-step{text-align:center;flex:1;}
         .pdf-step-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:11px;font-weight:700;position:relative;z-index:2;}
-        .pdf-step-dot.done{background:#10b981;color:#fff;}.pdf-step-dot.active{background:#2b6ed3;color:#fff;}.pdf-step-dot.inactive{background:#e2e8f0;color:#94a3b8;}
+        .pdf-step-dot.done{background:#10b981;color:#fff;}.pdf-step-dot.active{background:#2F7FB8;color:#fff;}.pdf-step-dot.inactive{background:#e2e8f0;color:#94a3b8;}
         .pdf-step-lbl{font-size:9px;font-weight:600;}
-        .pdf-step-lbl.done{color:#10b981;}.pdf-step-lbl.active{color:#2b6ed3;}.pdf-step-lbl.inactive{color:#94a3b8;}
+        .pdf-step-lbl.done{color:#10b981;}.pdf-step-lbl.active{color:#2F7FB8;}.pdf-step-lbl.inactive{color:#94a3b8;}
         /* Assignee */
         .pdf-assignee{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;margin-top:8px;}
-        .pdf-assignee-avatar{width:30px;height:30px;background:#e8f0fe;color:#2b6ed3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;}
+        .pdf-assignee-avatar{width:30px;height:30px;background:#E7F2FB;color:#2F7FB8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;}
         .pdf-assignee-lbl{font-size:9px;color:#64748b;margin-bottom:1px;}.pdf-assignee-name{font-size:12px;font-weight:700;color:#1e293b;}
         /* Signature */
         .pdf-sig-row{display:flex;gap:10px;margin-top:6px;}
@@ -211,7 +211,7 @@
         .pdf-sig-line{border-top:1px dashed #cbd5e1;margin:0 8px 5px;}
         .pdf-sig-name{font-size:9px;color:#64748b;}.pdf-sig-date{font-size:8px;color:#94a3b8;margin-top:3px;}
         /* Footer */
-        .pdf-footer{background:linear-gradient(135deg,#2b6ed3,#1a4fa8);padding:8px 24px;display:flex;align-items:center;justify-content:space-between;}
+        .pdf-footer{background:linear-gradient(135deg,#2F7FB8,#1a4fa8);padding:8px 24px;display:flex;align-items:center;justify-content:space-between;}
         .pdf-footer-left{font-size:9px;color:rgba(200,220,255,0.9);}.pdf-footer-right{font-size:9px;color:rgba(200,220,255,0.9);}
     </style>
 </head>
@@ -728,7 +728,7 @@ function showTicketInfo(ticket) {
         // Progress
         const activeStep = t.status==='เสร็จสิ้น'?3:t.status==='กำลังดำเนินการ'?2:1;
         const fillPct    = activeStep===3?'100%':activeStep===2?'50%':'16%';
-        const fillColor  = t.status==='เสร็จสิ้น'?'#10b981':t.status==='กำลังดำเนินการ'?'#2b6ed3':'#f59e0b';
+        const fillColor  = t.status==='เสร็จสิ้น'?'#10b981':t.status==='กำลังดำเนินการ'?'#2F7FB8':'#f59e0b';
         document.getElementById('pdf-progressFill').style.cssText = `width:${fillPct};background:${fillColor};`;
         const s2d = document.getElementById('pdf-step2'); const s2l = document.getElementById('pdf-step2-lbl');
         const s3d = document.getElementById('pdf-step3'); const s3l = document.getElementById('pdf-step3-lbl');
