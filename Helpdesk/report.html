@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Sarabun',Tahoma,Geneva,Verdana,sans-serif;}
-        :root{--primary:#2b6ed3;--primary-light:#e8f0fe;--primary-soft:#d4e2fc;--primary-bg:#f5f9ff;--white:#ffffff;--gray-50:#f8fafc;--gray-200:#e2e8f0;--gray-300:#cbd5e1;--gray-600:#475569;--gray-700:#334155;--gray-800:#1e293b;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;}
+        :root{--primary:#2F7FB8;--primary-light:#E7F2FB;--primary-soft:#DCE9F5;--primary-bg:#F7FBFE;--white:#ffffff;--gray-50:#f8fafc;--gray-200:#e2e8f0;--gray-300:#cbd5e1;--gray-600:#475569;--gray-700:#334155;--gray-800:#1e293b;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;}
         body{background:var(--primary-bg);min-height:100vh;display:flex;font-size:14px;}
         .sidebar{width:280px;background:var(--white);height:100vh;position:fixed;left:0;top:0;box-shadow:4px 0 20px rgba(0,45,90,0.05);overflow-y:auto;z-index:1000;border-right:1px solid var(--gray-200);}
         .sidebar-header{padding:30px 24px;background:var(--white);border-bottom:1px solid var(--gray-200);text-align:center;}
@@ -226,7 +226,7 @@
         // Supabase config — ใส่ Project URL และ anon key ของคุณตรงนี้
         // ============================================================
         const SUPABASE_URL      = 'https://fuarmmweqxxhczavkvqp.supabase.co';
- const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allTickets = [], filteredTickets = [];
@@ -235,27 +235,26 @@
 
         // แปลงคอลัมน์ snake_case จาก Supabase ให้เป็น shape เดิม (camelCase) ที่โค้ดส่วนที่เหลือใช้อยู่
         function mapTicketRow(row) {
-    return {
-        timestamp: row.created_at,
-        name: row.name,
-        department: row.department,
-        currentDepartment: row.employees ? row.employees.department : null,  // ✅ เพิ่มบรรทัดนี้
-        issueType: row.issue_type,
-        device: row.device,
-        details: row.details,
-        phone: row.phone,
-        ticketId: row.ticket_id,
-        status: row.status,
-        assignee: row.assignee,
-        closeDate: row.close_date,
-        note: row.note,
-        computerName: row.computer_name,
-        historyCount: row.history_count,
-        lastUpdated: row.last_updated,
-        detailsUpdate: row.details_update,
-        imageUrls: row.image_urls || []
-    };
-}
+            return {
+                timestamp: row.created_at,
+                name: row.name,
+                department: row.department,
+                issueType: row.issue_type,
+                device: row.device,
+                details: row.details,
+                phone: row.phone,
+                ticketId: row.ticket_id,
+                status: row.status,
+                assignee: row.assignee,
+                closeDate: row.close_date,
+                note: row.note,
+                computerName: row.computer_name,
+                historyCount: row.history_count,
+                lastUpdated: row.last_updated,
+                detailsUpdate: row.details_update,
+                imageUrls: row.image_urls || []
+            };
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             setDefaultDates();
@@ -277,12 +276,11 @@
             let from = 0;
             let all = [];
             while (true) {
-               const { data, error } = await supabaseClient
-    .from('tickets')
-    .select('*, employees:emp_uuid(department, section)')
-    .order('created_at', { ascending: false })
-    .range(from, from + pageSize - 1);
-
+                const { data, error } = await supabaseClient
+                    .from('tickets')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .range(from, from + pageSize - 1);
                 if (error) throw error;
                 if (!data || data.length === 0) break;
                 all = all.concat(data);
@@ -378,7 +376,7 @@
             if (dailyChart) dailyChart.destroy();
             dailyChart = new Chart(document.getElementById('dailyChart').getContext('2d'), {
                 type: 'line',
-                data: { labels:daily.labels, datasets:[{label:'จำนวน Ticket',data:daily.data,backgroundColor:'rgba(43,110,211,0.1)',borderColor:'#2b6ed3',tension:0.4,fill:true}] },
+                data: { labels:daily.labels, datasets:[{label:'จำนวน Ticket',data:daily.data,backgroundColor:'rgba(43,110,211,0.1)',borderColor:'#2F7FB8',tension:0.4,fill:true}] },
                 options: { responsive:true, maintainAspectRatio:false }
             });
         }
@@ -420,8 +418,7 @@
                     <td><span class="ticket-id">${t.ticketId||'-'}</span></td>
                     <td>${formatDate(t.timestamp)}</td>
                     <td>${t.name||'-'}</td>
-                   <td>${t.department||'-'}${t.currentDepartment && t.currentDepartment !== t.department ? ` <span style="color:#f59e0b;font-size:11px;" title="แผนกปัจจุบัน">→ ${t.currentDepartment}</span>` : ''}</td>
-
+                    <td>${t.department||'-'}</td>
                     <td>${t.issueType||'-'}</td>
                     <td>${t.device||'-'}</td>
                     <td>${t.phone||'-'}</td>
