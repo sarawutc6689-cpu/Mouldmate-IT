@@ -9,7 +9,7 @@
     <style>
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI','Sarabun',Tahoma,Geneva,Verdana,sans-serif; }
         :root {
-            --primary:#2b6ed3; --primary-light:#e8f0fe; --primary-soft:#d4e2fc; --primary-bg:#f5f9ff;
+            --primary:#2F7FB8; --primary-light:#E7F2FB; --primary-soft:#DCE9F5; --primary-bg:#F7FBFE;
             --white:#ffffff; --gray-50:#f8fafc; --gray-100:#f1f5f9; --gray-200:#e2e8f0;
             --gray-300:#cbd5e1; --gray-600:#475569; --gray-700:#334155; --gray-800:#1e293b;
             --success:#10b981; --warning:#f59e0b; --danger:#ef4444; --info:#3b82f6;
@@ -63,6 +63,26 @@
         .form-group input[readonly] { background:var(--gray-50); border-color:var(--gray-200); color:var(--gray-600); }
         .employee-hint { font-size:12px; color:var(--gray-600); margin-top:4px; display:flex; align-items:center; gap:6px; }
         .employee-hint i { color:var(--primary); font-size:12px; }
+        .emp-search-dropdown {
+            display:none;
+            position:absolute;
+            top:100%; left:0; right:0;
+            margin-top:4px;
+            background:var(--white);
+            border:1px solid var(--gray-200);
+            border-radius:12px;
+            box-shadow:0 12px 28px rgba(30,41,59,0.12);
+            max-height:280px;
+            overflow-y:auto;
+            z-index:50;
+        }
+        .emp-search-item { padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--gray-100); }
+        .emp-search-item:last-child { border-bottom:none; }
+        .emp-search-item:hover, .emp-search-item.active { background:var(--primary-light); }
+        .emp-search-item strong { color:var(--gray-800); font-size:14px; }
+        .emp-search-code { color:var(--primary); font-size:12px; font-weight:600; margin-left:6px; }
+        .emp-search-sub { font-size:12px; color:var(--gray-600); margin-top:2px; }
+        .emp-search-empty { padding:14px; text-align:center; color:var(--gray-600); font-size:13px; }
         .ticket-preview { background:var(--primary-light); border-radius:12px; padding:12px 20px; display:flex; align-items:center; gap:16px; border:1px dashed var(--primary-soft); }
         .ticket-preview span:first-child { color:var(--primary); font-weight:600; font-size:14px; }
         .ticket-id-box { background:var(--white); padding:8px 20px; border-radius:30px; font-weight:600; color:var(--primary); font-family:monospace; font-size:16px; border:1px solid var(--primary-soft); }
@@ -155,10 +175,12 @@
             <div class="form-container">
                 <div class="form-title"><i class="fas fa-pen"></i> กรอกข้อมูลแจ้งซ่อม</div>
                 <form id="helpdeskForm" class="form-grid" onsubmit="event.preventDefault();">
-                    <div class="form-group">
-                        <label><i class="fas fa-id-card"></i> รหัสพนักงาน</label>
-                        <input type="text" id="empCode" placeholder="" autocomplete="off" required>
-                        <div id="empFeedback" class="employee-hint"><i class="fas fa-search"></i> กรอกรหัสพนักงาน</div>
+                    <div class="form-group" style="position:relative;">
+                        <label><i class="fas fa-id-card"></i> ค้นหาพนักงาน (ชื่อหรือรหัส)</label>
+                        <input type="text" id="empSearch" placeholder="พิมพ์ชื่อหรือรหัสพนักงาน..." autocomplete="off" required>
+                        <input type="hidden" id="empCode">
+                        <div id="empSearchDropdown" class="emp-search-dropdown"></div>
+                        <div id="empFeedback" class="employee-hint"><i class="fas fa-search"></i> พิมพ์ชื่อหรือรหัสเพื่อค้นหา</div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -377,60 +399,104 @@ function setupFilePreview() {
             document.getElementById('ticketIdDisplay').textContent = `IT-${y}${m}${day}-001`;
         }
 
-        document.getElementById('empCode').addEventListener('input', function() {
+        document.getElementById('empSearch').addEventListener('input', function() {
+            document.getElementById('empCode').value = '';
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(fetchEmployeeInfo, 500);
+            debounceTimer = setTimeout(searchEmployees, 300);
         });
 
-        async function fetchEmployeeInfo() {
-            const empCode = document.getElementById('empCode').value.trim();
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#empSearch') && !e.target.closest('#empSearchDropdown')) {
+                document.getElementById('empSearchDropdown').style.display = 'none';
+            }
+        });
+
+        function clearEmployeeFields() {
+            ['empName','empSection','empDept','empPosition','empComputerName'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('computerNameHint').innerHTML = '<i class="fas fa-info-circle"></i> ดึงข้อมูลอัตโนมัติจาก Asset';
+        }
+
+        async function searchEmployees() {
+            const q = document.getElementById('empSearch').value.trim();
+            const dropdown = document.getElementById('empSearchDropdown');
             const feedback = document.getElementById('empFeedback');
-            if (!empCode) {
-                ['empName','empSection','empDept','empPosition','empComputerName'].forEach(id => document.getElementById(id).value = '');
-                document.getElementById('computerNameHint').innerHTML = '<i class="fas fa-info-circle"></i> ดึงข้อมูลอัตโนมัติจาก Asset';
-                feedback.innerHTML = '<i class="fas fa-search"></i> กรอกรหัสพนักงาน';
+
+            if (!q) {
+                dropdown.style.display = 'none';
+                dropdown.innerHTML = '';
+                clearEmployeeFields();
+                feedback.innerHTML = '<i class="fas fa-search"></i> พิมพ์ชื่อหรือรหัสเพื่อค้นหา';
                 return;
             }
+
             feedback.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> กำลังค้นหา...';
+
             try {
                 const { data, error } = await supabaseClient
                     .from('employees')
-                    .select('name, section, department, position')
-                    .ilike('emp_code', empCode)
-                    .maybeSingle();
+                    .select('emp_code, name, section, department, position')
+                    .or(`emp_code.ilike.%${q}%,name.ilike.%${q}%`)
+                    .limit(8);
                 if (error) throw error;
 
-                if (!data) {
-                    ['empName','empSection','empDept','empPosition','empComputerName'].forEach(id => document.getElementById(id).value = id === 'empName' ? 'ไม่พบข้อมูล' : '');
-                    document.getElementById('computerNameHint').innerHTML = '<i class="fas fa-info-circle"></i> ดึงข้อมูลอัตโนมัติจาก Asset';
-                    feedback.innerHTML = `<i class="fas fa-exclamation-circle" style="color:#ef4444;"></i> ไม่พบรหัสพนักงาน`;
+                if (!data || data.length === 0) {
+                    dropdown.innerHTML = '<div class="emp-search-empty"><i class="fas fa-exclamation-circle"></i> ไม่พบพนักงาน</div>';
+                    dropdown.style.display = 'block';
+                    feedback.innerHTML = '<i class="fas fa-search"></i> พิมพ์ชื่อหรือรหัสเพื่อค้นหา';
                     return;
                 }
 
-                document.getElementById('empName').value = data.name || '';
-                document.getElementById('empSection').value = data.section || '';
-                document.getElementById('empDept').value = data.department || '';
-                document.getElementById('empPosition').value = data.position || '';
-                feedback.innerHTML = `<i class="fas fa-check-circle" style="color:#10b981;"></i> พบข้อมูล: ${data.name}${data.department ? ' - ' + data.department : ''}`;
-
-                // ดึงชื่อเครื่องคอมพิวเตอร์จาก Asset table
-                if (data.name) {
-                    document.getElementById('computerNameHint').innerHTML = '<i class="fas fa-spinner fa-pulse"></i> กำลังค้นหาชื่อเครื่อง...';
-                    try {
-                        const computerName = await getComputerName(data.name);
-                        document.getElementById('empComputerName').value = computerName || '';
-                        const hint = document.getElementById('computerNameHint');
-                        hint.innerHTML = computerName
-                            ? `<i class="fas fa-check-circle" style="color:#10b981;"></i> พบชื่อเครื่อง: ${computerName}`
-                            : '<i class="fas fa-exclamation-circle" style="color:#f59e0b;"></i> ไม่พบข้อมูลเครื่องในระบบ Asset';
-                    } catch (err2) {
-                        document.getElementById('computerNameHint').innerHTML = '<i class="fas fa-exclamation-circle" style="color:#ef4444;"></i> ไม่สามารถดึงข้อมูลเครื่องได้';
-                    }
-                }
+                dropdown.innerHTML = data.map(d => `
+                    <div class="emp-search-item"
+                         data-code="${d.emp_code}" data-name="${(d.name||'').replace(/"/g,'&quot;')}"
+                         data-section="${(d.section||'').replace(/"/g,'&quot;')}"
+                         data-dept="${(d.department||'').replace(/"/g,'&quot;')}"
+                         data-pos="${(d.position||'').replace(/"/g,'&quot;')}">
+                        <strong>${d.name || '-'}</strong><span class="emp-search-code">${d.emp_code}</span>
+                        <div class="emp-search-sub">${d.department || ''}${d.position ? ' · ' + d.position : ''}</div>
+                    </div>
+                `).join('');
+                dropdown.style.display = 'block';
+                feedback.innerHTML = '<i class="fas fa-search"></i> เลือกพนักงานจากรายการด้านล่าง';
             } catch (err) {
-                feedback.innerHTML = `<i class="fas fa-exclamation-circle" style="color:#ef4444;"></i> เกิดข้อผิดพลาด`;
+                feedback.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#ef4444;"></i> เกิดข้อผิดพลาดในการค้นหา';
             }
         }
+
+        document.getElementById('empSearchDropdown').addEventListener('click', async function(e) {
+            const item = e.target.closest('.emp-search-item');
+            if (!item) return;
+
+            const empCode = item.dataset.code;
+            const empName = item.dataset.name;
+
+            document.getElementById('empCode').value = empCode;
+            document.getElementById('empSearch').value = `${empName} (${empCode})`;
+            document.getElementById('empName').value = empName;
+            document.getElementById('empSection').value = item.dataset.section;
+            document.getElementById('empDept').value = item.dataset.dept;
+            document.getElementById('empPosition').value = item.dataset.pos;
+
+            const feedback = document.getElementById('empFeedback');
+            feedback.innerHTML = `<i class="fas fa-check-circle" style="color:#10b981;"></i> พบข้อมูล: ${empName}${item.dataset.dept ? ' - ' + item.dataset.dept : ''}`;
+
+            document.getElementById('empSearchDropdown').style.display = 'none';
+            document.getElementById('empSearchDropdown').innerHTML = '';
+
+            if (empName) {
+                document.getElementById('computerNameHint').innerHTML = '<i class="fas fa-spinner fa-pulse"></i> กำลังค้นหาชื่อเครื่อง...';
+                try {
+                    const computerName = await getComputerName(empName);
+                    document.getElementById('empComputerName').value = computerName || '';
+                    const hint = document.getElementById('computerNameHint');
+                    hint.innerHTML = computerName
+                        ? `<i class="fas fa-check-circle" style="color:#10b981;"></i> พบชื่อเครื่อง: ${computerName}`
+                        : '<i class="fas fa-exclamation-circle" style="color:#f59e0b;"></i> ไม่พบข้อมูลเครื่องในระบบ Asset';
+                } catch (err2) {
+                    document.getElementById('computerNameHint').innerHTML = '<i class="fas fa-exclamation-circle" style="color:#ef4444;"></i> ไม่สามารถดึงข้อมูลเครื่องได้';
+                }
+            }
+        });
 
         // ค้นหาชื่อเครื่องจากตาราง assets — ใช้ logic การจับคู่ชื่อแบบเดียวกับต้นฉบับ (GAS)
         async function getComputerName(empName) {
@@ -473,8 +539,8 @@ async function submitForm() {
 
    // --- validation ---
 if (!empCode || empName === 'ไม่พบข้อมูล' || !empName) {
-    showToast('กรุณากรอกรหัสพนักงานที่ถูกต้อง', 'error');
-    document.getElementById('empCode').focus();
+    showToast('กรุณาค้นหาและเลือกพนักงานให้ถูกต้อง', 'error');
+    document.getElementById('empSearch').focus();
     return;
 }
 if (!issueType) {
