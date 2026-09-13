@@ -396,7 +396,15 @@
                     <div class="demo-item" onclick="fillUsername('admin')">
                         <div class="demo-role">👤 แอดมิน</div>
                         <div class="demo-pass">admin</div>
-                    </div>   
+                    </div>
+                    <div class="demo-item" onclick="fillUsername('user')">
+                        <div class="demo-role">👥 พนักงาน</div>
+                        <div class="demo-pass">user</div>
+                    </div>
+                    <div class="demo-item" onclick="fillUsername('technician')">
+                        <div class="demo-role">🔧 ช่างซ่อม</div>
+                        <div class="demo-pass">technician</div>
+                    </div>
                     <div class="demo-item" onclick="fillUsername('manager')">
                         <div class="demo-role">📊 ผู้จัดการ</div>
                         <div class="demo-pass">manager</div>
@@ -406,7 +414,6 @@
 
             <div class="login-footer">
                 <p>© 2026 Tokaisolidtire · <a href="#">ติดต่อผู้ดูแลระบบ</a></p>
-                <p>ใช้ภายในบริษัทเท่านั้น | พัฒนาระบบโดย Sarawut.C</p>
             </div>
         </div>
     </div>
@@ -420,14 +427,9 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // แมป username เดิม (admin/user/technician/manager) -> email ที่ผูกไว้กับบัญชี Supabase Auth จริง
-        // (สร้างบัญชีเหล่านี้ผ่าน Dashboard > Authentication > Users ตามที่ระบุใน profiles_schema.sql)
-        const USERNAME_TO_EMAIL = {
-            admin: 'admin@ithelpdesk.local',
-            user: 'user@ithelpdesk.local',
-            technician: 'technician@ithelpdesk.local',
-            manager: 'manager@ithelpdesk.local'
-        };
+        // username -> email ตอนนี้ค้นหาแบบไดนามิกจากตาราง profiles ในฟังก์ชัน handleLogin()
+        // แล้ว (ไม่ hardcode อีกต่อไป) เพิ่มบัญชีใหม่ผ่านหน้า manage-staff.html ได้เลย
+        // โดยไม่ต้องแก้โค้ดตรงนี้
 
         // หน้าที่จะไปตามสิทธิ์ (role มาจากตาราง profiles หลัง login สำเร็จ)
         const PAGE_REDIRECT = {
@@ -479,18 +481,23 @@
         async function handleLogin(event) {
             event.preventDefault();
 
-            const usernameInput = document.getElementById('username').value.trim().toLowerCase();
+            const usernameOrEmail = document.getElementById('username').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
 
-            if (!usernameInput || !password) {
+            if (!usernameOrEmail || !password) {
                 showAlert('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
                 return;
             }
 
-            // แปลง username -> email (ถ้าไม่อยู่ใน map ก็ลองใช้ค่าที่กรอกตรงๆ เผื่อเป็นอีเมลอยู่แล้ว)
-            const email = USERNAME_TO_EMAIL[usernameInput] || usernameInput;
-
             setLoading(true);
+
+            // แปลง username -> email แบบไดนามิกผ่านฟังก์ชัน get_login_email()
+            // (เผื่อกรอกเป็น email ตรงๆ อยู่แล้ว ก็ใช้ค่าที่กรอกได้เลยถ้าหา username ไม่เจอ)
+            let email = usernameOrEmail;
+            const { data: matchedEmail } = await supabaseClient.rpc('get_login_email', { p_username: usernameOrEmail });
+            if (matchedEmail) {
+                email = matchedEmail;
+            }
 
             const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
                 email,
@@ -532,7 +539,7 @@
 
         function showForgotPassword(event) {
             event.preventDefault();
-            showAlert('กรุณาติดต่อผู้ดูแลระบบที่ itsupport@tokaisolidtire.com', true);
+            showAlert('กรุณาติดต่อผู้ดูแลระบบที่ sarawut.c@tokaisolidtire.com', true);
         }
 
         // เพิ่มความปลอดภัยด้วยการป้องกันการกด Enter ซ้ำ
