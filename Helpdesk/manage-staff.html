@@ -222,6 +222,23 @@
         // ============================================================
         const ALLOWED_ROLES = ['admin'];
 
+        function showAccessDenied(message) {
+            document.body.innerHTML = `
+                <div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;background:var(--primary-bg,#F7FBFE);font-family:'Segoe UI','Sarabun',Tahoma,Geneva,Verdana,sans-serif;padding:20px;">
+                    <div style="background:#fff;border-radius:24px;padding:44px 36px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.08);border:1px solid #e2e8f0;">
+                        <div style="width:64px;height:64px;background:#fee2e2;color:#dc2626;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px;">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h2 style="color:#1e293b;font-size:19px;margin-bottom:10px;font-weight:600;">ไม่มีสิทธิ์เข้าถึงหน้านี้</h2>
+                        <p style="color:#475569;font-size:14px;margin-bottom:26px;line-height:1.6;">${message}</p>
+                        <button onclick="window.location.href='login.html'" style="background:#2F7FB8;color:#fff;border:none;padding:12px 30px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">
+                            <i class="fas fa-arrow-left"></i> กลับไปหน้าเข้าสู่ระบบ
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
         async function requireAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session || !session.user) {
@@ -235,9 +252,8 @@
                 .maybeSingle();
 
             if (!profile || !ALLOWED_ROLES.includes(profile.role)) {
-                alert('คุณไม่มีสิทธิ์เข้าหน้านี้ (เฉพาะ admin เท่านั้น)');
                 await supabaseClient.auth.signOut();
-                window.location.href = 'login.html';
+                showAccessDenied('หน้านี้เปิดให้เฉพาะ admin เท่านั้น');
                 return null;
             }
             currentSession = session;
