@@ -189,12 +189,12 @@
 <script>
   const SUPABASE_URL = 'https://fnbkcgkuykdabbensvif.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let targetEmployee = null;
 
   async function loadApprovers() {
-    const { data, error } = await supabase.from('approvers').select('name, section, position').order('name');
+    const { data, error } = await supabaseClient.from('approvers').select('name, section, position').order('name');
     const select = document.getElementById('approvalManager');
     if (error || !data) {
       select.innerHTML = '<option value="">โหลดรายชื่อไม่สำเร็จ</option>';
@@ -207,7 +207,7 @@
   async function searchRequester() {
     const code = document.getElementById('requesterCode').value.trim();
     if (!code) return;
-    const { data, error } = await supabase.from('employees').select('*').eq('employees_code', code).maybeSingle();
+    const { data, error } = await supabaseClient.from('employees').select('*').eq('employees_code', code).maybeSingle();
     const box = document.getElementById('requesterInfo');
     if (error || !data) {
       box.textContent = 'ไม่พบรหัสพนักงานนี้ในระบบ';
@@ -221,7 +221,7 @@
   async function searchTarget() {
     const code = document.getElementById('targetCode').value.trim();
     if (!code) return;
-    const { data, error } = await supabase.from('employees').select('*').eq('employees_code', code).maybeSingle();
+    const { data, error } = await supabaseClient.from('employees').select('*').eq('employees_code', code).maybeSingle();
     if (error || !data) {
       showMsg('error', 'ไม่พบรหัสพนักงานผู้ใช้งานนี้ในระบบ');
       return;
@@ -268,7 +268,7 @@
       email_type: document.querySelector('input[name="emailType"]:checked')?.value || null
     };
 
-    const { data, error } = await supabase.from('requests').insert(formData).select('ticket_id').single();
+    const { data, error } = await supabaseClient.from('requests').insert(formData).select('ticket_id').single();
 
     submitBtn.disabled = false;
     submitBtn.textContent = 'ส่งคำขอ';
