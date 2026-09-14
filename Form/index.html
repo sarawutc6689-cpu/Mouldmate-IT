@@ -204,31 +204,31 @@
     &copy; 2026 IT Request System — Powered by Supabase
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL = 'https://fnbkcgkuykdabbensvif.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://fnbkcgkuykdabbensvif.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function loadStats() {
-      const { count: total } = await supabase
-        .from('requests').select('*', { count: 'exact', head: true });
+  async function loadStats() {
+    const { count: total } = await supabaseClient
+      .from('requests').select('*', { count: 'exact', head: true });
 
-      const { count: pending } = await supabase
-        .from('requests').select('*', { count: 'exact', head: true })
-        .eq('status', 'รออนุมัติ');
+    const { count: pending } = await supabaseClient
+      .from('requests').select('*', { count: 'exact', head: true })
+      .eq('status', 'รออนุมัติ');
 
-      const { count: approved } = await supabase
-        .from('requests').select('*', { count: 'exact', head: true })
-        .eq('status', 'อนุมัติแล้ว');
+    const { count: approved } = await supabaseClient
+      .from('requests').select('*', { count: 'exact', head: true })
+      .eq('status', 'อนุมัติแล้ว');
 
-      document.getElementById('statTotal').textContent = total ?? 0;
-      document.getElementById('statPending').textContent = pending ?? 0;
-      document.getElementById('statApproved').textContent = approved ?? 0;
-    }
+    document.getElementById('statTotal').textContent = total ?? 0;
+    document.getElementById('statPending').textContent = pending ?? 0;
+    document.getElementById('statApproved').textContent = approved ?? 0;
+  }
 
-    loadStats();
-  </script>
+  loadStats();
+</script>
 
 </body>
 </html>
