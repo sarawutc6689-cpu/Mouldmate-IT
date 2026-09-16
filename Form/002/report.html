@@ -10,14 +10,33 @@
 <style>
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Sarabun',Tahoma,Geneva,Verdana,sans-serif;}
     :root{--primary:#2F7FB8;--primary-light:#E7F2FB;--primary-bg:#F7FBFE;--white:#ffffff;--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-600:#475569;--gray-700:#334155;--gray-800:#1e293b;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;}
-    body{background:var(--primary-bg);min-height:100vh;font-size:14px;}
+    body{background:var(--primary-bg);min-height:100vh;font-size:14px;display:flex;}
 
-    .topbar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-    .topbar h1{font-size:17px;color:var(--gray-800);display:flex;align-items:center;gap:10px;}
-    .topbar h1 i{color:var(--primary);}
-    .btn-ghost{background:var(--gray-50);border:1px solid var(--gray-200);color:var(--gray-600);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
-    .btn-ghost:hover{background:var(--primary-light);color:var(--primary);}
-    .btn-ghost.danger:hover{background:#fee2e2;color:var(--danger);border-color:#fecaca;}
+    /* ---------- sidebar ---------- */
+    .sidebar{width:260px;background:var(--white);height:100vh;position:fixed;left:0;top:0;box-shadow:4px 0 20px rgba(0,45,90,0.05);overflow-y:auto;z-index:1000;border-right:1px solid var(--gray-200);display:flex;flex-direction:column;}
+    .sidebar-header{padding:26px 22px 20px;border-bottom:1px solid var(--gray-200);text-align:center;}
+    .sidebar-header i{font-size:40px;color:var(--primary);margin-bottom:10px;background:var(--primary-light);padding:14px;border-radius:16px;}
+    .sidebar-header h2{font-size:17px;font-weight:700;color:var(--gray-800);margin-bottom:4px;}
+    .sidebar-header p{font-size:12px;color:var(--gray-600);}
+    .sidebar-menu{padding:16px 14px;flex:1;}
+    .menu-item{display:flex;align-items:center;padding:11px 16px;color:var(--gray-600);transition:all 0.2s;cursor:pointer;text-decoration:none;border-radius:12px;margin-bottom:4px;font-weight:500;font-size:13.5px;}
+    .menu-item:hover{background:var(--primary-light);color:var(--primary);}
+    .menu-item.active{background:var(--primary-light);color:var(--primary);font-weight:700;}
+    .menu-item i{width:22px;font-size:16px;margin-right:10px;}
+    .sidebar-footer{padding:18px 20px;border-top:1px solid var(--gray-200);}
+    .user-info{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .user-avatar{width:38px;height:38px;background:var(--primary-light);color:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
+    .user-name{font-weight:600;color:var(--gray-800);font-size:13px;}
+    .user-section{font-size:11px;color:var(--gray-600);}
+    .btn-logout-full{width:100%;background:var(--gray-50);border:1px solid var(--gray-200);color:var(--gray-600);padding:9px;border-radius:10px;cursor:pointer;font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:6px;}
+    .btn-logout-full:hover{background:#fee2e2;color:var(--danger);border-color:#fecaca;}
+
+    .main-content{flex:1;margin-left:260px;}
+    .page-topbar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:16px 24px;}
+    .page-topbar h1{font-size:17px;color:var(--gray-800);display:flex;align-items:center;gap:10px;}
+    .page-topbar h1 i{color:var(--primary);}
+
+    @media(max-width:900px){.sidebar{width:0;display:none;}.main-content{margin-left:0;}}
 
     .content{padding:24px;max-width:1200px;margin:0 auto;}
     .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
@@ -46,13 +65,33 @@
 </head>
 <body>
 
-<div class="topbar">
-    <h1><i class="fas fa-chart-bar"></i> รายงานคำขอ IT</h1>
-    <div style="display:flex;gap:10px;">
-        <a href="approve.html" class="btn-ghost"><i class="fas fa-clipboard-check"></i> หน้าอนุมัติ</a>
-        <a href="manage-approvers.html" class="btn-ghost"><i class="fas fa-user-shield"></i> จัดการผู้อนุมัติ</a>
-        <button class="btn-ghost danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+<div class="sidebar">
+    <div class="sidebar-header">
+        <i class="fas fa-key"></i>
+        <h2>IT Account Request</h2>
+        <p>ระบบขอ Username/Password</p>
     </div>
+    <div class="sidebar-menu">
+        <a href="form.html" class="menu-item"><i class="fas fa-plus-circle"></i><span>แจ้งคำขอ</span></a>
+        <a href="approve.html" class="menu-item"><i class="fas fa-clipboard-check"></i><span>อนุมัติคำขอ</span></a>
+        <a href="report.html" class="menu-item active"><i class="fas fa-chart-bar"></i><span>รายงาน</span></a>
+        <a href="manage-approvers.html" class="menu-item"><i class="fas fa-user-shield"></i><span>จัดการผู้อนุมัติ</span></a>
+    </div>
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">-</div>
+            <div>
+                <div class="user-name" id="userNameLabel">-</div>
+                <div class="user-section">ผู้ดูแลระบบ</div>
+            </div>
+        </div>
+        <button class="btn-logout-full" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+    </div>
+</div>
+
+<div class="main-content">
+<div class="page-topbar">
+    <h1><i class="fas fa-chart-bar"></i> รายงานคำขอ IT</h1>
 </div>
 
 <div class="content">
@@ -79,6 +118,7 @@
             <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><br>กำลังโหลดข้อมูล...</div>
         </div>
     </div>
+</div>
 </div>
 
 <script>
@@ -129,6 +169,8 @@
     window.onload = async function() {
         currentProfile = await requireAuth();
         if (!currentProfile) return;
+        document.getElementById('userNameLabel').textContent = currentProfile.name;
+        document.getElementById('userAvatar').textContent = (currentProfile.name || '?').charAt(0);
         await loadStatistics();
     };
 
