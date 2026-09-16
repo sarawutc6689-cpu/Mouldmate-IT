@@ -402,29 +402,31 @@
 
             const approvalManager = await findApprover(targetEmployee.section);
 
-            // ต้องส่ง status ไปด้วยเสมอ เพราะ RLS policy "public can submit request"
-            // เช็ค with_check (status = 'รออนุมัติ') ก่อนที่ค่า default ของคอลัมน์จะถูกเติม
-            const { data, error } = await supabaseClient.from('requests').insert({
-                requester_code: requesterCode,
-                employees_code: targetCode,
-                name_thai: targetEmployee.name_thai,
-                name_eng: nameEng,
-                telephone,
-                section: targetEmployee.section,
-                department: targetEmployee.department,
-                position: targetEmployee.position,
-                objective,
-                email_type: emailType,
-                email_reason: emailReason,
-                comment,
-                approval_manager: approvalManager,
-                status: 'รออนุมัติ'
-            }).select('ticket_id').single();
+            // ใช้ฟังก์ชัน submit_request() แทนการ insert().select() ตรงๆ เพราะ
+            // .select() หลัง insert ต้องผ่าน SELECT policy ด้วย (ไม่ใช่แค่ INSERT policy)
+            // ซึ่ง anon ไม่มีสิทธิ์ SELECT บนตาราง requests โดยตรง (ตั้งใจไว้แบบนั้น
+            // เพื่อไม่ให้ใครก็อ่านคำขอของคนอื่นได้) ฟังก์ชันนี้คืนแค่ ticket_id
+            // ออกมาเฉยๆ เลยไม่ติด policy นี้
+            const { data: newTicketId, error } = await supabaseClient.rpc('submit_request', {
+                p_requester_code: requesterCode,
+                p_employees_code: targetCode,
+                p_name_thai: targetEmployee.name_thai,
+                p_name_eng: nameEng,
+                p_telephone: telephone,
+                p_section: targetEmployee.section,
+                p_department: targetEmployee.department,
+                p_position: targetEmployee.position,
+                p_objective: objective,
+                p_email_type: emailType,
+                p_email_reason: emailReason,
+                p_comment: comment,
+                p_approval_manager: approvalManager
+            });
 
             if (error) throw error;
 
             document.getElementById('requestForm').style.display = 'none';
-            document.getElementById('successTicketId').textContent = data.ticket_id;
+            document.getElementById('successTicketId').textContent = newTicketId;
             document.getElementById('successScreen').classList.add('show');
         } catch (err) {
             showToast('ส่งคำขอไม่สำเร็จ: ' + err.message, 'error');
