@@ -80,6 +80,7 @@
             <div class="user-section" id="userSectionLabel">-</div>
         </div>
         <a href="report.html" class="btn-ghost" id="reportLink" style="display:none;"><i class="fas fa-chart-bar"></i> รายงาน</a>
+        <a href="manage-approvers.html" class="btn-ghost" id="approversLink" style="display:none;"><i class="fas fa-user-shield"></i> จัดการผู้อนุมัติ</a>
         <button class="btn-ghost danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
     </div>
 </div>
@@ -175,6 +176,7 @@
             currentProfile.role === 'admin' ? 'ผู้ดูแลระบบ (ทุกฝ่าย)' : 'ฝ่าย: ' + (currentProfile.section || '-');
         document.getElementById('userAvatar').textContent = (currentProfile.name || '?').charAt(0);
         if (currentProfile.role === 'admin') document.getElementById('reportLink').style.display = 'inline-flex';
+        if (currentProfile.role === 'admin') document.getElementById('approversLink').style.display = 'inline-flex';
 
         await loadEmployeeNameMap();
         await loadRequests();
