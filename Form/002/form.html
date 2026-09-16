@@ -402,27 +402,28 @@
 
             const approvalManager = await findApprover(targetEmployee.section);
 
-            const { data, error } = await supabaseClient.from('requests').insert({
-                requester_code: requesterCode,
-                employees_code: targetCode,
-                name_thai: targetEmployee.name_thai,
-                name_eng: nameEng,
-                telephone,
-                section: targetEmployee.section,
-                department: targetEmployee.department,
-                position: targetEmployee.position,
-                objective,
-                email_type: emailType,
-                email_reason: emailReason,
-                comment,
-                approval_manager: approvalManager,
-                status: 'รออนุมัติ'
-            }).select('ticket_id').single();
+            // ยื่นคำขอผ่านฟังก์ชัน submit_request() เพราะ anon ไม่มีสิทธิ์ INSERT
+            // ตาราง requests ตรงๆ ตาม RLS policy (ฟังก์ชันตั้งสถานะ 'รออนุมัติ' ให้ตายตัว)
+            const { data: newTicketId, error } = await supabaseClient.rpc('submit_request', {
+                p_requester_code: requesterCode,
+                p_employees_code: targetCode,
+                p_name_thai: targetEmployee.name_thai,
+                p_name_eng: nameEng,
+                p_telephone: telephone,
+                p_section: targetEmployee.section,
+                p_department: targetEmployee.department,
+                p_position: targetEmployee.position,
+                p_objective: objective,
+                p_email_type: emailType,
+                p_email_reason: emailReason,
+                p_comment: comment,
+                p_approval_manager: approvalManager
+            });
 
             if (error) throw error;
 
             document.getElementById('requestForm').style.display = 'none';
-            document.getElementById('successTicketId').textContent = data.ticket_id;
+            document.getElementById('successTicketId').textContent = newTicketId;
             document.getElementById('successScreen').classList.add('show');
         } catch (err) {
             showToast('ส่งคำขอไม่สำเร็จ: ' + err.message, 'error');
