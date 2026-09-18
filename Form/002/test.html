@@ -150,6 +150,14 @@
                 อนุมัติคำขอ
                 <span class="menu-badge zero" id="pending-count">0</span>
             </a>
+           <a href="dashboard.html">
+                <span class="menu-icon"><i class="fas fa-chart-pie"></i></span>
+                Dashboard
+           </a>
+           <a href="history.html">
+                <span class="menu-icon"><i class="fas fa-history"></i></span>
+                ประวัติคำขอ
+           </a>
         </nav>
     </aside>
 
@@ -306,7 +314,7 @@
                 </button>
             </div>
 
-            <footer>ระบบขอรับ Username/Password IT · TokaiSolidTire</footer>
+            <footer>ระบบขอรับ Username/Password IT · TokaiSolidTire | พัฒนาโดย Sarawut.C</footer>
         </div>
     </main>
 
@@ -316,7 +324,7 @@
 
 <script>
     const SUPABASE_URL      = 'https://fnbkcgkuykdabbensvif.supabase.co';
-    const SUPABASE_ANON_KEY = '************************************.*******************************************************************************************************************************.*******************************************';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let targetEmployee = null;
