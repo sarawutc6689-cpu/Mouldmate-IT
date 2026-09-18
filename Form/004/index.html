@@ -847,7 +847,7 @@ textarea {
       searchLoader.classList.add('show');
       searchTimer = setTimeout(async () => {
         const { data, error } = await sb
-          .from('employees_directory')
+          .from('employees')
           .select('employee_code, full_name, department_name, section_name, position_name')
           .eq('employee_code', code)
           .maybeSingle();
