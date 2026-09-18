@@ -22,6 +22,8 @@
     .menu-item:hover{background:var(--primary-light);color:var(--primary);}
     .menu-item.active{background:var(--primary-light);color:var(--primary);font-weight:700;}
     .menu-item i{width:22px;font-size:16px;margin-right:10px;}
+    .menu-badge{margin-left:auto;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;background:var(--danger);color:#fff;}
+    .menu-badge.zero{background:var(--gray-100);color:var(--gray-600);}
     .sidebar-footer{padding:18px 20px;border-top:1px solid var(--gray-200);}
     .user-info{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
     .user-avatar{width:38px;height:38px;background:var(--primary-light);color:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
@@ -93,12 +95,12 @@
         <p>ระบบขอ Username/Password</p>
     </div>
     <nav class="sidebar-menu">
+        <a href="dashboard.html" class="menu-item"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
         <a href="form.html" class="menu-item"><i class="fas fa-plus-circle"></i><span>แจ้งคำขอ</span></a>
-        <a href="approve.html"><span class="menu-icon"><i class="fas fa-clipboard-check"></i></span>อนุมัติคำขอ<span class="menu-badge zero" id="pending-count">0</span></a>
+        <a href="approve.html" class="menu-item active"><i class="fas fa-clipboard-check"></i><span>อนุมัติคำขอ</span><span class="menu-badge zero" id="pending-count">0</span></a>
+        <a href="history.html" class="menu-item"><i class="fas fa-history"></i><span>ประวัติคำขอ</span></a>
         <a href="report.html" class="menu-item" id="reportLink" style="display:none;"><i class="fas fa-chart-bar"></i><span>รายงาน</span></a>
         <a href="manage-approvers.html" class="menu-item" id="approversLink" style="display:none;"><i class="fas fa-user-shield"></i><span>จัดการผู้อนุมัติ</span></a>
-       <a href="dashboard.html"><span class="menu-icon"><i class="fas fa-chart-pie"></i></span>Dashboard</a>
-       <a href="history.html"><span class="menu-icon"><i class="fas fa-history"></i></span>ประวัติคำขอ</a>
     </nav>
     <div class="sidebar-footer">
         <div class="user-info">
@@ -243,9 +245,16 @@
     }
 
     function renderStats() {
-        document.getElementById('statPending').textContent = allRequests.filter(r => r.status === 'รออนุมัติ').length;
+        const pendingCount = allRequests.filter(r => r.status === 'รออนุมัติ').length;
+
+        document.getElementById('statPending').textContent = pendingCount;
         document.getElementById('statApproved').textContent = allRequests.filter(r => r.status === 'อนุมัติแล้ว').length;
         document.getElementById('statRejected').textContent = allRequests.filter(r => r.status === 'ปฏิเสธ').length;
+
+        // อัปเดตตัวเลขค้างอนุมัติที่เมนู sidebar
+        const badge = document.getElementById('pending-count');
+        badge.textContent = pendingCount;
+        badge.classList.toggle('zero', pendingCount === 0);
     }
 
     const STATUS_BADGE = { 'รออนุมัติ': 'badge-pending', 'อนุมัติแล้ว': 'badge-approved', 'ปฏิเสธ': 'badge-rejected' };
