@@ -607,6 +607,7 @@ textarea {
 <script>
   // Supabase project credentials (project: hr-master)
   // Project Settings → API → Project URL / anon public key
+  // ⚠️ ต้องแทนที่ด้วย anon public key จริง (ขึ้นต้นด้วย eyJ...) มิฉะนั้นทุก request จะล้มเหลว
   const SUPABASE_URL = 'https://fnbkcgkuykdabbensvif.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE';
 </script>
@@ -846,10 +847,11 @@ textarea {
       if (!code) { userPreview.classList.remove('show'); currentUserData = null; return; }
       searchLoader.classList.add('show');
       searchTimer = setTimeout(async () => {
+        // ตาราง employees ใช้ชื่อคอลัมน์: employees_code, name_thai, department, section, position
         const { data, error } = await sb
           .from('employees')
-          .select('employee_code, full_name, department_name, section_name, position_name')
-          .eq('employee_code', code)
+          .select('employees_code, name_thai, department, section, position')
+          .eq('employees_code', code)
           .maybeSingle();
         if (error) {
           searchLoader.classList.remove('show');
@@ -857,7 +859,7 @@ textarea {
           return;
         }
         onUserReceived(data
-          ? { success: true, code: data.employee_code, name: data.full_name, section: data.department_name, department: data.section_name, position: data.position_name }
+          ? { success: true, code: data.employees_code, name: data.name_thai, section: data.section, department: data.department, position: data.position }
           : { success: false, message: 'ไม่พบรหัสพนักงานในระบบ' });
       }, 450);
     });
