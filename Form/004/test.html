@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>ระบบขอยืมอุปกรณ์สารสนเทศ | IT พัฒนา</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  /* นำ CSS เดิมของคุณมาวางที่นี่ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #F0F4FA; font-family: 'Sarabun', sans-serif; color: #1E2A47; line-height: 1.5; font-size: 15px; }
+  .app-container { display: flex; min-height: 100vh; }
+  /* (แนะนำให้ Copy CSS จากไฟล์เดิมของคุณมาใส่ในนี้ทั้งหมด) */
+  .sidebar { width: 280px; background: #FFFFFF; border-right: 1px solid #E6EDF6; position: fixed; top:0; left:0; bottom:0; padding: 20px; }
+  .main-content { margin-left: 280px; flex: 1; padding: 28px 36px; }
+  .form-card { background: #FFFFFF; border-radius: 28px; margin-bottom: 24px; padding: 24px; border: 1px solid #EAF1F9; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; }
+  input, textarea { border: 1px solid #DFE9F2; border-radius: 16px; padding: 12px; }
+  .btn-primary { background: #1F6392; color: white; padding: 12px 34px; border-radius: 40px; border: none; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <aside class="sidebar" id="sidebar">
+    <h3>ระบบยืม-คืนอุปกรณ์</h3>
+    <button class="nav-item active">📋 แบบฟอร์มขอยืม</button>
+  </aside>
+
+  <div class="main-content">
+    <h1>แบบฟอร์มขอยืมอุปกรณ์</h1>
+    
+    <div class="form-card">
+      <h3>ข้อมูลผู้ยืม</h3>
+      <div class="field">
+        <label>รหัสพนักงาน</label>
+        <input type="text" id="empCode" placeholder="กรอกรหัสพนักงาน">
+      </div>
+      <div id="userPreview" style="display:none; background:#F8FCFE; padding:15px; border-radius:10px;">
+        <p>ชื่อ: <span id="previewName"></span></p>
+        <p>แผนก: <span id="previewSection"></span></p>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>รายละเอียดการยืม</h3>
+      <div class="field"><label>รายการอุปกรณ์</label><input type="text" id="equipmentName"></div>
+      <div class="field"><label>วัตถุประสงค์</label><textarea id="purposeText"></textarea></div>
+      <button class="btn-primary" id="submitFormBtn">บันทึกคำขอยืม</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 1. ตั้งค่า Supabase (เปลี่ยน Key ของคุณตรงนี้)
+  const supabase = supabase.createClient(
+    'https://fnbkcgkuykdabbensvif.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE' 
+  );
+
+  const empCodeInput = document.getElementById('empCode');
+  const userPreview = document.getElementById('userPreview');
+  let currentUserData = null;
+
+  // 2. ค้นหาพนักงานจาก hr-master
+  empCodeInput.addEventListener('input', async function() {
+    const code = this.value.trim();
+    if (code.length < 3) { userPreview.style.display = 'none'; return; }
+
+    const { data, error } = await supabase
+      .from('hr-master')
+      .select('*')
+      .eq('employee_code', code) // แก้ 'employee_code' เป็นชื่อคอลัมน์ในตารางของคุณ
+      .single();
+
+    if (data) {
+      currentUserData = data;
+      document.getElementById('previewName').innerText = data.name;
+      document.getElementById('previewSection').innerText = data.section;
+      userPreview.style.display = 'block';
+    }
+  });
+
+  // 3. บันทึกการยืม
+  document.getElementById('submitFormBtn').addEventListener('click', async function() {
+    if (!currentUserData) { alert('กรุณาเลือกพนักงาน'); return; }
+
+    const { data, error } = await supabase
+      .rpc('submit_borrow_request', {
+        p_requester_code: currentUserData.employee_code,
+        p_employee_name: currentUserData.name,
+        p_equipment_name: document.getElementById('equipmentName').value,
+        p_objective: document.getElementById('purposeText').value,
+        p_due_date: new Date().toISOString(),
+        p_comment: ''
+      });
+
+    if (error) {
+      alert('บันทึกผิดพลาด: ' + error.message);
+    } else {
+      alert('บันทึกสำเร็จ! เลขที่คำขอ: ' + data);
+      location.reload();
+    }
+  });
+</script>
+</body>
+</html>
