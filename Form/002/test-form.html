@@ -141,16 +141,6 @@
             <a href="report.html" class="menu-item" id="reportLink" style="display:none;"><i class="fas fa-chart-bar"></i><span>รายงาน</span></a>
             <a href="manage-approvers.html" class="menu-item" id="approversLink" style="display:none;"><i class="fas fa-user-shield"></i><span>จัดการผู้อนุมัติ</span></a>
         </div>
-        <div class="sidebar-footer">
-            <div class="user-info">
-                <div class="user-avatar" id="userAvatar">-</div>
-                <div>
-                    <div class="user-name" id="userNameLabel">-</div>
-                    <div class="user-section" id="userSectionLabel">-</div>
-                </div>
-            </div>
-            <button class="btn-logout-full" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
-        </div>
     </div>
 
     <div class="main-content">
@@ -320,39 +310,22 @@
     let targetEmployee = null;
     let debounceRequester, debounceTarget;
 
-    // ---------------- sidebar: user info + role-based menu ----------------
-    // สมมติว่ามีตาราง "profiles" (id = auth.users.id, name, section, role)
-    // ถ้าระบบจริงใช้ชื่อตาราง/คอลัมน์ต่างจากนี้ บอกได้เลย จะแก้ให้ตรง
+    // ---------------- sidebar: role-based menu (แสดง/ซ่อนเมนูตามสิทธิ์ผู้ใช้) ----------------
+    // สมมติว่ามีตาราง "profiles" (id = auth.users.id, role) — ถ้าระบบจริงต่างจากนี้ บอกได้เลย
     async function initSidebarUser() {
         const { data: { session } } = await supabaseClient.auth.getSession();
-
-        if (!session) {
-            // ยังไม่ได้ login — ซ่อนเมนูที่ต้องใช้สิทธิ์ และไม่โชว์ชื่อผู้ใช้
-            document.getElementById('userNameLabel').textContent = 'ผู้เยี่ยมชม';
-            document.getElementById('userSectionLabel').textContent = '-';
-            return;
-        }
+        if (!session) return;
 
         const { data: profile } = await supabaseClient
             .from('profiles')
-            .select('name, section, role, email')
+            .select('role')
             .eq('id', session.user.id)
             .maybeSingle();
-
-        const displayName = profile?.name || session.user.email || 'ผู้ใช้งาน';
-        document.getElementById('userNameLabel').textContent = displayName;
-        document.getElementById('userSectionLabel').textContent = profile?.section || session.user.email || '-';
-        document.getElementById('userAvatar').textContent = displayName.trim().charAt(0).toUpperCase();
 
         if (profile?.role === 'admin') {
             document.getElementById('reportLink').style.display = 'flex';
             document.getElementById('approversLink').style.display = 'flex';
         }
-    }
-
-    async function logout() {
-        await supabaseClient.auth.signOut();
-        window.location.href = 'login.html';
     }
 
     initSidebarUser();
