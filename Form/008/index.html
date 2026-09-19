@@ -1,1 +1,201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบบำรุงรักษาคอมพิวเตอร์ (Supabase)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* CSS เดิมทั้งหมดของคุณ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --navy:#0D2B4E; --navy-deep:#071C35; --navy-mid:#1A4A7A; --navy-light:#2D6FA8; --sky:#3B8FD4; --sky-light:#D6E9F8; --sky-pale:#EDF5FC; --gold:#B8952A; --success:#1A6B3A; --success-light:#E3F4EB; --warning:#8A5500; --warning-light:#FFF4DC; --danger:#A01B1B; --danger-light:#FDECEA; --white:#FFFFFF; --bg:#F0F5FB; --surface:#FAFCFF; --border:#C8D8EA; --border-soft:#DDE8F2; --text:#0D1F35; --text-mid:#2C4A6A; --text-muted:#5D7A96; --text-faint:#8CA3B8; --sidebar-w:256px; --radius-sm:6px; --radius-md:10px; --radius-lg:14px; --shadow-sm:0 1px 4px rgba(13,43,78,0.08); --shadow-md:0 4px 16px rgba(13,43,78,0.10); --shadow-lg:0 8px 32px rgba(13,43,78,0.14); }
+  body { font-family: 'Noto Sans Thai', 'Sarabun', sans-serif; font-size: 16px; line-height: 1.6; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+  #login-page { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 100vh; background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy-mid) 100%); }
+  .login-box { background: var(--white); border-radius: var(--radius-lg); padding: 48px 40px 40px; width: 420px; max-width: 95vw; box-shadow: var(--shadow-lg); }
+  .login-logo { text-align: center; margin-bottom: 32px; }
+  .login-logo-title { font-family: 'Noto Serif Thai', serif; font-size: 20px; font-weight: 700; color: var(--navy); }
+  .login-field { margin-bottom: 16px; }
+  .login-field input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; }
+  .login-btn { width: 100%; padding: 13px; background: var(--navy); color: var(--white); border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; cursor: pointer; }
+  .user-login-btn { width: 100%; padding: 13px; background: var(--success-light); color: var(--success); border: 1.5px solid rgba(26,107,58,0.25); border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; cursor: pointer; }
+  .login-error { background: var(--danger-light); padding: 10px 14px; font-size: 13px; color: var(--danger); margin-bottom: 16px; display: none; }
+  #app { display: none; width: 100%; }
+  #app.show { display: flex; }
+  #sidebar { width: var(--sidebar-w); background: var(--navy); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 200; }
+  .nav-item.admin-only { display: none; }
+  .nav-item.admin-only.show { display: flex; }
+</style>
 
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // --- แก้ไขค่าตรงนี้ ---
+  const SUPABASE_URL = 'https://fnbkcgkuykdabbensvif.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE';
+  const ADMIN_EMAIL = 'admin@pmlocal.com';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+</head>
+<body>
+
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo"><div class="login-logo-title">ระบบบำรุงรักษาคอมพิวเตอร์</div></div>
+    <div class="login-field">
+      <label>รหัสผ่าน Admin</label>
+      <input type="password" id="admin-password" placeholder="ใส่รหัสผ่าน Admin">
+    </div>
+    <div class="login-error" id="login-error">❌ รหัสผ่านไม่ถูกต้อง</div>
+    <button class="login-btn" onclick="loginAdmin()">เข้าสู่ระบบ (Admin)</button>
+    <div style="text-align:center;margin:16px 0;color:#8CA3B8;">─── หรือ ───</div>
+    <button class="user-login-btn" onclick="loginUser()">👁 เข้าดูข้อมูล (ไม่ต้องรหัส)</button>
+  </div>
+</div>
+
+<div id="app">
+  <div id="sidebar">
+    <div class="sidebar-header" style="padding:26px 22px; border-bottom:1px solid rgba(255,255,255,0.1);">
+      <div class="sidebar-logo" style="color:#FFF;">ระบบบำรุงรักษา<br>คอมพิวเตอร์</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-item active" onclick="showPage('dashboard')">Dashboard</div>
+      <div class="nav-item admin-only" id="nav-record-pm" onclick="showPage('record-pm')">บันทึก PM</div>
+      <div class="nav-item" onclick="showPage('history')">ประวัติการ PM</div>
+      <div class="nav-item" onclick="showPage('computers')">ข้อมูลเครื่อง</div>
+      <div class="nav-item admin-only" id="nav-staff" onclick="showPage('staff')">เจ้าหน้าที่แผนก</div>
+      <div class="nav-item admin-only" id="nav-users" onclick="showPage('users')">รายชื่อผู้ใช้งาน</div>
+    </div>
+  </div>
+    <!-- MAIN -->
+  <div id="main" style="margin-left: 256px; flex: 1; display: flex; flex-direction: column;">
+    <div class="topbar" style="background:#fff; height:68px; display:flex; align-items:center; justify-content:space-between; padding:0 32px; border-bottom:1px solid #C8D8EA;">
+      <div>
+        <div class="page-title" id="page-title">Dashboard</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span id="role-badge"></span>
+        <div id="topbar-actions"></div>
+        <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+      </div>
+    </div>
+    <div class="content" id="content" style="padding:32px;"></div>
+  </div>
+</div><!-- end #app -->
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ── STATE & UTILS ──────────────────────────────────
+let state = { page:'dashboard', role:null, session:null, computers:[], staff:[], users:[], pmRecords:[], dashboard:null };
+const THAI_MONTHS = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+
+function esc(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+function showPage(page) {
+  state.page = page;
+  document.getElementById('page-title').textContent = page.toUpperCase();
+  renderPage(page);
+}
+
+// ── AUTH ────────────────────────────────────────────
+async function loginAdmin() {
+  const pw = document.getElementById('admin-password').value;
+  const { data, error } = await sb.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pw });
+  if (error) { document.getElementById('login-error').style.display = 'block'; return; }
+  state.session = data.session;
+  startApp('admin');
+}
+function loginUser() { state.session = null; startApp('user'); }
+function startApp(role) {
+  state.role = role;
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app').classList.add('show');
+  if (role === 'admin') document.querySelectorAll('.admin-only').forEach(el => el.classList.add('show'));
+  showPage('dashboard');
+}
+async function logout() {
+  if (!confirm('ออกจากระบบ?')) return;
+  await sb.auth.signOut();
+  location.reload();
+}
+
+// ── SUPABASE DATA ACCESS ─────────────────────────────
+async function getComputers() { const { data } = await sb.from('pm_computers').select('*').order('id'); return data || []; }
+async function getStaff() { const { data } = await sb.from('pm_staff').select('*').order('name'); return data || []; }
+async function getUsers() { const { data } = await sb.from('pm_users').select('*').order('name'); return data || []; }
+async function getRecordPM() { const { data } = await sb.from('pm_record_pm').select('*').order('record_date', {ascending:false}); return data || []; }
+
+// ── RENDERER (ตัวอย่างส่วนที่เหลือให้คุณก๊อปปี้มาเติมต่อ) ──
+async function renderPage(page) {
+  document.getElementById('content').innerHTML = 'กำลังโหลด...';
+  try {
+    if (page === 'computers') await renderComputers();
+    // เพิ่ม switch case ของหน้าอื่นที่เหลือตรงนี้ครับ
+  } catch(e) { console.error(e); alert(e.message); }
+}
+// ── CRUD: COMPUTERS ────────────────────────────────
+async function renderComputers() {
+  const computers = await getComputers();
+  const rows = computers.map(c => `<tr>
+    <td>${c.id}</td><td>${c.name}</td><td>${c.location||''}</td><td>${c.ip||''}</td>
+    ${state.role === 'admin' ? `<td><button class="btn" onclick="deleteComputer('${c.id}')">ลบ</button></td>` : ''}
+  </tr>`).join('');
+  document.getElementById('content').innerHTML = `<table><thead><tr><th>รหัส</th><th>ชื่อ</th><th>สถานที่</th><th>IP</th>${state.role === 'admin'?'<th></th>':''}</tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+async function deleteComputer(id) {
+  if(!confirm('ยืนยันการลบ?')) return;
+  const { error } = await sb.from('pm_computers').delete().eq('id', id);
+  if(error) alert(error.message); else renderComputers();
+}
+
+// ── CRUD: PM RECORDS ───────────────────────────────
+async function submitPM() {
+  const data = {
+    computer_code: document.getElementById('pm-computer').value,
+    month: parseInt(document.getElementById('pm-month').value),
+    year: parseInt(document.getElementById('pm-year').value),
+    operator: document.getElementById('pm-operator').value,
+    remark: document.getElementById('pm-remark').value
+    // เติมฟิลด์อื่นๆ ตามฟอร์มของคุณ
+  };
+  const { error } = await sb.from('pm_record_pm').insert(data);
+  if (error) alert('Error: ' + error.message);
+  else { alert('บันทึกเรียบร้อย'); }
+}
+
+async function renderHistory() {
+  const records = await getRecordPM();
+  const rows = records.map(r => `<tr>
+    <td>${r.record_date}</td><td>${r.computer_code}</td><td>${r.operator}</td>
+    ${state.role === 'admin' ? `<td><button class="btn" onclick="deletePM(${r.id})">ลบ</button></td>` : ''}
+  </tr>`).join('');
+  document.getElementById('content').innerHTML = `<table><thead><tr><th>วันที่</th><th>รหัสเครื่อง</th><th>ผู้ทำ</th>${state.role === 'admin'?'<th></th>':''}</tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+async function deletePM(id) {
+  if(!confirm('ยืนยันการลบ?')) return;
+  const { error } = await sb.from('pm_record_pm').delete().eq('id', id);
+  if(error) alert(error.message); else renderHistory();
+}
+
+// ── INIT ───────────────────────────────────────────
+// ตรวจสอบ Session เมื่อโหลดหน้าเว็บ
+sb.auth.getSession().then(({ data }) => {
+  if (data.session) {
+    state.session = data.session;
+    startApp('admin');
+  }
+});
+</script>
+</body>
+</html>
