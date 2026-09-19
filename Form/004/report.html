@@ -601,9 +601,12 @@ td {
 
 .modal {
   background: white;
-  border-radius: 36px;
-  max-width: 520px;
+  border-radius: 28px;
+  max-width: 460px;
   width: 100%;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
@@ -611,32 +614,34 @@ td {
 
 .modal-header {
   background: #F9FCFE;
-  padding: 20px 24px;
+  padding: 14px 20px;
   border-bottom: 1px solid #EDF4FC;
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
-  font-size: 18px;
+  font-size: 16px;
   color: #134A70;
   font-weight: 700;
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 16px 20px;
+  overflow-y: auto;
 }
 
 .modal-info {
   background: #F7FBFE;
-  border-radius: 24px;
-  padding: 14px 18px;
-  margin-bottom: 20px;
-  font-size: 14px;
+  border-radius: 18px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
 }
 
 .modal-info-row {
   display: flex;
   gap: 12px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .modal-info-label {
@@ -651,29 +656,35 @@ td {
 }
 
 .field-group {
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .field-group label {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #6C8FB0;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   text-transform: uppercase;
 }
 
 .field-group input {
   width: 100%;
-  border-radius: 24px;
-  padding: 11px 16px;
+  border-radius: 18px;
+  padding: 9px 14px;
   font-size: 14px;
+}
+
+.field-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .condition-radio-group {
   display: flex;
-  gap: 16px;
-  margin-top: 8px;
+  gap: 12px;
+  margin-top: 6px;
 }
 
 .cond-option {
@@ -682,14 +693,14 @@ td {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px;
+  padding: 8px;
   border-radius: 40px;
   border: 1.5px solid #E1EAF3;
   background: white;
   cursor: pointer;
   transition: 0.2s;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   color: #4F7396;
 }
 
@@ -708,27 +719,27 @@ td {
 .pin-field-group {
   background: #FFF8ED;
   border: 1.5px solid #F5DFAF;
-  border-radius: 24px;
-  padding: 14px 18px 18px;
-  margin-bottom: 18px;
+  border-radius: 18px;
+  padding: 10px 14px 12px;
+  margin-bottom: 4px;
 }
 
 .pin-field-group label {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #9A6E1F;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   text-transform: uppercase;
 }
 
 .pin-field-group input {
   width: 100%;
-  border-radius: 20px;
-  padding: 11px 16px;
-  font-size: 16px;
+  border-radius: 16px;
+  padding: 9px 14px;
+  font-size: 15px;
   letter-spacing: 4px;
   border: 1.5px solid #EBD6A2;
 }
@@ -748,18 +759,19 @@ td {
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  padding: 16px 24px 24px;
+  gap: 10px;
+  padding: 12px 20px;
   border-top: 1px solid #F0F5FC;
+  flex-shrink: 0;
 }
 
 .btn-modal {
-  padding: 10px 26px;
+  padding: 9px 22px;
   border-radius: 40px;
   font-weight: 600;
   border: none;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   transition: all 0.2s;
 }
 
@@ -824,6 +836,12 @@ td {
 
 .menu-toggle-btn {
   display: none;
+}
+
+@media (max-width: 480px) {
+  .modal-overlay { padding: 10px; }
+  .modal { max-height: 94vh; border-radius: 22px; }
+  .field-row-2 { grid-template-columns: 1fr; gap: 0; }
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -923,11 +941,15 @@ td {
     <div class="modal-header"><h3>↩️ บันทึกการรับคืน</h3></div>
     <div class="modal-body">
       <div class="modal-info"><div class="modal-info-row"><span class="modal-info-label">เลขที่คำขอ</span><span class="modal-info-value" id="modalReqNo">-</span></div><div class="modal-info-row"><span class="modal-info-label">ผู้ยืม</span><span class="modal-info-value" id="modalBorrower">-</span></div><div class="modal-info-row"><span class="modal-info-label">อุปกรณ์</span><span class="modal-info-value" id="modalEquip">-</span></div><div class="modal-info-row"><span class="modal-info-label">วันที่ยืม</span><span class="modal-info-value" id="modalBorrowDate">-</span></div></div>
-      <div class="field-group"><label>ลายมือชื่อผู้ส่งคืน <span style="color:#cf5c5c;">*</span></label><input type="text" id="returnSignature" placeholder="พิมพ์ชื่อ-นามสกุล"></div>
-      <div class="field-group"><label>วันที่ส่งคืน <span style="color:#cf5c5c;">*</span></label><input type="date" id="returnDateInput"></div>
+      <div class="field-row-2">
+        <div class="field-group"><label>ผู้ส่งคืน <span style="color:#cf5c5c;">*</span></label><input type="text" id="returnSignature" placeholder="ชื่อ-นามสกุล"></div>
+        <div class="field-group"><label>วันที่ส่งคืน <span style="color:#cf5c5c;">*</span></label><input type="date" id="returnDateInput"></div>
+      </div>
       <div class="field-group"><label>สภาพอุปกรณ์</label><div class="condition-radio-group"><div class="cond-option" id="condNormalOpt" onclick="selectCondition('ปกติ')">✅ ปกติ</div><div class="cond-option" id="condDamagedOpt" onclick="selectCondition('ชำรุด')">⚠️ ชำรุด</div></div></div>
-      <div class="field-group"><label>ลายมือชื่อเจ้าหน้าที่</label><input type="text" id="officerSignature" placeholder="ชื่อ-นามสกุล"></div>
-      <div class="field-group"><label>วันที่ตรวจสอบ</label><input type="date" id="officerDateInput"></div>
+      <div class="field-row-2">
+        <div class="field-group"><label>เจ้าหน้าที่</label><input type="text" id="officerSignature" placeholder="ชื่อ-นามสกุล"></div>
+        <div class="field-group"><label>วันที่ตรวจสอบ</label><input type="date" id="officerDateInput"></div>
+      </div>
       <div class="pin-field-group">
         <label>🔒 รหัส PIN ยืนยันเจ้าหน้าที่ IT <span style="color:#cf5c5c;">*</span></label>
         <input type="password" id="officerPin" placeholder="กรอกรหัส PIN" maxlength="12" inputmode="numeric">
