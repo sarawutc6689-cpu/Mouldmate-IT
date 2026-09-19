@@ -13,7 +13,6 @@
 }
 
 body {
-  /* ใช้ Sarabun เป็นหลัก + ฟอนต์สำรองราชการไทย Angsana New, Cordia New */
   font-family: 'Sarabun', 'Angsana New', 'Cordia New', 'IBM Plex Sans Thai', 'Noto Sans Thai', sans-serif;
   background: #F0F4FA;
   color: #1E2F45;
@@ -21,13 +20,11 @@ body {
   font-size: 15px;
 }
 
-/* ===== LAYOUT ===== */
 .app-container {
   display: flex;
   min-height: 100vh;
 }
 
-/* ===== SIDEBAR ===== */
 .sidebar {
   width: 280px;
   background: #FFFFFF;
@@ -55,25 +52,11 @@ body {
   gap: 12px;
 }
 
-.brand-icon {
-  width: 44px;
-  height: 44px;
-  background: linear-gradient(145deg, #1E5A8A, #124263);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 22px;
-  box-shadow: 0 8px 14px -6px rgba(27, 83, 124, 0.25);
-}
-
 .brand-text h2 {
   font-size: 18px;
   font-weight: 700;
   color: #0C2F4C;
   letter-spacing: -0.2px;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .brand-text p {
@@ -106,7 +89,6 @@ body {
   cursor: pointer;
   transition: all 0.2s;
   color: #3C607F;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .nav-item .nav-icon {
@@ -149,7 +131,6 @@ body {
   font-weight: 700;
   color: #7A97B5;
   letter-spacing: 0.5px;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .info-card .name {
@@ -159,12 +140,6 @@ body {
   margin: 6px 0 2px;
 }
 
-.info-card .role {
-  font-size: 12px;
-  color: #6A8AAD;
-}
-
-/* ===== MAIN CONTENT ===== */
 .main-content {
   margin-left: 280px;
   flex: 1;
@@ -172,7 +147,6 @@ body {
   width: calc(100% - 280px);
 }
 
-/* Top Bar */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -186,7 +160,6 @@ body {
   font-weight: 700;
   color: #0E3250;
   letter-spacing: -0.3px;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .page-title p {
@@ -195,29 +168,6 @@ body {
   margin-top: 4px;
 }
 
-.status-badge {
-  background: #EAF3FC;
-  padding: 6px 18px;
-  border-radius: 40px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #2670A3;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  background: #2F9B5E;
-  border-radius: 50%;
-  display: inline-block;
-  box-shadow: 0 0 0 2px #E2F0E8;
-}
-
-/* Hero Card */
 .hero-card {
   background: linear-gradient(115deg, #FFFFFF 0%, #F6FAFF 100%);
   border-radius: 32px;
@@ -232,7 +182,6 @@ body {
   font-weight: 600;
   color: #1A4A6F;
   margin-bottom: 6px;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .hero-card p {
@@ -240,7 +189,6 @@ body {
   font-size: 14px;
 }
 
-/* Summary Cards */
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -287,7 +235,6 @@ body {
   font-weight: 800;
   color: #103A5A;
   line-height: 1.2;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .summary-info .label {
@@ -298,7 +245,6 @@ body {
   margin-top: 4px;
 }
 
-/* Filter Panel */
 .filter-panel {
   background: white;
   border-radius: 28px;
@@ -316,7 +262,6 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .filter-grid {
@@ -337,7 +282,6 @@ body {
   color: #6F8EAE;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 input, select {
@@ -409,7 +353,6 @@ input:focus, select:focus {
   background: #247A49;
 }
 
-/* Tabs */
 .tab-bar {
   display: flex;
   gap: 8px;
@@ -456,7 +399,6 @@ input:focus, select:focus {
   color: white;
 }
 
-/* Table Card */
 .table-card {
   background: white;
   border-radius: 28px;
@@ -473,7 +415,6 @@ input:focus, select:focus {
   border-bottom: 1.5px solid #F0F5FC;
   font-size: 13px;
   color: #6F8DAB;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .table-wrap {
@@ -484,7 +425,6 @@ table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 thead tr {
@@ -500,7 +440,6 @@ thead th {
   color: #6181A3;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 tbody tr {
@@ -518,7 +457,6 @@ td {
   color: #1F4464;
 }
 
-/* Badges */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -528,7 +466,6 @@ td {
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .badge-active {
@@ -557,7 +494,6 @@ td {
 }
 
 .request-no {
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', monospace;
   font-weight: 700;
   color: #256E9E;
   font-size: 13px;
@@ -576,7 +512,6 @@ td {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .btn-return-sm:hover {
@@ -588,7 +523,6 @@ td {
   text-align: center;
   padding: 52px 20px;
   color: #8AACCB;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
   font-size: 14px;
 }
 
@@ -609,7 +543,6 @@ td {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Pagination */
 .pagination {
   display: flex;
   justify-content: space-between;
@@ -618,7 +551,6 @@ td {
   border-top: 1.5px solid #F0F5FC;
   font-size: 13px;
   color: #6082A5;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .page-btns {
@@ -632,7 +564,6 @@ td {
   border-radius: 12px;
   border: 1.5px solid #E1EAF3;
   background: white;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -651,7 +582,6 @@ td {
   color: #135A93;
 }
 
-/* Modal */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -688,7 +618,6 @@ td {
 .modal-header h3 {
   font-size: 18px;
   color: #134A70;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
   font-weight: 700;
 }
 
@@ -702,7 +631,6 @@ td {
   padding: 14px 18px;
   margin-bottom: 20px;
   font-size: 14px;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .modal-info-row {
@@ -733,7 +661,6 @@ td {
   color: #6C8FB0;
   margin-bottom: 6px;
   text-transform: uppercase;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .field-group input {
@@ -764,7 +691,6 @@ td {
   font-weight: 600;
   font-size: 14px;
   color: #4F7396;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .cond-option.active-normal {
@@ -777,6 +703,46 @@ td {
   background: #FEF0F0;
   border-color: #D46B6B;
   color: #B94B4B;
+}
+
+.pin-field-group {
+  background: #FFF8ED;
+  border: 1.5px solid #F5DFAF;
+  border-radius: 24px;
+  padding: 14px 18px 18px;
+  margin-bottom: 18px;
+}
+
+.pin-field-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9A6E1F;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.pin-field-group input {
+  width: 100%;
+  border-radius: 20px;
+  padding: 11px 16px;
+  font-size: 16px;
+  letter-spacing: 4px;
+  border: 1.5px solid #EBD6A2;
+}
+
+.pin-error {
+  display: none;
+  color: #C25B5B;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.pin-error.show {
+  display: block;
 }
 
 .modal-footer {
@@ -795,7 +761,6 @@ td {
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s;
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .btn-modal-cancel {
@@ -816,7 +781,6 @@ td {
   cursor: not-allowed;
 }
 
-/* Toast */
 .toast {
   position: fixed;
   bottom: 28px;
@@ -831,31 +795,21 @@ td {
   z-index: 1000;
   transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  font-family: 'Sarabun', 'Angsana New', 'Cordia New', sans-serif;
 }
 
 .toast.show {
   transform: translateX(-50%) translateY(0);
 }
 
-/* Responsive */
 @media (max-width: 900px) {
   .summary-grid { grid-template-columns: repeat(2,1fr); gap: 14px; }
   .filter-grid { grid-template-columns: repeat(2,1fr); }
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-  }
-  .sidebar.mobile-open {
-    transform: translateX(0);
-  }
-  .main-content {
-    margin-left: 0;
-    width: 100%;
-    padding: 20px;
-  }
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.mobile-open { transform: translateX(0); }
+  .main-content { margin-left: 0; width: 100%; padding: 20px; }
   .filter-grid { grid-template-columns: 1fr; }
   .top-bar { flex-direction: column; align-items: flex-start; gap: 12px; }
   .menu-toggle-btn {
@@ -876,17 +830,16 @@ td {
 <script>
   // Supabase project credentials (project: hr-master)
   // Project Settings → API → Project URL / anon public key
+  // ⚠️ ต้องเป็น URL/anon key ชุดเดียวกับที่ index.html ใช้งานได้แล้ว
   const SUPABASE_URL = 'https://fnbkcgkuykdabbensvif.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE';
 </script>
 </head>
 <body>
 <div class="app-container">
-  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="brand">
-       
         <div class="brand-text">
           <h2>แบบฟอร์มขอยืมอุปกรณ์</h2>
           <p>ระบบยืม-คืนอุปกรณ์</p>
@@ -911,7 +864,6 @@ td {
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <div class="main-content">
     <div class="top-bar">
       <div style="display: flex; align-items: center; gap: 10px;">
@@ -921,7 +873,6 @@ td {
           <p>IT Equipment Borrowing Report</p>
         </div>
       </div>
-    
     </div>
 
     <div class="hero-card">
@@ -929,7 +880,6 @@ td {
       <p>ตรวจสอบประวัติการขอยืมอุปกรณ์สารสนเทศ และดำเนินการรับคืน</p>
     </div>
 
-    <!-- Summary -->
     <div class="summary-grid">
       <div class="summary-card"><div class="summary-icon blue-light">📦</div><div class="summary-info"><div class="number" id="sumAll">0</div><div class="label">รายการทั้งหมด</div></div></div>
       <div class="summary-card"><div class="summary-icon amber-light">⏳</div><div class="summary-info"><div class="number" id="sumActive">0</div><div class="label">กำลังยืม</div></div></div>
@@ -937,7 +887,6 @@ td {
       <div class="summary-card"><div class="summary-icon red-light">⚠️</div><div class="summary-info"><div class="number" id="sumDamaged">0</div><div class="label">อุปกรณ์ชำรุด</div></div></div>
     </div>
 
-    <!-- Filter -->
     <div class="filter-panel">
       <div class="filter-title">🔍 ตัวกรองข้อมูล</div>
       <div class="filter-grid">
@@ -954,7 +903,6 @@ td {
       </div>
     </div>
 
-    <!-- Tabs -->
     <div class="tab-bar">
       <button class="tab-btn active" id="tabAll" onclick="setTab('all')">ทั้งหมด <span class="tab-count" id="tcAll">0</span></button>
       <button class="tab-btn" id="tabActive" onclick="setTab('active')">กำลังยืม <span class="tab-count" id="tcActive">0</span></button>
@@ -962,7 +910,6 @@ td {
       <button class="tab-btn" id="tabDamaged" onclick="setTab('damaged')">ชำรุด <span class="tab-count" id="tcDamaged">0</span></button>
     </div>
 
-    <!-- Table -->
     <div class="table-card">
       <div class="table-header"><span>แสดง <strong id="rowCount">0</strong> รายการ</span><span id="updateTime"></span></div>
       <div id="tableContainer"><div class="loading-state"><div class="loading-spinner"></div><p>กำลังโหลดข้อมูล...</p></div></div>
@@ -971,7 +918,6 @@ td {
   </div>
 </div>
 
-<!-- Modal Return -->
 <div class="modal-overlay" id="returnModal">
   <div class="modal">
     <div class="modal-header"><h3>↩️ บันทึกการรับคืน</h3></div>
@@ -982,6 +928,11 @@ td {
       <div class="field-group"><label>สภาพอุปกรณ์</label><div class="condition-radio-group"><div class="cond-option" id="condNormalOpt" onclick="selectCondition('ปกติ')">✅ ปกติ</div><div class="cond-option" id="condDamagedOpt" onclick="selectCondition('ชำรุด')">⚠️ ชำรุด</div></div></div>
       <div class="field-group"><label>ลายมือชื่อเจ้าหน้าที่</label><input type="text" id="officerSignature" placeholder="ชื่อ-นามสกุล"></div>
       <div class="field-group"><label>วันที่ตรวจสอบ</label><input type="date" id="officerDateInput"></div>
+      <div class="pin-field-group">
+        <label>🔒 รหัส PIN ยืนยันเจ้าหน้าที่ IT <span style="color:#cf5c5c;">*</span></label>
+        <input type="password" id="officerPin" placeholder="กรอกรหัส PIN" maxlength="12" inputmode="numeric">
+        <div class="pin-error" id="pinError">รหัส PIN ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</div>
+      </div>
     </div>
     <div class="modal-footer"><button class="btn-modal btn-modal-cancel" onclick="closeModal()">ยกเลิก</button><button class="btn-modal btn-modal-save" id="saveReturnBtn" onclick="confirmReturn()">💾 บันทึกการคืน</button></div>
   </div>
@@ -990,7 +941,10 @@ td {
 <div class="toast" id="toastMsg"></div>
 
 <script>
-  // Supabase client (SUPABASE_URL / SUPABASE_ANON_KEY are set above)
+  // ⚠️ ตั้งค่ารหัส PIN ยืนยันสำหรับเจ้าหน้าที่ IT ที่มีสิทธิ์บันทึกการรับคืนอุปกรณ์
+  // เปลี่ยนค่านี้เป็นรหัสที่ต้องการ แล้วแจ้งเฉพาะเจ้าหน้าที่ IT เท่านั้น
+  const OFFICER_RETURN_PIN = 'mm169Moo4';
+
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let fullData = [], filteredMaster = [], currentTabData = [];
@@ -1000,7 +954,6 @@ td {
   document.getElementById('returnDateInput').valueAsDate = new Date();
   window.onload = () => { loadReports(); };
 
-  // Map a Supabase row (snake_case) to the camelCase shape the rest of this page expects
   function mapRow(r) {
     return {
       requestNo: r.request_no,
@@ -1057,9 +1010,9 @@ td {
     filteredMaster = fullData.filter(r => {
       if (from && r.borrowDate < from) return false;
       if (to && r.borrowDate > to) return false;
-      if (emp && !r.employeeCode.toLowerCase().includes(emp) && !r.borrowerName.toLowerCase().includes(emp)) return false;
-      if (dept && !r.department.toLowerCase().includes(dept) && !r.section.toLowerCase().includes(dept)) return false;
-      if (equip && !r.equipment.toLowerCase().includes(equip)) return false;
+      if (emp && !(r.employeeCode||'').toLowerCase().includes(emp) && !(r.borrowerName||'').toLowerCase().includes(emp)) return false;
+      if (dept && !(r.department||'').toLowerCase().includes(dept) && !(r.section||'').toLowerCase().includes(dept)) return false;
+      if (equip && !(r.equipment||'').toLowerCase().includes(equip)) return false;
       return true;
     });
     setTab(currentTab, true);
@@ -1133,6 +1086,8 @@ td {
     document.getElementById('returnDateInput').valueAsDate = new Date();
     document.getElementById('officerSignature').value = '';
     document.getElementById('officerDateInput').value = '';
+    document.getElementById('officerPin').value = '';
+    document.getElementById('pinError').classList.remove('show');
     selectedCondition = '';
     document.getElementById('condNormalOpt').classList.remove('active-normal');
     document.getElementById('condDamagedOpt').classList.remove('active-damaged');
@@ -1150,9 +1105,20 @@ td {
     const retDate = document.getElementById('returnDateInput').value;
     const officerSig = document.getElementById('officerSignature').value.trim();
     const officerDate = document.getElementById('officerDateInput').value;
+    const enteredPin = document.getElementById('officerPin').value.trim();
+    const pinErrorEl = document.getElementById('pinError');
     if (!signature) { alert('กรุณากรอกลายมือชื่อผู้ส่งคืน'); return; }
     if (!retDate) { alert('กรุณาเลือกวันที่ส่งคืน'); return; }
     if (!selectedCondition) { alert('กรุณาเลือกสภาพอุปกรณ์'); return; }
+    if (!enteredPin) { pinErrorEl.innerText = 'กรุณากรอกรหัส PIN ยืนยัน'; pinErrorEl.classList.add('show'); return; }
+    if (enteredPin !== OFFICER_RETURN_PIN) {
+      pinErrorEl.innerText = 'รหัส PIN ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง';
+      pinErrorEl.classList.add('show');
+      document.getElementById('officerPin').value = '';
+      document.getElementById('officerPin').focus();
+      return;
+    }
+    pinErrorEl.classList.remove('show');
     if (!currentReturnRecord) return;
     const saveBtn = document.getElementById('saveReturnBtn');
     saveBtn.disabled = true; saveBtn.innerText = '⏳ กำลังบันทึก...';
