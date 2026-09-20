@@ -539,6 +539,48 @@
   .logout-btn .ic { width: 16px; height: 16px; }
   .login-btn, .user-login-btn { width: 100%; }
   .login-btn .ic, .user-login-btn .ic, .btn .ic { width: 18px; height: 18px; }
+
+  /* ── ตารางกว้าง: หัวตารางค้างด้านบน · คอลัมน์ชื่อเครื่องค้างซ้าย · ปุ่มจัดการค้างขวา ── */
+  .table-wrap.fit { overflow: auto; position: relative; }
+  .table-wrap.fit table { border-collapse: separate; border-spacing: 0; }
+  .table-wrap.fit thead th { position: sticky; top: 0; z-index: 3; background: var(--navy); }
+  .table-wrap.fit tbody tr { --row-bg: var(--white); }
+  .table-wrap.fit tbody tr:nth-child(even) { --row-bg: #f8fbff; }
+  .table-wrap.fit tbody tr:hover { --row-bg: var(--sky-pale); }
+  .table-wrap.fit tbody tr.selected-row { --row-bg: #d2e8fc; }
+  .table-wrap.fit tbody tr.selected-row:hover { --row-bg: #c3ddf7; }
+  .table-wrap.fit tbody tr td { background: var(--row-bg); }
+
+  /* แถวละบรรทัดเดียว กะทัดรัด — คอลัมน์กว้างตามข้อมูลจริง ข้อความที่ยาวมากถูกตัดด้วย … (เอาเมาส์ชี้เพื่อดูทั้งหมด) */
+  .table-wrap.compact th { padding: 10px 12px; }
+  .table-wrap.compact td { padding: 6px 12px; line-height: 1.3; white-space: nowrap; }
+  .clip { display: inline-block; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+
+  .table-wrap.fit th.sticky-col, .table-wrap.fit td.sticky-col { position: sticky; left: 0; z-index: 2; }
+  .table-wrap.fit th.sticky-act, .table-wrap.fit td.sticky-act { position: sticky; right: 0; z-index: 2; }
+  .table-wrap.fit th.sticky-col, .table-wrap.fit th.sticky-act { z-index: 4; }
+  .table-wrap.fit td.sticky-col { box-shadow: 4px 0 6px -4px rgba(13,43,78,0.28); }
+  .table-wrap.fit td.sticky-act { box-shadow: -4px 0 6px -4px rgba(13,43,78,0.28); }
+  .table-wrap.fit tbody tr.selected-row td.sticky-col { box-shadow: inset 4px 0 0 var(--navy-light), 4px 0 6px -4px rgba(13,43,78,0.28); }
+  .table-wrap.compact td.sticky-act .btn-group { flex-wrap: nowrap; }
+
+  /* ตัวอักษรไทยห้ามเว้นระหว่างตัวมากเกินไป (ตัวอ่านยาก) */
+  .nav-label, .section-heading, .info-box-title, .info-box-label, .stat-label, th, .login-logo-sub, .sidebar-subtitle { letter-spacing: 0.3px; }
+
+  /* ตารางกว้างต้องเลื่อนอยู่ภายในกรอบของตัวเอง — ถ้าไม่ตั้ง min-width:0 กล่อง flex จะขยายตามความกว้างตาราง
+     ทำให้ทั้งหน้าเลื่อนออกด้านข้าง (ปุ่มค้นหา/พิมพ์หลุดนอกจอ และค้างคอลัมน์ไม่ได้) */
+  #main, .content, .card { min-width: 0; }
+  .table-wrap.compact td .btn { padding: 3px 10px; font-size: 12pt; line-height: 1.25; gap: 4px; }
+
+  /* หัวการ์ดแบบกะทัดรัด (หน้าที่มีตารางยาว) เพื่อให้เห็นแถวได้มากที่สุด */
+  .card.tight { padding: 18px 22px 20px; }
+  .card.tight .card-header { margin-bottom: 14px; padding-bottom: 0; border-bottom: none; gap: 10px 16px; flex-wrap: wrap; }
+  .card.tight .card-title { flex-wrap: wrap; }
+  .card-note { font-size: 13pt; font-weight: 400; color: var(--text-muted); margin-left: 4px; }
+  .card.tight .search-bar { gap: 8px; }
+  .card.tight .search-bar select, .card.tight .search-bar input { padding: 6px 10px; font-size: 13pt; width: auto; }
+  .card.tight .search-bar input { width: 220px; }
+  .page-title, .page-subtitle { line-height: 1.3; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1122,14 +1164,15 @@ function renderHistoryTable(records) {
   const delHeader = showDelete ? '<th></th>' : '';
   setContent(`
     ${readonlyNotice()}
-    <div class="card">
+    <div class="card tight">
       <div class="card-header"><div class="card-title"><div class="card-title-icon"><svg class="ic"><use href="#i-history"/></svg></div>ประวัติการบำรุงรักษา (${records.length} รายการ)</div></div>
-      <div class="table-wrap"><table>
+      <div class="table-wrap fit"><table>
         <thead><tr><th>วันที่บันทึก</th><th>ชื่อเครื่อง</th><th>แผนก</th><th>เดือน/ปี</th><th>ผู้ปฏิบัติงาน</th><th>รายการตรวจสอบ</th>${delHeader}</tr></thead>
         <tbody>${rows || `<tr><td colspan="7" class="empty">ไม่มีข้อมูล</td></tr>`}</tbody>
       </table></div>
     </div>`);
   applySelection();
+  fitTables();
 }
 
 function filterHistory() {
@@ -1173,18 +1216,17 @@ async function renderComputers() {
   const types = [...new Set([...COMPUTER_TYPES, ...computers.map(c => c.type)])].filter(Boolean);
   setContent(`
     ${readonlyNotice()}
-    <div class="card">
+    <div class="card tight">
       <div class="card-header">
-        <div class="card-title"><div class="card-title-icon"><svg class="ic"><use href="#i-computer"/></svg></div>ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ</div>
+        <div class="card-title"><div class="card-title-icon"><svg class="ic"><use href="#i-computer"/></svg></div>ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ <span id="cf-summary" class="card-note"></span></div>
         <div class="search-bar">
           <select id="cf-dept" onchange="applyComputerFilter()"><option value="">ทุกแผนก</option>${state.departments.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join('')}</select>
           <select id="cf-type" onchange="applyComputerFilter()"><option value="">ทุกประเภท</option>${types.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')}</select>
-          <input id="cf-q" oninput="applyComputerFilter()" placeholder="ค้นหา ชื่อเครื่อง / ผู้ใช้ / SN ..." style="width:230px">
+          <input id="cf-q" oninput="applyComputerFilter()" placeholder="ค้นหา ชื่อเครื่อง / ผู้ใช้ / SN ...">
           <button class="btn btn-outline btn-sm" onclick="printRegister()">🖨 พิมพ์ทะเบียน</button>
         </div>
       </div>
-      <div id="cf-summary" style="margin-bottom:14px;font-size: 14pt;color:var(--text-muted)"></div>
-      <div class="table-wrap" id="cf-table"></div>
+      <div class="table-wrap fit compact" id="cf-table"></div>
     </div>`);
   $('cf-dept').value = state.cf.dept; $('cf-type').value = state.cf.type; $('cf-q').value = state.cf.q;
   applyComputerFilter();
@@ -1197,28 +1239,38 @@ function filteredComputers() {
     (!q || [c.computerName, c.loginName, c.brand, c.model, c.sn, c.cpu, c.department].some(v => String(v || '').toLowerCase().includes(q))));
 }
 
+// ลำดับคอลัมน์บนหน้าจอ: ชื่อเครื่องมาก่อน (ค้างซ้ายไว้) — ส่วนหน้าพิมพ์ยังเรียงตามแบบฟอร์ม FOM 014 เดิม
+const SCREEN_COLS = ['computerName','department','type','loginName','brand','model','sn','cpu','storage','ram','windows',
+  'msOffice','etc','monitor','modelMonitor','snMonitor','usb','remark'];
+const HEAD_OF = Object.fromEntries(REGISTER_COLS.map((k, i) => [k, REGISTER_HEADS[i]]));
+
 function applyComputerFilter() {
   const list = filteredComputers();
   const count = {}; state.computers.forEach(c => { const k = nameKey(c.computerName); if (k) count[k] = (count[k] || 0) + 1; });
-  const editor = isEditor(), admin = isAdmin();
+  const editor = isEditor(), admin = isAdmin(), hasAct = editor || admin;
   const rows = list.map(c => {
     const k = nameKey(c.computerName);
     const flag = !k ? ' <span class="badge badge-warning">ไม่มีชื่อ</span>' : count[k] > 1 ? ' <span class="badge badge-warning">ชื่อซ้ำ</span>' : '';
-    const tds = REGISTER_COLS.map(col => col === 'computerName'
-      ? `<td><strong>${esc(c.computerName)}</strong>${flag}</td>` : `<td>${esc(c[col])}</td>`).join('');
-    const act = (editor || admin) ? `<td><div class="btn-group">
+    const tds = SCREEN_COLS.map(col => {
+      if (col === 'computerName') return `<td class="sticky-col"><strong>${esc(c.computerName)}</strong>${flag}</td>`;
+      const v = String(c[col] == null ? '' : c[col]);
+      return `<td><span class="clip"${v.length > 24 ? ` title="${esc(v)}"` : ''}>${esc(v)}</span></td>`;
+    }).join('');
+    const act = hasAct ? `<td class="sticky-act"><div class="btn-group">
       ${editor ? `<button class="btn btn-outline btn-sm" data-id="${esc(c.id)}" onclick="openComputerModal(this.dataset.id)">✏️ แก้ไข</button>` : ''}
       ${admin ? `<button class="btn btn-danger btn-sm" data-id="${esc(c.id)}" onclick="deleteComputer(this.dataset.id)">🗑 ลบ</button>` : ''}
     </div></td>` : '';
     return `<tr data-key="${esc(c.id)}">${tds}${act}</tr>`;
   }).join('');
-  const heads = REGISTER_HEADS.map(h => `<th>${h}</th>`).join('') + ((editor || admin) ? '<th></th>' : '');
+  const heads = SCREEN_COLS.map(k => `<th${k === 'computerName' ? ' class="sticky-col"' : ''}>${HEAD_OF[k]}</th>`).join('')
+    + (hasAct ? '<th class="sticky-act"></th>' : '');
   const n = t => list.filter(c => c.type === t).length;
   $('cf-summary').textContent = `พบ ${list.length} รายการ  (PC: ${n('PC')}  Laptop: ${n('Laptop')})`;
   $('cf-table').innerHTML = list.length
     ? `<table><thead><tr>${heads}</tr></thead><tbody>${rows}</tbody></table>`
     : `<div class="empty">ไม่พบข้อมูลที่ตรงกับการค้นหา</div>`;
   applySelection();
+  fitTables();
 }
 
 function openComputerModal(id) {
@@ -1313,13 +1365,13 @@ function printRegister() {
 async function renderUsers() {
   const users = await call('getUsers'); state.users = users;
   setContent(`
-    <div class="card">
+    <div class="card tight">
       <div class="card-header">
         <div class="card-title"><div class="card-title-icon"><svg class="ic"><use href="#i-users"/></svg></div>รายชื่อผู้ใช้งาน (<span id="u-count">${users.length}</span> คน)</div>
         <div class="search-bar"><input id="u-q" oninput="filterUsers()" placeholder="ค้นหา ชื่อ / รหัส / แผนก ..." style="width:260px"></div>
       </div>
       <div class="readonly-notice" style="margin-bottom:16px">ℹ️ ข้อมูลนี้มาจากตาราง employees ใช้ร่วมกับระบบแจ้งซ่อม — หน้านี้ดูอย่างเดียว</div>
-      <div class="table-wrap" id="u-table"></div>
+      <div class="table-wrap fit" id="u-table"></div>
     </div>`);
   filterUsers();
 }
@@ -1332,6 +1384,7 @@ function filterUsers() {
   $('u-table').innerHTML = `<table><thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>แผนก</th><th>ส่วนงาน</th><th>ตำแหน่ง</th></tr></thead>
     <tbody>${rows || '<tr><td colspan="5" class="empty">ไม่พบข้อมูล</td></tr>'}</tbody></table>`;
   applySelection();
+  fitTables();
 }
 
 // ── ROW SELECTION (แถบไฮไลท์สีฟ้าค้างไว้จนกว่าจะเลือกแถวอื่น) ──
@@ -1347,6 +1400,18 @@ $('content').addEventListener('click', e => {
   state.sel[state.page] = tr.dataset.key;
   applySelection();
 });
+
+// ── FIT TABLES: ให้ตารางสูงพอดีหน้าจอ → เลื่อนเฉพาะในตาราง หัวตารางจึงค้างอยู่เสมอ ──
+function fitTables() {
+  document.querySelectorAll('#content .table-wrap.fit').forEach(el => {
+    const top = el.getBoundingClientRect().top + window.scrollY;      // ตำแหน่งจริงในหน้า (ไม่ขึ้นกับว่าเลื่อนอยู่หรือไม่)
+    const h = Math.max(260, window.innerHeight - top - 24);
+    el.style.maxHeight = h + 'px';
+    const over = document.documentElement.scrollHeight - window.innerHeight;   // ถ้าทั้งหน้ายังเกินจอ ให้ลดลงเท่าส่วนที่เกิน
+    if (over > 0) el.style.maxHeight = Math.max(260, h - over) + 'px';
+  });
+}
+window.addEventListener('resize', fitTables);
 
 // ── MODAL ──────────────────────────────────────────
 function closeModal() { document.getElementById('modal').classList.remove('show'); }
