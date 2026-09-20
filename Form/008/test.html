@@ -581,6 +581,7 @@
   .card.tight .search-bar select, .card.tight .search-bar input { padding: 6px 10px; font-size: 13pt; width: auto; }
   .card.tight .search-bar input { width: 220px; }
   .page-title, .page-subtitle { line-height: 1.3; }
+  a.btn { text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -685,9 +686,16 @@
 const SUPABASE_URL      = 'https://fuarmmweqxxhczavkvqp.supabase.co';
 // ใส่ anon public key (eyJ...) หรือ publishable key (sb_publishable_...) จาก Supabase → Project Settings → API
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
-const KEY_OK = !SUPABASE_ANON_KEY.includes('ตรงนี้');
+// กันพลาด: ถ้าเผลอใส่ secret / service_role key (ใครเปิดดูซอร์สก็เห็นและแก้ฐานข้อมูลได้ทั้งหมด) หน้านี้จะไม่ทำงาน
+function isSecretKey(k) {
+  if (/^sb_secret_/.test(k)) return true;
+  try { return JSON.parse(atob(k.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).role === 'service_role'; } catch (e) { return false; }
+}
+const KEY_OK = !SUPABASE_ANON_KEY.includes('ตรงนี้') && !isSecretKey(SUPABASE_ANON_KEY);
 // โลโก้องค์กร (ไม่บังคับ): ใส่ที่อยู่ไฟล์ภาพ เช่น 'logo.png' หรือ URL เต็ม — ถ้าเว้นว่างจะใช้โลโก้ค่าเริ่มต้น
 const LOGO_URL = '';
+// หน้าจัดการข้อมูลเครื่อง (Asset) — เพิ่ม/แก้ไข/ลบเครื่องทำที่หน้านั้น หน้านี้ดูอย่างเดียว
+const ASSET_PAGE_URL = 'asset-register.html';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ═══════════════════════════════════════════════════
@@ -751,9 +759,6 @@ const API = {
     try { return (await fetchAll('asset_departments', q => q.order('code'))).map(r => r.code); }
     catch (e) { console.warn('asset_departments:', e.message); return []; }
   },
-  addComputer:    d => run(sb.from('assets').insert(toDb(d))),
-  updateComputer: d => { const { id, ...rest } = d; return run(sb.from('assets').update(toDb(rest)).eq('id', id)); },
-  deleteComputer: id => run(sb.from('assets').delete().eq('id', id)),
 
   // ── พนักงาน (employees) — อ่านอย่างเดียว ──
   getUsers: async () => (await fetchAll('employees', q => q.order('id'))).map(fromDb).sort((a, b) => nat(a.empCode, b.empCode)),
@@ -896,7 +901,7 @@ function showPage(page) {
     'dashboard': ['Dashboard','ภาพรวมระบบบำรุงรักษาคอมพิวเตอร์'],
     'record-pm': ['บันทึก PM','บันทึกการบำรุงรักษาประจำเดือน'],
     'history':   ['ประวัติการ PM','ดูประวัติการบำรุงรักษาทั้งหมด'],
-    'computers': ['ข้อมูลเครื่อง','ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ (FOM 014)'],
+    'computers': ['ข้อมูลเครื่อง','ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ (FOM 014) — ดูอย่างเดียว'],
     'users':     ['รายชื่อผู้ใช้งาน','รายชื่อพนักงานจากตาราง employees (ดูอย่างเดียว)']
   };
   document.getElementById('page-title').textContent    = titles[page][0];
@@ -1196,12 +1201,6 @@ async function deletePM(id) {
 
 // ── COMPUTERS (ทะเบียนคอมพิวเตอร์ FOM 014) ─────────────
 state.cf = { dept: '', type: '', q: '' };
-const COMPUTER_FIELDS = ['department','type','loginName','computerName','brand','model','sn','cpu','storage','ram','windows',
-  'msOffice','etc','monitor','modelMonitor','snMonitor','usb','remark','ip','vga','mainboard','keyboard','mouse'];
-const COMPUTER_LABELS = { department:'แผนก *', type:'ประเภท *', loginName:'ผู้ใช้ (User)', computerName:'ชื่อเครื่อง (Computer Name) *',
-  brand:'ยี่ห้อ (Brand)', model:'รุ่น (Model)', sn:'Serial Number', cpu:'CPU', storage:'Harddisk', ram:'RAM', windows:'Windows',
-  msOffice:'MS Office', etc:'ETC', monitor:'Monitor', modelMonitor:'Model Monitor', snMonitor:'SN Monitor', usb:'USB',
-  remark:'หมายเหตุ', ip:'IP Address', vga:'VGA', mainboard:'Mainboard', keyboard:'Keyboard', mouse:'Mouse' };
 const REGISTER_COLS = ['department','type','loginName','computerName','brand','model','sn','cpu','storage','ram','windows',
   'msOffice','etc','monitor','modelMonitor','snMonitor','usb','remark'];
 const REGISTER_HEADS = ['Department','Type','User','Computer Name','Brand','Model','SN','CPU','Harddisk','RAM','Windows',
@@ -1212,10 +1211,10 @@ async function renderComputers() {
   const [computers, depts] = await Promise.all([call('getComputers'), call('getDepartments')]);
   state.computers = computers;
   state.departments = [...new Set([...depts, ...computers.map(c => c.department)])].filter(Boolean).sort(nat);
-  if (isEditor()) setTopbarActions(`<button class="btn btn-primary" onclick="openComputerModal(null)">➕ เพิ่มเครื่องใหม่</button>`);
+  setTopbarActions(`<a class="btn btn-outline" href="${esc(ASSET_PAGE_URL)}" target="_blank" rel="noopener">จัดการข้อมูลเครื่อง (หน้า Asset) ↗</a>`);
   const types = [...new Set([...COMPUTER_TYPES, ...computers.map(c => c.type)])].filter(Boolean);
   setContent(`
-    ${readonlyNotice()}
+    <div class="readonly-notice" style="background:var(--sky-pale);border-color:var(--border);color:var(--navy-mid)">ℹ️ หน้านี้ดูอย่างเดียว — เพิ่ม / แก้ไข / ลบข้อมูลเครื่องได้ที่ <a href="${esc(ASSET_PAGE_URL)}" target="_blank" rel="noopener" style="color:inherit;font-weight:700">หน้า Asset</a> (ใช้ฐานข้อมูลเดียวกัน)</div>
     <div class="card tight">
       <div class="card-header">
         <div class="card-title"><div class="card-title-icon"><svg class="ic"><use href="#i-computer"/></svg></div>ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ <span id="cf-summary" class="card-note"></span></div>
@@ -1247,7 +1246,6 @@ const HEAD_OF = Object.fromEntries(REGISTER_COLS.map((k, i) => [k, REGISTER_HEAD
 function applyComputerFilter() {
   const list = filteredComputers();
   const count = {}; state.computers.forEach(c => { const k = nameKey(c.computerName); if (k) count[k] = (count[k] || 0) + 1; });
-  const editor = isEditor(), admin = isAdmin(), hasAct = editor || admin;
   const rows = list.map(c => {
     const k = nameKey(c.computerName);
     const flag = !k ? ' <span class="badge badge-warning">ไม่มีชื่อ</span>' : count[k] > 1 ? ' <span class="badge badge-warning">ชื่อซ้ำ</span>' : '';
@@ -1256,14 +1254,9 @@ function applyComputerFilter() {
       const v = String(c[col] == null ? '' : c[col]);
       return `<td><span class="clip"${v.length > 24 ? ` title="${esc(v)}"` : ''}>${esc(v)}</span></td>`;
     }).join('');
-    const act = hasAct ? `<td class="sticky-act"><div class="btn-group">
-      ${editor ? `<button class="btn btn-outline btn-sm" data-id="${esc(c.id)}" onclick="openComputerModal(this.dataset.id)">✏️ แก้ไข</button>` : ''}
-      ${admin ? `<button class="btn btn-danger btn-sm" data-id="${esc(c.id)}" onclick="deleteComputer(this.dataset.id)">🗑 ลบ</button>` : ''}
-    </div></td>` : '';
-    return `<tr data-key="${esc(c.id)}">${tds}${act}</tr>`;
+    return `<tr data-key="${esc(c.id)}">${tds}</tr>`;
   }).join('');
-  const heads = SCREEN_COLS.map(k => `<th${k === 'computerName' ? ' class="sticky-col"' : ''}>${HEAD_OF[k]}</th>`).join('')
-    + (hasAct ? '<th class="sticky-act"></th>' : '');
+  const heads = SCREEN_COLS.map(k => `<th${k === 'computerName' ? ' class="sticky-col"' : ''}>${HEAD_OF[k]}</th>`).join('');
   const n = t => list.filter(c => c.type === t).length;
   $('cf-summary').textContent = `พบ ${list.length} รายการ  (PC: ${n('PC')}  Laptop: ${n('Laptop')})`;
   $('cf-table').innerHTML = list.length
@@ -1271,53 +1264,6 @@ function applyComputerFilter() {
     : `<div class="empty">ไม่พบข้อมูลที่ตรงกับการค้นหา</div>`;
   applySelection();
   fitTables();
-}
-
-function openComputerModal(id) {
-  if (!isEditor()) { alert('เฉพาะ Admin / Technician เท่านั้น'); return; }
-  const c = id ? state.computers.find(x => x.id === id) : null;
-  const isEdit = !!c;
-  const val = k => esc(c ? c[k] : '');
-  const dep = c ? c.department : state.cf.dept;
-  const depList = [...new Set([...state.departments, dep])].filter(Boolean);
-  const typeList = [...new Set([...COMPUTER_TYPES, c ? c.type : ''])].filter(Boolean);
-  const field = k => {
-    if (k === 'department') return `<div class="form-group"><label>${COMPUTER_LABELS[k]}</label><select id="c-department"><option value="">— เลือกแผนก —</option>${depList.map(d => `<option value="${esc(d)}" ${d === dep ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select></div>`;
-    if (k === 'type') return `<div class="form-group"><label>${COMPUTER_LABELS[k]}</label><select id="c-type"><option value="">— เลือกประเภท —</option>${typeList.map(t => `<option value="${esc(t)}" ${c && t === c.type ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></div>`;
-    if (k === 'remark') return `<div class="form-group full"><label>${COMPUTER_LABELS[k]}</label><input id="c-remark" value="${val(k)}"></div>`;
-    return `<div class="form-group"><label>${COMPUTER_LABELS[k]}</label><input id="c-${k}" value="${val(k)}"></div>`;
-  };
-  $('modal-title').textContent = isEdit ? '✏️ แก้ไขข้อมูลเครื่อง' : '➕ เพิ่มเครื่องใหม่';
-  $('modal-body').innerHTML = `
-    <div class="form-grid">${COMPUTER_FIELDS.map(field).join('')}</div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" data-id="${esc(c ? c.id : '')}" onclick="saveComputer(this.dataset.id)">💾 ${isEdit ? 'บันทึกการแก้ไข' : 'เพิ่มเครื่อง'}</button>
-    </div>`;
-  $('modal').classList.add('show');
-}
-
-async function saveComputer(id) {
-  if (!isEditor()) { alert('เฉพาะ Admin / Technician เท่านั้น'); return; }
-  const d = {}; COMPUTER_FIELDS.forEach(k => { d[k] = $('c-' + k).value.trim(); });
-  if (!d.department || !d.type || !d.computerName) { alert('กรุณากรอก แผนก / ประเภท / ชื่อเครื่อง'); return; }
-  const old = id ? state.computers.find(c => c.id === id) : null;
-  const nameChanged = !old || nameKey(old.computerName) !== nameKey(d.computerName);
-  if (nameChanged && state.computers.some(c => c.id !== id && nameKey(c.computerName) === nameKey(d.computerName))) {
-    alert(`ชื่อเครื่อง "${d.computerName}" มีอยู่แล้ว กรุณาใช้ชื่อที่ไม่ซ้ำ`); return;
-  }
-  try {
-    if (id) { d.id = id; await call('updateComputer', d); } else { await call('addComputer', d); }
-    closeModal(); await renderComputers(); alert(id ? 'แก้ไขเรียบร้อย' : 'เพิ่มเครื่องเรียบร้อย');
-  } catch (e) { alert('เกิดข้อผิดพลาด: ' + e.message); }
-}
-
-async function deleteComputer(id) {
-  if (!isAdmin()) { alert('เฉพาะ Admin เท่านั้น'); return; }
-  const c = state.computers.find(x => x.id === id);
-  if (!confirm(`ยืนยันการลบเครื่อง ${c ? c.computerName : ''}?\n(ประวัติ PM ของเครื่องนี้ยังคงอยู่)`)) return;
-  try { await call('deleteComputer', id); await renderComputers(); alert('ลบเรียบร้อย'); }
-  catch (e) { alert('เกิดข้อผิดพลาด: ' + e.message); }
 }
 
 // พิมพ์ทะเบียน (ตามตัวกรองที่เลือกอยู่)
