@@ -182,6 +182,7 @@
   }
   .role-badge.admin { background: var(--sky-light); color: var(--navy-mid); }
   .role-badge.user  { background: var(--success-light); color: var(--success); }
+  .role-badge.tech  { background: var(--warning-light); color: var(--warning); }
   .logout-btn {
     padding: 7px 16px;
     background: var(--bg);
@@ -252,8 +253,8 @@
   .nav-item.active { background: rgba(59,143,212,0.20); color: #FFFFFF; border-left-color: var(--sky); font-weight: 600; }
   .nav-item.active .nav-icon { color: var(--sky); }
   .nav-icon { font-size: 17px; width: 20px; text-align: center; }
-  .nav-item.admin-only { display: none; }
-  .nav-item.admin-only.show { display: flex; }
+  .nav-item.editor-only { display: none; }
+  .nav-item.editor-only.show { display: flex; }
   .sidebar-footer {
     margin-top: auto;
     padding: 16px 22px;
@@ -351,6 +352,10 @@
   tr:last-child td { border-bottom: none; }
   tbody tr { transition: background 0.12s; }
   tbody tr:hover td { background: var(--sky-pale); }
+  tbody tr[data-key] { cursor: pointer; }
+  tbody tr.selected-row td { background: #d2e8fc; }
+  tbody tr.selected-row:hover td { background: #c3ddf7; }
+  tbody tr.selected-row td:first-child { box-shadow: inset 4px 0 0 var(--navy-light); }
 
   /* ── BADGES ───────────────────────────────────────── */
   .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.2px; }
@@ -530,11 +535,15 @@
 
     <!-- Admin Login -->
     <div class="login-field">
-      <label> รหัสผ่าน Admin</label>
-      <input type="password" id="admin-password" placeholder="ใส่รหัสผ่าน Admin" onkeydown="if(event.key==='Enter') loginAdmin()">
+      <label>อีเมล</label>
+      <input type="email" id="login-email" placeholder="อีเมลที่ลงทะเบียนไว้" autocomplete="username" onkeydown="if(event.key==='Enter') $('admin-password').focus()">
+    </div>
+    <div class="login-field">
+      <label>รหัสผ่าน</label>
+      <input type="password" id="admin-password" placeholder="ใส่รหัสผ่าน" autocomplete="current-password" onkeydown="if(event.key==='Enter') loginAdmin()">
     </div>
     <div class="login-error" id="login-error">❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่</div>
-    <button class="login-btn" onclick="loginAdmin()"> เข้าสู่ระบบ (Admin)</button>
+    <button class="login-btn" onclick="loginAdmin()"> เข้าสู่ระบบ (Admin / Technician)</button>
 
     <div class="login-divider">─── หรือ ───</div>
 
@@ -561,14 +570,13 @@
   </div>
   <div class="nav-section">
     <div class="nav-label">บันทึกข้อมูล</div>
-    <div class="nav-item admin-only" id="nav-record-pm" onclick="showPage('record-pm')"><span class="nav-icon"></span> บันทึก PM</div>
+    <div class="nav-item editor-only" id="nav-record-pm" onclick="showPage('record-pm')"><span class="nav-icon"></span> บันทึก PM</div>
     <div class="nav-item" onclick="showPage('history')"><span class="nav-icon"></span> ประวัติการ PM</div>
   </div>
   <div class="nav-section">
     <div class="nav-label">จัดการข้อมูล</div>
     <div class="nav-item" onclick="showPage('computers')"><span class="nav-icon"></span> ข้อมูลเครื่อง</div>
-    <div class="nav-item admin-only" id="nav-staff" onclick="showPage('staff')"><span class="nav-icon"></span> เจ้าหน้าที่แผนก</div>
-    <div class="nav-item admin-only" id="nav-users" onclick="showPage('users')"><span class="nav-icon"></span> รายชื่อผู้ใช้งาน</div>
+    <div class="nav-item editor-only" id="nav-users" onclick="showPage('users')"><span class="nav-icon"></span> รายชื่อผู้ใช้งาน</div>
   </div>
   <div class="sidebar-footer">
     <div class="footer-line">ระบบบำรุงรักษาคอมพิวเตอร์</div>
@@ -608,29 +616,28 @@
 
 <script>
 // ═══════════════════════════════════════════════════
-//  (รหัสผ่าน Admin ตรวจที่ Supabase Auth ไม่ได้เก็บในไฟล์นี้อีกต่อไป)
-// ═══════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════
 //  CONFIG — Supabase
 // ═══════════════════════════════════════════════════
-const SUPABASE_URL      = 'https://fnbkcgkuykdabbensvif.supabase.co';
+const SUPABASE_URL      = 'https://fuarmmweqxxhczavkvqp.supabase.co';
 // ใส่ anon public key (eyJ...) หรือ publishable key (sb_publishable_...) จาก Supabase → Project Settings → API
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE';
-const ADMIN_EMAIL       = 'admin@pmlocal.com';   // รหัสผ่านตั้งใน Supabase → Authentication → Users
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
 const KEY_OK = !SUPABASE_ANON_KEY.includes('ตรงนี้');
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ═══════════════════════════════════════════════════
-//  DATA LAYER — แทนที่ google.script.run เดิม
-//  หน้าจอเรียก call('ชื่อฟังก์ชัน', ...) เหมือนเดิมทุกอย่าง
+//  DATA LAYER — หน้าจอเรียก call('ชื่อฟังก์ชัน', ...) ตัวเดียว
+//  เครื่องคอมพิวเตอร์ = ตาราง assets  |  รายชื่อผู้ใช้งาน = ตาราง employees  |  สิทธิ์ = ตาราง profiles
 // ═══════════════════════════════════════════════════
+const $   = id => document.getElementById(id);
+const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const SHORT_MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const toCamel = s => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
 const toSnake = s => s.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
 const fromDb  = row => { const o = {}; for (const k in row) o[toCamel(k)] = row[k] == null ? '' : row[k]; return o; };
-const toDb    = obj => { const o = {}; for (const k in obj) o[toSnake(k)] = obj[k]; return o; };
-const byKey   = k => (a, b) => String(a[k]).localeCompare(String(b[k]), 'th', { numeric: true });
+const toDb    = obj => { const o = {}; for (const k in obj) o[toSnake(k)] = (obj[k] === '' || obj[k] === undefined) ? null : obj[k]; return o; };
+const nat     = (a, b) => String(a || '').localeCompare(String(b || ''), 'th', { numeric: true });
 const beYear  = y => { y = Number(y); return y < 2400 ? y + 543 : y; };   // รองรับข้อมูลที่เก็บเป็น ค.ศ.
+const nameKey = v => String(v || '').trim().toUpperCase();
 function fmtDate(d) {
   if (!d) return '';
   const dt = new Date(String(d).length === 10 ? d + 'T00:00:00' : d);
@@ -639,8 +646,8 @@ function fmtDate(d) {
 
 function friendlyError(err) {
   const msg = (err && err.message) || String(err);
-  if (err && err.code === '23505') return 'รหัสนี้มีอยู่ในระบบแล้ว';
-  if ((err && err.code === '42501') || /row-level security/i.test(msg)) return 'ไม่มีสิทธิ์ดำเนินการ (ต้องเข้าสู่ระบบ Admin และตั้งค่า RLS policy แล้ว)';
+  if (err && err.code === '23505') return 'ข้อมูลนี้มีอยู่ในระบบแล้ว';
+  if ((err && err.code === '42501') || /row-level security/i.test(msg)) return 'ไม่มีสิทธิ์ดำเนินการ (ต้องเข้าสู่ระบบด้วยบัญชี admin/technician และรัน step1_schema.sql แล้ว)';
   return msg;
 }
 async function run(p) { const { data, error } = await p; if (error) throw error; return data || []; }
@@ -662,41 +669,63 @@ async function fetchRecords() {
   const rows = await fetchAll('pm_record_pm', q => q.order('record_date', { ascending:false }).order('id', { ascending:false }));
   return rows.map(r => ({ ...fromDb(r), rowIndex: r.id, recordDate: fmtDate(r.record_date) }));
 }
+async function loadProfile(uid) {
+  try {
+    const { data, error } = await sb.from('profiles').select('id,name,role,email').eq('id', uid).maybeSingle();
+    if (error) throw error;
+    return data;
+  } catch (e) { console.error('loadProfile', e); return null; }
+}
 
 const API = {
-  // เครื่องคอมพิวเตอร์
-  getComputers:   async () => (await fetchAll('pm_computers')).map(fromDb).sort(byKey('id')),
-  addComputer:    d => run(sb.from('pm_computers').insert(d)),
-  updateComputer: d => { const { id, ...rest } = d; return run(sb.from('pm_computers').update(rest).eq('id', id)); },
-  deleteComputer: id => run(sb.from('pm_computers').delete().eq('id', id)),
-  // เจ้าหน้าที่
-  getStaff:    async () => (await fetchAll('pm_staff')).map(fromDb).sort(byKey('code')),
-  addStaff:    d => run(sb.from('pm_staff').insert(d)),
-  deleteStaff: code => run(sb.from('pm_staff').delete().eq('code', code)),
-  // ผู้ใช้งาน
-  getUsers:    async () => (await fetchAll('pm_users')).map(fromDb).sort(byKey('code')),
-  addUser:     d => run(sb.from('pm_users').insert(d)),
-  deleteUser:  code => run(sb.from('pm_users').delete().eq('code', code)),
-  // บันทึก PM
-  getRecordPM:    () => fetchRecords(),
-  addRecordPM:    d => run(sb.from('pm_record_pm').insert({
-                     ...toDb(d), month: Number(d.month), year: Number(d.year),
-                     record_date: new Date().toLocaleDateString('en-CA') })),
+  // ── เครื่องคอมพิวเตอร์ (assets) ──
+  getComputers: async () => (await fetchAll('assets', q => q.order('id'))).map(fromDb)
+                              .sort((a, b) => nat(a.department, b.department) || nat(a.computerName, b.computerName)),
+  getDepartments: async () => {
+    try { return (await fetchAll('asset_departments', q => q.order('code'))).map(r => r.code); }
+    catch (e) { console.warn('asset_departments:', e.message); return []; }
+  },
+  addComputer:    d => run(sb.from('assets').insert(toDb(d))),
+  updateComputer: d => { const { id, ...rest } = d; return run(sb.from('assets').update(toDb(rest)).eq('id', id)); },
+  deleteComputer: id => run(sb.from('assets').delete().eq('id', id)),
+
+  // ── พนักงาน (employees) — อ่านอย่างเดียว ──
+  getUsers: async () => (await fetchAll('employees', q => q.order('id'))).map(fromDb).sort((a, b) => nat(a.empCode, b.empCode)),
+  getOperatorNames: async () => {
+    try { return (await run(sb.from('employees').select('name').eq('department', 'เทคโนโลยีสารสนเทศ'))).map(r => r.name).filter(Boolean); }
+    catch (e) { return []; }
+  },
+
+  // ── บันทึก PM ──
+  getRecordPM: () => fetchRecords(),
+  countPM: async ({ assetId, month, year }) => {
+    const { count, error } = await sb.from('pm_record_pm').select('id', { count:'exact', head:true })
+      .eq('asset_id', assetId).eq('month', Number(month)).eq('year', Number(year));
+    if (error) throw error;
+    return count || 0;
+  },
+  addRecordPM: d => run(sb.from('pm_record_pm').insert({
+    ...toDb(d), month: Number(d.month), year: Number(d.year), record_date: new Date().toLocaleDateString('en-CA') })),
   deleteRecordPM: id => run(sb.from('pm_record_pm').delete().eq('id', id)),
-  // Dashboard (คำนวณฝั่ง browser)
+
+  // ── Dashboard (คำนวณฝั่ง browser) ──
   getDashboardData: async () => {
     const [computers, records] = await Promise.all([API.getComputers(), fetchRecords()]);
     const now = new Date(), curM = now.getMonth() + 1, curY = now.getFullYear() + 543;
     const inMonth = (r, m, y) => Number(r.month) === m && beYear(r.year) === y;
-    const doneCodes = new Set(records.filter(r => inMonth(r, curM, curY)).map(r => String(r.computerCode)));
+    const doneIds = new Set(), doneNames = new Set();
+    records.filter(r => inMonth(r, curM, curY)).forEach(r => {
+      if (r.assetId) doneIds.add(r.assetId); else doneNames.add(nameKey(r.computerCode));   // บันทึกรุ่นเก่าที่ยังไม่มี asset_id
+    });
+    const isDone = c => doneIds.has(c.id) || (nameKey(c.computerName) && doneNames.has(nameKey(c.computerName)));
 
     const locationStats = {};
     let done = 0;
     computers.forEach(c => {
-      const k = c.location || '';
+      const k = c.department || '';
       if (!locationStats[k]) locationStats[k] = { total:0, done:0 };
       locationStats[k].total++;
-      if (doneCodes.has(String(c.id))) { locationStats[k].done++; done++; }
+      if (isDone(c)) { locationStats[k].done++; done++; }
     });
 
     const monthlyTrend = [];
@@ -707,7 +736,8 @@ const API = {
     }
     return {
       totalComputers: computers.length, doneThisMonth: done, pendingThisMonth: computers.length - done,
-      totalRecords: records.length, locationStats, monthlyTrend, recentRecords: records.slice(0, 10)
+      totalRecords: records.length, locationStats, monthlyTrend,
+      recentRecords: records.slice(0, 10).map(r => ({ ...r, computerName: r.computerCode, location: r.location }))
     };
   }
 };
@@ -718,8 +748,8 @@ async function call(fn, ...args) {
 function errorHint(e) {
   let hint = '';
   if (!KEY_OK) hint = '<br><small>สาเหตุที่น่าจะเป็น: ยังไม่ได้ใส่ SUPABASE_ANON_KEY จริงในโค้ด</small>';
-  else if (/does not exist|schema cache|Could not find/i.test(e.message)) hint = '<br><small>ไม่พบตารางหรือคอลัมน์ใน Supabase — รันไฟล์ setup.sql ก่อน</small>';
-  return e.message + hint;
+  else if (/does not exist|schema cache|Could not find/i.test(e.message)) hint = '<br><small>ไม่พบตารางหรือคอลัมน์ — ตรวจว่า SUPABASE_URL เป็นโปรเจคที่มีตาราง assets และรัน step1_schema.sql ในโปรเจคนั้นแล้ว</small>';
+  return esc(e.message) + hint;
 }
 
 let state = {
@@ -731,56 +761,63 @@ const THAI_MONTHS = ['มกราคม','กุมภาพันธ์','ม�
   'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 
 // ── AUTH ────────────────────────────────────────────
+// สิทธิ์อ่านจากตาราง profiles.role :  admin = ทำได้ทุกอย่าง | technician = บันทึก PM + เพิ่ม/แก้ไขเครื่อง | อื่น ๆ = ดูอย่างเดียว
 async function loginAdmin() {
-  const pwEl = document.getElementById('admin-password');
-  const err  = document.getElementById('login-error');
-  if (!KEY_OK) { err.textContent = '❌ ยังไม่ได้ใส่ SUPABASE_ANON_KEY จริงในโค้ด'; err.style.display = 'block'; return; }
-  const { error } = await sb.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pwEl.value });
+  const emailEl = $('login-email'), pwEl = $('admin-password'), err = $('login-error');
+  const fail = msg => { err.textContent = '❌ ' + msg; err.style.display = 'block'; };
+  if (!KEY_OK) return fail('ยังไม่ได้ใส่ SUPABASE_ANON_KEY จริงในโค้ด');
+  const email = emailEl.value.trim();
+  if (!email || !pwEl.value) return fail('กรุณากรอกอีเมลและรหัสผ่าน');
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pwEl.value });
   if (error) {
-    err.textContent = error.message === 'Invalid login credentials' ? '❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่' : '❌ ' + error.message;
-    err.style.display = 'block';
     pwEl.value = '';
-    return;
+    return fail(error.message === 'Invalid login credentials' ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่' : error.message);
+  }
+  const profile = await loadProfile(data.user.id);
+  if (!profile) {
+    try { await sb.auth.signOut(); } catch (e) {}
+    pwEl.value = '';
+    return fail('บัญชีนี้ยังไม่ได้ตั้งสิทธิ์ในตาราง profiles — ติดต่อผู้ดูแลระบบ');
   }
   err.style.display = 'none';
-  startApp('admin');
+  startApp(profile.role, profile);
 }
 
 function loginUser() {
-  startApp('user');
+  startApp('user', null);
 }
 
-function startApp(role) {
-  state.role = role;
-  document.getElementById('login-page').style.display = 'none';
-  document.getElementById('app').classList.add('show');
+function startApp(role, profile) {
+  state.role = (role === 'admin' || role === 'technician') ? role : 'user';
+  state.me   = profile || null;
+  $('login-page').style.display = 'none';
+  $('app').classList.add('show');
 
-  // badge
-  const badge = document.getElementById('role-badge');
-  if (role === 'admin') {
-    badge.className = 'role-badge admin';
-    badge.textContent = '🔐 Admin';
-    document.querySelectorAll('.admin-only').forEach(el => el.classList.add('show'));
-  } else {
-    badge.className = 'role-badge user';
-    badge.textContent = '👁 User (ดูอย่างเดียว)';
-  }
+  const badge = $('role-badge');
+  const who = profile && profile.name ? ' · ' + profile.name : '';
+  if (state.role === 'admin')           { badge.className = 'role-badge admin'; badge.textContent = '🔐 Admin' + who; }
+  else if (state.role === 'technician') { badge.className = 'role-badge tech';  badge.textContent = '🛠 Technician' + who; }
+  else                                  { badge.className = 'role-badge user';  badge.textContent = '👁 User (ดูอย่างเดียว)'; }
 
+  document.querySelectorAll('.editor-only').forEach(el => el.classList.toggle('show', isEditor()));
   showPage('dashboard');
 }
 
 async function logout() {
   if (!confirm('ออกจากระบบ?')) return;
   try { await sb.auth.signOut(); } catch (e) { console.error(e); }
-  state.role = null;
-  document.getElementById('app').classList.remove('show');
-  document.getElementById('login-page').style.display = 'flex';
-  document.getElementById('admin-password').value = '';
-  document.getElementById('login-error').style.display = 'none';
-  document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('show'));
+  state.role = null; state.me = null;
+  $('app').classList.remove('show');
+  $('login-page').style.display = 'flex';
+  $('login-email').value = '';
+  $('admin-password').value = '';
+  $('login-error').style.display = 'none';
+  document.querySelectorAll('.editor-only').forEach(el => el.classList.remove('show'));
 }
 
-function isAdmin() { return state.role === 'admin'; }
+function isAdmin()  { return state.role === 'admin'; }
+function isEditor() { return state.role === 'admin' || state.role === 'technician'; }
 
 // ── NAVIGATION ──────────────────────────────────────
 function showPage(page) {
@@ -793,9 +830,8 @@ function showPage(page) {
     'dashboard': ['Dashboard','ภาพรวมระบบบำรุงรักษาคอมพิวเตอร์'],
     'record-pm': ['บันทึก PM','บันทึกการบำรุงรักษาประจำเดือน'],
     'history':   ['ประวัติการ PM','ดูประวัติการบำรุงรักษาทั้งหมด'],
-    'computers': ['ข้อมูลเครื่อง','จัดการข้อมูลคอมพิวเตอร์'],
-    'staff':     ['เจ้าหน้าที่แผนก','จัดการข้อมูลเจ้าหน้าที่'],
-    'users':     ['รายชื่อผู้ใช้งาน','จัดการข้อมูลผู้ใช้งาน']
+    'computers': ['ข้อมูลเครื่อง','ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ (FOM 014)'],
+    'users':     ['รายชื่อผู้ใช้งาน','รายชื่อพนักงานจากตาราง employees (ดูอย่างเดียว)']
   };
   document.getElementById('page-title').textContent    = titles[page][0];
   document.getElementById('page-subtitle').textContent = titles[page][1];
@@ -812,7 +848,7 @@ function setTopbarActions(h) { document.getElementById('topbar-actions').innerHT
 function loadingHtml()       { return `<div class="loading"><div class="spinner"></div> กำลังโหลดข้อมูล...</div>`; }
 
 function readonlyNotice() {
-  return isAdmin() ? '' : `<div class="readonly-notice">⚠️ คุณกำลังเข้าชมในโหมด <strong>ดูอย่างเดียว</strong> — ไม่สามารถแก้ไขข้อมูลได้</div>`;
+  return isEditor() ? '' : `<div class="readonly-notice">⚠️ คุณกำลังเข้าชมในโหมด <strong>ดูอย่างเดียว</strong> — ไม่สามารถแก้ไขข้อมูลได้</div>`;
 }
 
 async function renderPage(page) {
@@ -821,15 +857,12 @@ async function renderPage(page) {
     switch(page) {
       case 'dashboard': await renderDashboard(); break;
       case 'record-pm':
-        if (!isAdmin()) { setContent(`<div class="card"><div class="readonly-notice">⚠️ เฉพาะ Admin เท่านั้นที่สามารถบันทึก PM ได้</div></div>`); return; }
+        if (!isEditor()) { setContent(`<div class="card"><div class="readonly-notice">⚠️ เฉพาะ Admin / Technician เท่านั้นที่สามารถบันทึก PM ได้</div></div>`); return; }
         await renderRecordPM(); break;
       case 'history':   await renderHistory();   break;
       case 'computers': await renderComputers(); break;
-      case 'staff':
-        if (!isAdmin()) { setContent(`<div class="card"><div class="readonly-notice">⚠️ เฉพาะ Admin เท่านั้นที่สามารถจัดการข้อมูลนี้ได้</div></div>`); return; }
-        await renderStaff(); break;
       case 'users':
-        if (!isAdmin()) { setContent(`<div class="card"><div class="readonly-notice">⚠️ เฉพาะ Admin เท่านั้นที่สามารถจัดการข้อมูลนี้ได้</div></div>`); return; }
+        if (!isEditor()) { setContent(`<div class="card"><div class="readonly-notice">⚠️ เฉพาะ Admin / Technician เท่านั้นที่ดูข้อมูลนี้ได้</div></div>`); return; }
         await renderUsers(); break;
     }
   } catch(e) { setContent(`<div class="card"><div class="empty">⚠️ เกิดข้อผิดพลาด: ${errorHint(e)}</div></div>`); }
@@ -858,7 +891,7 @@ async function renderDashboard() {
 
   let recentRows = '';
   (data.recentRecords||[]).forEach(r => {
-    recentRows += `<tr><td>${r.recordDate}</td><td><span class="badge badge-blue">${r.computerCode}</span></td><td>${r.computerName}</td><td>${r.location}</td><td>${r.operator}</td></tr>`;
+    recentRows += `<tr><td>${esc(r.recordDate)}</td><td><span class="badge badge-blue">${esc(r.computerCode)}</span></td><td>${esc(r.location)}</td><td>${esc(r.operator)}</td></tr>`;
   });
 
   const barHtml = data.monthlyTrend.map((m,i) => {
@@ -886,20 +919,31 @@ async function renderDashboard() {
     <div class="card" style="margin-top:24px">
       <div class="card-header"><div class="card-title"><div class="card-title-icon"></div>บันทึก PM ล่าสุด</div><button class="btn btn-outline btn-sm" onclick="showPage('history')">ดูทั้งหมด &rsaquo;</button></div>
       <div class="table-wrap"><table>
-        <thead><tr><th>วันที่</th><th>รหัสเครื่อง</th><th>ชื่อเครื่อง</th><th>สถานที่</th><th>ผู้ปฏิบัติงาน</th></tr></thead>
-        <tbody>${recentRows||'<tr><td colspan="5" class="empty">ไม่มีข้อมูล</td></tr>'}</tbody>
+        <thead><tr><th>วันที่</th><th>ชื่อเครื่อง</th><th>แผนก</th><th>ผู้ปฏิบัติงาน</th></tr></thead>
+        <tbody>${recentRows||'<tr><td colspan="4" class="empty">ไม่มีข้อมูล</td></tr>'}</tbody>
       </table></div>
     </div>`);
 }
 
 // ── RECORD PM ──────────────────────────────────────
+const PM_CHECK_KEYS = ['cleanOutside','cleanInside','network','antivirus','virusScan','badSector','defrag','software','cables'];
+
 async function renderRecordPM() {
-  const [computers,staff] = await Promise.all([call('getComputers'),call('getStaff')]);
-  state.computers = computers; state.staff = staff;
-  const now = new Date(), cm = now.getMonth()+1, cy = now.getFullYear()+543;
-  const sOpts = staff.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
-  const mOpts = THAI_MONTHS.map((m,i)=>`<option value="${i+1}" ${i+1===cm?'selected':''}>${m}</option>`).join('');
-  const cOpts = computers.map(c=>`<option value="${c.id}">${c.id}</option>`).join('');
+  const [computers, operators] = await Promise.all([call('getComputers'), call('getOperatorNames')]);
+  state.computers = computers;
+  const now = new Date(), cm = now.getMonth() + 1, cy = now.getFullYear() + 543;
+  const me = (state.me && state.me.name) || '';
+  const names = [...new Set([me, ...operators].filter(Boolean))];
+  const sOpts = names.map(n => `<option value="${esc(n)}" ${n === me ? 'selected' : ''}>${esc(n)}</option>`).join('');
+  const mOpts = THAI_MONTHS.map((m, i) => `<option value="${i+1}" ${i+1 === cm ? 'selected' : ''}>${m}</option>`).join('');
+
+  // จัดกลุ่มตามแผนก ให้หาเครื่องง่าย (ชื่อเครื่องอาจซ้ำ จึงแสดงผู้ใช้ประกอบ)
+  const groups = {};
+  computers.forEach(c => { (groups[c.department || '(ไม่ระบุแผนก)'] = groups[c.department || '(ไม่ระบุแผนก)'] || []).push(c); });
+  const cOpts = Object.keys(groups).sort(nat).map(dep =>
+    `<optgroup label="${esc(dep)}">` + groups[dep].map(c =>
+      `<option value="${esc(c.id)}">${esc(c.computerName || '(ไม่มีชื่อเครื่อง)')}${c.loginName ? ' · ' + esc(c.loginName) : ''}</option>`).join('') + '</optgroup>').join('');
+
   const checkItems = [
     {key:'cleanOutside',label:'ความสะอาดภายนอกตัวเครื่อง'},{key:'cleanInside',label:'ความสะอาดภายในตัวเครื่อง'},
     {key:'network',label:'ตรวจสอบการเชื่อมต่อเครือข่าย'},{key:'antivirus',label:'อัพเดท Antivirus'},
@@ -907,7 +951,7 @@ async function renderRecordPM() {
     {key:'defrag',label:'Disk Defragment'},{key:'software',label:'ตรวจสอบการทำงาน Software'},
     {key:'cables',label:'ตรวจสอบสายไฟและสายสัญญาณ'},
   ];
-  const checkHtml = checkItems.map(item=>`
+  const checkHtml = checkItems.map(item => `
     <div class="check-item" id="ci-${item.key}" onclick="toggleCheck('${item.key}')">
       <input type="checkbox" id="chk-${item.key}" onclick="event.stopPropagation()" onchange="syncCheck('${item.key}')">
       <span>${item.label}</span>
@@ -921,29 +965,29 @@ async function renderRecordPM() {
       </div>
       <div class="form-grid-3" style="margin-bottom:16px">
         <div class="form-group">
-          <label>รหัสเครื่อง *</label>
+          <label>เครื่อง *</label>
           <select id="pm-computer" onchange="selectComputerById(this.value)">
-            <option value="">— เลือกรหัสเครื่อง —</option>${cOpts}
+            <option value="">— เลือกเครื่อง —</option>${cOpts}
           </select>
         </div>
-        <div class="form-group"><label>ชื่อเครื่อง</label><input id="pm-name" readonly placeholder="(แสดงอัตโนมัติ)"></div>
-        <div class="form-group"><label>สถานที่ตั้ง</label><input id="pm-location" readonly placeholder="(แสดงอัตโนมัติ)"></div>
+        <div class="form-group"><label>แผนก</label><input id="pm-location" readonly placeholder="(แสดงอัตโนมัติ)"></div>
+        <div class="form-group"><label>ประเภท</label><input id="pm-type" readonly placeholder="(แสดงอัตโนมัติ)"></div>
       </div>
 
       <div id="pm-info-box" class="info-box" style="display:none">
         <div class="info-box-title"> ข้อมูลจำเพาะเครื่อง</div>
         <div class="info-box-grid">
+          <div class="info-box-item"><div class="info-box-label">ผู้ใช้</div><div class="info-box-value" id="pi-user">—</div></div>
           <div class="info-box-item"><div class="info-box-label">IP Address</div><div class="info-box-value mono" id="pi-ip">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">ผู้รับผิดชอบ</div><div class="info-box-value" id="pi-responsible">—</div></div>
+          <div class="info-box-item"><div class="info-box-label">ยี่ห้อ / รุ่น</div><div class="info-box-value" id="pi-brand">—</div></div>
+          <div class="info-box-item"><div class="info-box-label">Serial Number</div><div class="info-box-value mono" id="pi-sn">—</div></div>
           <div class="info-box-item"><div class="info-box-label">CPU</div><div class="info-box-value" id="pi-cpu">—</div></div>
           <div class="info-box-item"><div class="info-box-label">RAM</div><div class="info-box-value" id="pi-ram">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">HDD</div><div class="info-box-value" id="pi-hdd">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">VGA</div><div class="info-box-value" id="pi-vga">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">Mainboard</div><div class="info-box-value" id="pi-mainboard">—</div></div>
+          <div class="info-box-item"><div class="info-box-label">Harddisk</div><div class="info-box-value" id="pi-storage">—</div></div>
+          <div class="info-box-item"><div class="info-box-label">Windows</div><div class="info-box-value" id="pi-windows">—</div></div>
+          <div class="info-box-item"><div class="info-box-label">MS Office</div><div class="info-box-value" id="pi-office">—</div></div>
           <div class="info-box-item"><div class="info-box-label">Monitor</div><div class="info-box-value" id="pi-monitor">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">Keyboard</div><div class="info-box-value" id="pi-keyboard">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">Mouse</div><div class="info-box-value" id="pi-mouse">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">Others</div><div class="info-box-value" id="pi-others">—</div></div>
+          <div class="info-box-item"><div class="info-box-label">Keyboard / Mouse</div><div class="info-box-value" id="pi-periph">—</div></div>
           <div class="info-box-item"><div class="info-box-label">หมายเหตุ</div><div class="info-box-value" id="pi-remark">—</div></div>
         </div>
       </div>
@@ -959,7 +1003,10 @@ async function renderRecordPM() {
 
       <hr class="section-divider">
       <div class="form-grid">
-        <div class="form-group"><label>ผู้ปฏิบัติงาน *</label><select id="pm-operator"><option value="">— เลือกเจ้าหน้าที่ —</option>${sOpts}</select></div>
+        <div class="form-group"><label>ผู้ปฏิบัติงาน *</label>
+          <input id="pm-operator" list="pm-operator-list" value="${esc(me)}" placeholder="ชื่อผู้ปฏิบัติงาน">
+          <datalist id="pm-operator-list">${names.map(n => `<option value="${esc(n)}">`).join('')}</datalist>
+        </div>
         <div class="form-group"><label>ผู้ตรวจรับงาน</label><input id="pm-checker" placeholder="ชื่อผู้ตรวจรับ"></div>
         <div class="form-group full"><label>หมายเหตุเพิ่มเติม</label><textarea id="pm-remark" placeholder="บันทึกข้อมูลเพิ่มเติม (ถ้ามี)"></textarea></div>
       </div>
@@ -971,72 +1018,65 @@ async function renderRecordPM() {
 }
 
 function selectComputerById(id) {
-  const comp = state.computers.find(c=>c.id==id);
-  const ib   = document.getElementById('pm-info-box');
-  if (!comp) {
-    document.getElementById('pm-name').value='';
-    document.getElementById('pm-location').value='';
-    if(ib) ib.style.display='none'; return;
-  }
-  document.getElementById('pm-name').value     = comp.name||'';
-  document.getElementById('pm-location').value = comp.location||'';
-  const si = (eid,val) => {
-    const el=document.getElementById(eid); if(!el) return;
-    el.textContent = val||'—';
-    el.className   = 'info-box-value'+(eid==='pi-ip'?' mono':'')+(val?'':' empty-val');
+  const c = state.computers.find(x => x.id === id);
+  const ib = $('pm-info-box');
+  if (!c) { $('pm-location').value = ''; $('pm-type').value = ''; ib.style.display = 'none'; return; }
+  $('pm-location').value = c.department || '';
+  $('pm-type').value     = c.type || '';
+  const si = (eid, val) => {
+    const el = $(eid); if (!el) return;
+    el.textContent = val || '—';
+    el.className = 'info-box-value' + (eid === 'pi-ip' || eid === 'pi-sn' ? ' mono' : '') + (val ? '' : ' empty-val');
   };
-  si('pi-ip',comp.ip); si('pi-responsible',comp.responsible); si('pi-cpu',comp.cpu);
-  si('pi-ram',comp.ram); si('pi-hdd',comp.hdd); si('pi-vga',comp.vga);
-  si('pi-mainboard',comp.mainboard); si('pi-monitor',comp.monitor);
-  si('pi-keyboard',comp.keyboard); si('pi-mouse',comp.mouse);
-  si('pi-others',comp.others); si('pi-remark',comp.remark);
-  if(ib) ib.style.display='block';
+  si('pi-user', c.loginName);  si('pi-ip', c.ip);
+  si('pi-brand', [c.brand, c.model].filter(Boolean).join(' '));  si('pi-sn', c.sn);
+  si('pi-cpu', c.cpu);  si('pi-ram', c.ram);  si('pi-storage', c.storage);
+  si('pi-windows', c.windows);  si('pi-office', c.msOffice);
+  si('pi-monitor', [c.monitor, c.modelMonitor].filter(Boolean).join(' '));
+  si('pi-periph', [c.keyboard, c.mouse].filter(Boolean).join(' / '));
+  si('pi-remark', c.remark);
+  ib.style.display = 'block';
 }
 
-function toggleCheck(key) { const c=document.getElementById('chk-'+key); c.checked=!c.checked; document.getElementById('ci-'+key).classList.toggle('checked',c.checked); }
-function syncCheck(key)   { const c=document.getElementById('chk-'+key); document.getElementById('ci-'+key).classList.toggle('checked',c.checked); }
+function toggleCheck(key) { const c = $('chk-' + key); c.checked = !c.checked; $('ci-' + key).classList.toggle('checked', c.checked); }
+function syncCheck(key)   { const c = $('chk-' + key); $('ci-' + key).classList.toggle('checked', c.checked); }
 function checkAll() {
-  const keys=['cleanOutside','cleanInside','network','antivirus','virusScan','badSector','defrag','software','cables'];
-  const all=keys.every(k=>document.getElementById('chk-'+k).checked);
-  keys.forEach(k=>{ const c=document.getElementById('chk-'+k); c.checked=!all; document.getElementById('ci-'+k).classList.toggle('checked',!all); });
+  const all = PM_CHECK_KEYS.every(k => $('chk-' + k).checked);
+  PM_CHECK_KEYS.forEach(k => { const c = $('chk-' + k); c.checked = !all; $('ci-' + k).classList.toggle('checked', !all); });
 }
 function resetPMForm() {
-  ['cleanOutside','cleanInside','network','antivirus','virusScan','badSector','defrag','software','cables'].forEach(k=>{
-    document.getElementById('chk-'+k).checked=false; document.getElementById('ci-'+k).classList.remove('checked');
-  });
-  ['pm-computer','pm-name','pm-location','pm-checker','pm-remark'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-  const ib=document.getElementById('pm-info-box'); if(ib) ib.style.display='none';
+  PM_CHECK_KEYS.forEach(k => { $('chk-' + k).checked = false; $('ci-' + k).classList.remove('checked'); });
+  ['pm-computer', 'pm-location', 'pm-type', 'pm-checker', 'pm-remark'].forEach(id => { const el = $(id); if (el) el.value = ''; });
+  $('pm-info-box').style.display = 'none';
 }
 
 async function submitPM() {
-  const compId=document.getElementById('pm-computer').value;
-  const month =document.getElementById('pm-month').value;
-  const year  =document.getElementById('pm-year').value;
-  const op    =document.getElementById('pm-operator').value;
-  if(!compId||!month||!year||!op){ alert('กรุณากรอกข้อมูลที่จำเป็น: เครื่อง / เดือน / ปี / ผู้ปฏิบัติงาน'); return; }
-  const comp=state.computers.find(c=>c.id==compId);
-  const gv=k=>document.getElementById('chk-'+k).checked?'ผ่าน':'ไม่ผ่าน';
+  if (!isEditor()) { alert('เฉพาะ Admin / Technician เท่านั้น'); return; }
+  const assetId = $('pm-computer').value, month = $('pm-month').value, year = $('pm-year').value;
+  const op = $('pm-operator').value.trim();
+  if (!assetId || !month || !year || !op) { alert('กรุณากรอกข้อมูลที่จำเป็น: เครื่อง / เดือน / ปี / ผู้ปฏิบัติงาน'); return; }
+  const comp = state.computers.find(c => c.id === assetId);
+  const gv = k => $('chk-' + k).checked ? 'ผ่าน' : 'ไม่ผ่าน';
   try {
-    await call('addRecordPM',{
-      computerCode:compId, computerName:comp?comp.name:'', location:comp?comp.location:'',
-      month, year,
-      cleanOutside:gv('cleanOutside'), cleanInside:gv('cleanInside'), network:gv('network'),
-      antivirus:gv('antivirus'), virusScan:gv('virusScan'), badSector:gv('badSector'),
-      defrag:gv('defrag'), software:gv('software'), cables:gv('cables'),
-      operator:op, checker:document.getElementById('pm-checker').value, remark:document.getElementById('pm-remark').value
-    });
+    const dup = await call('countPM', { assetId, month, year });
+    if (dup > 0 && !confirm(`เครื่องนี้มีบันทึก PM ของ ${THAI_MONTHS[month - 1]} ${year} อยู่แล้ว ${dup} รายการ\nต้องการบันทึกซ้ำหรือไม่?`)) return;
+    const rec = { assetId, computerCode: comp ? comp.computerName : '', computerName: comp ? comp.computerName : '',
+      location: comp ? comp.department : '', month, year, operator: op,
+      checker: $('pm-checker').value.trim(), remark: $('pm-remark').value.trim() };
+    PM_CHECK_KEYS.forEach(k => { rec[k] = gv(k); });
+    await call('addRecordPM', rec);
     alert('บันทึก PM เรียบร้อย!'); resetPMForm();
-  } catch(e){ alert('เกิดข้อผิดพลาด: '+e.message); }
+  } catch (e) { alert('เกิดข้อผิดพลาด: ' + e.message); }
 }
 
 // ── HISTORY ────────────────────────────────────────
 async function renderHistory() {
-  const [records,computers] = await Promise.all([call('getRecordPM',null),call('getComputers')]);
-  state.pmRecords=records; state.computers=computers;
-  const cOpts=computers.map(c=>`<option value="${c.id}">${c.id} – ${c.name}</option>`).join('');
-  const mOpts=THAI_MONTHS.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
-  const now=new Date(), cy=now.getFullYear()+543;
-  let yOpts=''; for(let y=cy;y>=cy-5;y--) yOpts+=`<option value="${y}">${y}</option>`;
+  const [records, computers] = await Promise.all([call('getRecordPM'), call('getComputers')]);
+  state.pmRecords = records; state.computers = computers;
+  const cOpts = computers.map(c => `<option value="${esc(c.id)}">${esc(c.computerName || '(ไม่มีชื่อ)')} – ${esc(c.department)}</option>`).join('');
+  const mOpts = THAI_MONTHS.map((m, i) => `<option value="${i+1}">${m}</option>`).join('');
+  const cy = new Date().getFullYear() + 543;
+  let yOpts = ''; for (let y = cy; y >= cy - 5; y--) yOpts += `<option value="${y}">${y}</option>`;
   setTopbarActions(`<div class="search-bar">
     <select id="f-comp"  onchange="filterHistory()"><option value=""> ทุกเครื่อง</option>${cOpts}</select>
     <select id="f-month" onchange="filterHistory()"><option value=""> ทุกเดือน</option>${mOpts}</select>
@@ -1046,14 +1086,14 @@ async function renderHistory() {
 }
 
 function renderHistoryTable(records) {
-  const ck=['cleanOutside','cleanInside','network','antivirus','virusScan','badSector','defrag','software','cables'];
-  const cl=['ภายนอก','ภายใน','เครือข่าย','Antivirus','Virus','Bad Sector','Defrag','Software','สาย'];
-  // Admin: show delete column | User: hide it
+  const cl = ['ภายนอก','ภายใน','เครือข่าย','Antivirus','Virus','Bad Sector','Defrag','Software','สาย'];
   const showDelete = isAdmin();
-  const rows=records.map(r=>{
-    const checks=ck.map((k,i)=>`<span class="badge ${r[k]==='ผ่าน'?'badge-success':'badge-danger'}" title="${cl[i]}">${cl[i]}</span>`).join(' ');
-    const delCell = showDelete ? `<td><button class="btn btn-danger btn-sm" onclick="deletePM(${r.rowIndex})">🗑 ลบ</button></td>` : '';
-    return `<tr><td>${r.recordDate}</td><td><span class="badge badge-blue">${r.computerCode}</span></td><td>${r.computerName}</td><td>${r.location}</td><td>${THAI_MONTHS[(r.month||1)-1]} ${r.year}</td><td>${r.operator}</td><td style="font-size:12px;line-height:2">${checks}</td>${delCell}</tr>`;
+  const rows = records.map(r => {
+    const checks = PM_CHECK_KEYS.map((k, i) => `<span class="badge ${r[k] === 'ผ่าน' ? 'badge-success' : 'badge-danger'}" title="${cl[i]}">${cl[i]}</span>`).join(' ');
+    const delCell = showDelete ? `<td><button class="btn btn-danger btn-sm" data-id="${esc(r.rowIndex)}" onclick="deletePM(this.dataset.id)">🗑 ลบ</button></td>` : '';
+    return `<tr data-key="${esc(r.rowIndex)}"><td>${esc(r.recordDate)}</td><td><span class="badge badge-blue">${esc(r.computerCode)}</span></td><td>${esc(r.location)}</td>
+      <td>${r.month ? THAI_MONTHS[r.month - 1] : ''} ${esc(r.year)}</td><td>${esc(r.operator)}</td>
+      <td style="font-size:12px;line-height:2">${checks}</td>${delCell}</tr>`;
   }).join('');
   const delHeader = showDelete ? '<th></th>' : '';
   setContent(`
@@ -1061,210 +1101,240 @@ function renderHistoryTable(records) {
     <div class="card">
       <div class="card-header"><div class="card-title"><div class="card-title-icon"></div>ประวัติการบำรุงรักษา (${records.length} รายการ)</div></div>
       <div class="table-wrap"><table>
-        <thead><tr><th>วันที่บันทึก</th><th>รหัส</th><th>ชื่อเครื่อง</th><th>สถานที่</th><th>เดือน/ปี</th><th>ผู้ปฏิบัติงาน</th><th>รายการตรวจสอบ</th>${delHeader}</tr></thead>
-        <tbody>${rows||'<tr><td colspan="8" class="empty">ไม่มีข้อมูล</td></tr>'}</tbody>
+        <thead><tr><th>วันที่บันทึก</th><th>ชื่อเครื่อง</th><th>แผนก</th><th>เดือน/ปี</th><th>ผู้ปฏิบัติงาน</th><th>รายการตรวจสอบ</th>${delHeader}</tr></thead>
+        <tbody>${rows || `<tr><td colspan="7" class="empty">ไม่มีข้อมูล</td></tr>`}</tbody>
       </table></div>
     </div>`);
+  applySelection();
 }
 
 function filterHistory() {
-  const ci=document.getElementById('f-comp')&&document.getElementById('f-comp').value;
-  const mo=document.getElementById('f-month')&&document.getElementById('f-month').value;
-  const yr=document.getElementById('f-year')&&document.getElementById('f-year').value;
-  let f=state.pmRecords;
-  if(ci) f=f.filter(r=>r.computerCode==ci);
-  if(mo) f=f.filter(r=>r.month==mo);
-  if(yr) f=f.filter(r=>r.year==yr);
+  const ci = $('f-comp') && $('f-comp').value;
+  const mo = $('f-month') && $('f-month').value;
+  const yr = $('f-year') && $('f-year').value;
+  const comp = ci ? state.computers.find(c => c.id === ci) : null;
+  let f = state.pmRecords;
+  if (comp) f = f.filter(r => r.assetId === comp.id || (!r.assetId && nameKey(r.computerCode) === nameKey(comp.computerName)));
+  if (mo) f = f.filter(r => Number(r.month) === Number(mo));
+  if (yr) f = f.filter(r => beYear(r.year) === Number(yr));
   renderHistoryTable(f);
 }
 
-async function deletePM(rowIndex) {
-  if(!isAdmin()){ alert('เฉพาะ Admin เท่านั้น'); return; }
-  if(!confirm('ยืนยันการลบรายการนี้?')) return;
-  try{ await call('deleteRecordPM',rowIndex); await renderHistory(); alert('ลบเรียบร้อย'); }
-  catch(e){ alert('เกิดข้อผิดพลาด: '+e.message); }
+async function deletePM(id) {
+  if (!isAdmin()) { alert('เฉพาะ Admin เท่านั้น'); return; }
+  if (!confirm('ยืนยันการลบรายการนี้?')) return;
+  try { await call('deleteRecordPM', id); await renderHistory(); alert('ลบเรียบร้อย'); }
+  catch (e) { alert('เกิดข้อผิดพลาด: ' + e.message); }
 }
 
-// ── COMPUTERS ──────────────────────────────────────
+// ── COMPUTERS (ทะเบียนคอมพิวเตอร์ FOM 014) ─────────────
+state.cf = { dept: '', type: '', q: '' };
+const COMPUTER_FIELDS = ['department','type','loginName','computerName','brand','model','sn','cpu','storage','ram','windows',
+  'msOffice','etc','monitor','modelMonitor','snMonitor','usb','remark','ip','vga','mainboard','keyboard','mouse'];
+const COMPUTER_LABELS = { department:'แผนก *', type:'ประเภท *', loginName:'ผู้ใช้ (User)', computerName:'ชื่อเครื่อง (Computer Name) *',
+  brand:'ยี่ห้อ (Brand)', model:'รุ่น (Model)', sn:'Serial Number', cpu:'CPU', storage:'Harddisk', ram:'RAM', windows:'Windows',
+  msOffice:'MS Office', etc:'ETC', monitor:'Monitor', modelMonitor:'Model Monitor', snMonitor:'SN Monitor', usb:'USB',
+  remark:'หมายเหตุ', ip:'IP Address', vga:'VGA', mainboard:'Mainboard', keyboard:'Keyboard', mouse:'Mouse' };
+const REGISTER_COLS = ['department','type','loginName','computerName','brand','model','sn','cpu','storage','ram','windows',
+  'msOffice','etc','monitor','modelMonitor','snMonitor','usb','remark'];
+const REGISTER_HEADS = ['Department','Type','User','Computer Name','Brand','Model','SN','CPU','Harddisk','RAM','Windows',
+  'MS Office','ETC','Monitor','Model Monitor','SN Monitor','USB','Remark'];
+const COMPUTER_TYPES = ['PC','Laptop','Tablet','All-in-One'];
+
 async function renderComputers() {
-  const computers=await call('getComputers'); state.computers=computers;
-  if (isAdmin()) setTopbarActions(`<button class="btn btn-primary" onclick="openComputerModal(null)">➕ เพิ่มเครื่องใหม่</button>`);
-  const rows=computers.map(c=>`<tr>
-    <td><span class="badge badge-blue">${c.id}</span></td>
-    <td><strong>${c.name}</strong></td>
-    <td>${c.location||'—'}</td>
-    <td style="font-family:monospace;font-size:13px">${c.ip||'—'}</td>
-    <td>${c.responsible||'—'}</td>
-    <td>${c.cpu||'—'}</td>
-    <td>${c.ram||'—'}</td>
-    <td>${c.hdd||'—'}</td>
-    ${isAdmin()?`<td><div class="btn-group">
-      <button class="btn btn-outline btn-sm" onclick='openComputerModal(${JSON.stringify(c).replace(/'/g,"&#39;")})'>✏️ แก้ไข</button>
-      <button class="btn btn-danger  btn-sm" onclick="deleteComputer('${c.id}')">🗑 ลบ</button>
-    </div></td>`:''}
-  </tr>`).join('');
-  const actionHeader = isAdmin() ? '<th></th>' : '';
+  const [computers, depts] = await Promise.all([call('getComputers'), call('getDepartments')]);
+  state.computers = computers;
+  state.departments = [...new Set([...depts, ...computers.map(c => c.department)])].filter(Boolean).sort(nat);
+  if (isEditor()) setTopbarActions(`<button class="btn btn-primary" onclick="openComputerModal(null)">➕ เพิ่มเครื่องใหม่</button>`);
+  const types = [...new Set([...COMPUTER_TYPES, ...computers.map(c => c.type)])].filter(Boolean);
   setContent(`
     ${readonlyNotice()}
     <div class="card">
-      <div class="card-header"><div class="card-title"><div class="card-title-icon"></div>รายการคอมพิวเตอร์ (${computers.length} เครื่อง)</div></div>
-      <div class="table-wrap"><table>
-        <thead><tr><th>รหัส</th><th>ชื่อเครื่อง</th><th>สถานที่</th><th>IP</th><th>ผู้รับผิดชอบ</th><th>CPU</th><th>RAM</th><th>HDD</th>${actionHeader}</tr></thead>
-        <tbody>${rows||'<tr><td colspan="9" class="empty">ไม่มีข้อมูล</td></tr>'}</tbody>
-      </table></div>
+      <div class="card-header">
+        <div class="card-title"><div class="card-title-icon"></div>ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ</div>
+        <div class="search-bar">
+          <select id="cf-dept" onchange="applyComputerFilter()"><option value="">ทุกแผนก</option>${state.departments.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join('')}</select>
+          <select id="cf-type" onchange="applyComputerFilter()"><option value="">ทุกประเภท</option>${types.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')}</select>
+          <input id="cf-q" oninput="applyComputerFilter()" placeholder="ค้นหา ชื่อเครื่อง / ผู้ใช้ / SN ..." style="width:230px">
+          <button class="btn btn-outline btn-sm" onclick="printRegister()">🖨 พิมพ์ทะเบียน</button>
+        </div>
+      </div>
+      <div id="cf-summary" style="margin-bottom:14px;font-size:14px;color:var(--text-muted)"></div>
+      <div class="table-wrap" id="cf-table"></div>
     </div>`);
+  $('cf-dept').value = state.cf.dept; $('cf-type').value = state.cf.type; $('cf-q').value = state.cf.q;
+  applyComputerFilter();
 }
 
-function openComputerModal(data) {
-  if(!isAdmin()){ alert('เฉพาะ Admin เท่านั้น'); return; }
-  const isEdit=data!==null;
-  document.getElementById('modal-title').textContent=isEdit?'✏️ แก้ไขข้อมูลเครื่อง':'➕ เพิ่มเครื่องใหม่';
-  document.getElementById('modal-body').innerHTML=`
-    <div class="form-grid">
-      <div class="form-group"><label>รหัสเครื่อง *</label><input id="c-id" value="${data?data.id:''}" ${isEdit?'readonly style="background:var(--bg)"':''}></div>
-      <div class="form-group"><label>ชื่อเครื่อง *</label><input id="c-name" value="${data?data.name:''}"></div>
-      <div class="form-group"><label>สถานที่ตั้ง</label><input id="c-location" value="${data?data.location:''}"></div>
-      <div class="form-group"><label>หมายเลข IP</label><input id="c-ip" value="${data?data.ip:''}" placeholder="192.168.x.x"></div>
-      <div class="form-group"><label>ผู้รับผิดชอบ</label><input id="c-responsible" value="${data?data.responsible:''}"></div>
-      <div class="form-group"><label>CPU</label><input id="c-cpu" value="${data?data.cpu:''}"></div>
-      <div class="form-group"><label>RAM</label><input id="c-ram" value="${data?data.ram:''}"></div>
-      <div class="form-group"><label>HDD</label><input id="c-hdd" value="${data?data.hdd:''}"></div>
-      <div class="form-group"><label>VGA</label><input id="c-vga" value="${data?data.vga:''}"></div>
-      <div class="form-group"><label>Mainboard</label><input id="c-mainboard" value="${data?data.mainboard:''}"></div>
-      <div class="form-group"><label>Monitor</label><input id="c-monitor" value="${data?data.monitor:''}"></div>
-      <div class="form-group"><label>Keyboard</label><input id="c-keyboard" value="${data?data.keyboard:''}"></div>
-      <div class="form-group"><label>Mouse</label><input id="c-mouse" value="${data?data.mouse:''}"></div>
-      <div class="form-group"><label>Others</label><input id="c-others" value="${data?data.others:''}"></div>
-      <div class="form-group full"><label>หมายเหตุ</label><input id="c-remark" value="${data?data.remark:''}"></div>
-    </div>
+function filteredComputers() {
+  const d = $('cf-dept').value, t = $('cf-type').value, q = $('cf-q').value.trim().toLowerCase();
+  state.cf = { dept: d, type: t, q: $('cf-q').value };
+  return state.computers.filter(c => (!d || c.department === d) && (!t || c.type === t) &&
+    (!q || [c.computerName, c.loginName, c.brand, c.model, c.sn, c.cpu, c.department].some(v => String(v || '').toLowerCase().includes(q))));
+}
+
+function applyComputerFilter() {
+  const list = filteredComputers();
+  const count = {}; state.computers.forEach(c => { const k = nameKey(c.computerName); if (k) count[k] = (count[k] || 0) + 1; });
+  const editor = isEditor(), admin = isAdmin();
+  const rows = list.map(c => {
+    const k = nameKey(c.computerName);
+    const flag = !k ? ' <span class="badge badge-warning">ไม่มีชื่อ</span>' : count[k] > 1 ? ' <span class="badge badge-warning">ชื่อซ้ำ</span>' : '';
+    const tds = REGISTER_COLS.map(col => col === 'computerName'
+      ? `<td><strong>${esc(c.computerName)}</strong>${flag}</td>` : `<td>${esc(c[col])}</td>`).join('');
+    const act = (editor || admin) ? `<td><div class="btn-group">
+      ${editor ? `<button class="btn btn-outline btn-sm" data-id="${esc(c.id)}" onclick="openComputerModal(this.dataset.id)">✏️ แก้ไข</button>` : ''}
+      ${admin ? `<button class="btn btn-danger btn-sm" data-id="${esc(c.id)}" onclick="deleteComputer(this.dataset.id)">🗑 ลบ</button>` : ''}
+    </div></td>` : '';
+    return `<tr data-key="${esc(c.id)}">${tds}${act}</tr>`;
+  }).join('');
+  const heads = REGISTER_HEADS.map(h => `<th>${h}</th>`).join('') + ((editor || admin) ? '<th></th>' : '');
+  const n = t => list.filter(c => c.type === t).length;
+  $('cf-summary').textContent = `พบ ${list.length} รายการ  (PC: ${n('PC')}  Laptop: ${n('Laptop')})`;
+  $('cf-table').innerHTML = list.length
+    ? `<table><thead><tr>${heads}</tr></thead><tbody>${rows}</tbody></table>`
+    : `<div class="empty">ไม่พบข้อมูลที่ตรงกับการค้นหา</div>`;
+  applySelection();
+}
+
+function openComputerModal(id) {
+  if (!isEditor()) { alert('เฉพาะ Admin / Technician เท่านั้น'); return; }
+  const c = id ? state.computers.find(x => x.id === id) : null;
+  const isEdit = !!c;
+  const val = k => esc(c ? c[k] : '');
+  const dep = c ? c.department : state.cf.dept;
+  const depList = [...new Set([...state.departments, dep])].filter(Boolean);
+  const typeList = [...new Set([...COMPUTER_TYPES, c ? c.type : ''])].filter(Boolean);
+  const field = k => {
+    if (k === 'department') return `<div class="form-group"><label>${COMPUTER_LABELS[k]}</label><select id="c-department"><option value="">— เลือกแผนก —</option>${depList.map(d => `<option value="${esc(d)}" ${d === dep ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select></div>`;
+    if (k === 'type') return `<div class="form-group"><label>${COMPUTER_LABELS[k]}</label><select id="c-type"><option value="">— เลือกประเภท —</option>${typeList.map(t => `<option value="${esc(t)}" ${c && t === c.type ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></div>`;
+    if (k === 'remark') return `<div class="form-group full"><label>${COMPUTER_LABELS[k]}</label><input id="c-remark" value="${val(k)}"></div>`;
+    return `<div class="form-group"><label>${COMPUTER_LABELS[k]}</label><input id="c-${k}" value="${val(k)}"></div>`;
+  };
+  $('modal-title').textContent = isEdit ? '✏️ แก้ไขข้อมูลเครื่อง' : '➕ เพิ่มเครื่องใหม่';
+  $('modal-body').innerHTML = `
+    <div class="form-grid">${COMPUTER_FIELDS.map(field).join('')}</div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveComputer(${isEdit})">💾 ${isEdit?'บันทึกการแก้ไข':'เพิ่มเครื่อง'}</button>
+      <button class="btn btn-primary" data-id="${esc(c ? c.id : '')}" onclick="saveComputer(this.dataset.id)">💾 ${isEdit ? 'บันทึกการแก้ไข' : 'เพิ่มเครื่อง'}</button>
     </div>`;
-  document.getElementById('modal').classList.add('show');
+  $('modal').classList.add('show');
 }
 
-function getComputerFormData() {
-  return ['id','name','location','ip','responsible','cpu','ram','hdd','vga','mainboard','monitor','keyboard','mouse','others','remark']
-    .reduce((o,k)=>({...o,[k]:document.getElementById('c-'+k).value.trim()}),{});
-}
-
-async function saveComputer(isEdit) {
-  if(!isAdmin()){ alert('เฉพาะ Admin เท่านั้น'); return; }
-  const d=getComputerFormData();
-  if(!d.id||!d.name){ alert('กรุณากรอกรหัสและชื่อเครื่อง'); return; }
-  try{ await call(isEdit?'updateComputer':'addComputer',d); closeModal(); await renderComputers(); alert(isEdit?'แก้ไขเรียบร้อย':'เพิ่มเครื่องเรียบร้อย'); }
-  catch(e){ alert('เกิดข้อผิดพลาด: '+e.message); }
+async function saveComputer(id) {
+  if (!isEditor()) { alert('เฉพาะ Admin / Technician เท่านั้น'); return; }
+  const d = {}; COMPUTER_FIELDS.forEach(k => { d[k] = $('c-' + k).value.trim(); });
+  if (!d.department || !d.type || !d.computerName) { alert('กรุณากรอก แผนก / ประเภท / ชื่อเครื่อง'); return; }
+  const old = id ? state.computers.find(c => c.id === id) : null;
+  const nameChanged = !old || nameKey(old.computerName) !== nameKey(d.computerName);
+  if (nameChanged && state.computers.some(c => c.id !== id && nameKey(c.computerName) === nameKey(d.computerName))) {
+    alert(`ชื่อเครื่อง "${d.computerName}" มีอยู่แล้ว กรุณาใช้ชื่อที่ไม่ซ้ำ`); return;
+  }
+  try {
+    if (id) { d.id = id; await call('updateComputer', d); } else { await call('addComputer', d); }
+    closeModal(); await renderComputers(); alert(id ? 'แก้ไขเรียบร้อย' : 'เพิ่มเครื่องเรียบร้อย');
+  } catch (e) { alert('เกิดข้อผิดพลาด: ' + e.message); }
 }
 
 async function deleteComputer(id) {
-  if(!isAdmin()){ alert('เฉพาะ Admin เท่านั้น'); return; }
-  if(!confirm(`ยืนยันการลบเครื่อง ${id}?`)) return;
-  try{ await call('deleteComputer',id); await renderComputers(); alert('ลบเรียบร้อย'); }
-  catch(e){ alert('เกิดข้อผิดพลาด: '+e.message); }
+  if (!isAdmin()) { alert('เฉพาะ Admin เท่านั้น'); return; }
+  const c = state.computers.find(x => x.id === id);
+  if (!confirm(`ยืนยันการลบเครื่อง ${c ? c.computerName : ''}?\n(ประวัติ PM ของเครื่องนี้ยังคงอยู่)`)) return;
+  try { await call('deleteComputer', id); await renderComputers(); alert('ลบเรียบร้อย'); }
+  catch (e) { alert('เกิดข้อผิดพลาด: ' + e.message); }
 }
 
-// ── STAFF ──────────────────────────────────────────
-async function renderStaff() {
-  const staff=await call('getStaff'); state.staff=staff;
-  setTopbarActions(`<button class="btn btn-primary" onclick="openStaffModal()">➕ เพิ่มเจ้าหน้าที่</button>`);
-  const rows=staff.map(s=>`<tr><td><span class="badge badge-gray">${s.code}</span></td><td>${s.name}</td><td><button class="btn btn-danger btn-sm" onclick="deleteStaff('${s.code}')">🗑 ลบ</button></td></tr>`).join('');
-  setContent(`<div class="card" style="max-width:680px">
-    <div class="card-header"><div class="card-title"><div class="card-title-icon">👨‍🔧</div>เจ้าหน้าที่แผนก (${staff.length} คน)</div></div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th></th></tr></thead>
-      <tbody>${rows||'<tr><td colspan="3" class="empty">ไม่มีข้อมูล</td></tr>'}</tbody>
-    </table></div>
-  </div>`);
+// พิมพ์ทะเบียน (ตามตัวกรองที่เลือกอยู่)
+function printRegister() {
+  const list = filteredComputers();
+  if (!list.length) { alert('ไม่มีข้อมูลที่จะพิมพ์'); return; }
+  const dept = $('cf-dept').value;
+  const n = t => list.filter(c => c.type === t).length;
+  const pc = n('PC'), lp = n('Laptop'), tb = n('Tablet'), aio = n('All-in-One');
+  const today = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
+  const body = list.map((c, i) => `<tr><td class="c">${i + 1}</td>${REGISTER_COLS.map(k => `<td>${esc(c[k])}</td>`).join('')}</tr>`).join('');
+  const html = `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4 landscape; margin: 8mm 8mm 12mm; }
+  body { font-family: 'Noto Sans Thai', Arial, sans-serif; color: #000; margin: 0; }
+  .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 8px; }
+  .header h1 { margin: 0; font-size: 18px; }
+  .info { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 9px; }
+  thead { display: table-header-group; }
+  th, td { border: 1px solid #000; padding: 3px 4px; text-align: left; word-break: break-word; }
+  th { background: #eee; text-align: center; }
+  td.c { text-align: center; }
+  tr { page-break-inside: avoid; }
+  .summary { margin-top: 10px; font-size: 12px; }
+  .footer { position: fixed; bottom: 0; right: 0; font-size: 10px; color: #444; }
+  .bar { text-align: center; margin: 14px 0; }
+  @media print { .bar { display: none; } }
+</style></head><body>
+  <div class="header"><h1>ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ</h1><div style="font-size:13px">แผนก: ${dept ? esc(dept) : 'ทุกแผนก'}</div></div>
+  <div class="info"><div>วันที่พิมพ์: ${today}</div><div>จำนวนทั้งหมด: ${list.length} รายการ</div></div>
+  <table><thead><tr><th>No.</th>${REGISTER_HEADS.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table>
+  <div class="summary">สรุป: PC ${pc} เครื่อง · Laptop ${lp} เครื่อง${tb ? ` · Tablet ${tb} เครื่อง` : ''}${aio ? ` · All-in-One ${aio} เครื่อง` : ''}</div>
+  <div class="footer">FOM 014 IT Rev.01 (12/05/2026)</div>
+  <div class="bar"><button onclick="window.print()" style="padding:8px 20px;font-size:15px">🖨 พิมพ์</button>
+  <button onclick="window.close()" style="padding:8px 20px;font-size:15px;margin-left:10px">ปิด</button></div>
+</body></html>`;
+  const w = window.open('', '_blank');
+  if (!w) { alert('เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต pop-up สำหรับหน้านี้'); return; }
+  w.document.write(html); w.document.close();
 }
 
-function openStaffModal() {
-  document.getElementById('modal-title').textContent='➕ เพิ่มเจ้าหน้าที่แผนก';
-  document.getElementById('modal-body').innerHTML=`
-    <div class="form-grid">
-      <div class="form-group"><label>รหัสเจ้าหน้าที่ *</label><input id="s-code" placeholder="เช่น ST001"></div>
-      <div class="form-group"><label>ชื่อ-สกุล *</label><input id="s-name" placeholder="นายสมชาย ใจดี"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveStaff()">💾 เพิ่มเจ้าหน้าที่</button>
-    </div>`;
-  document.getElementById('modal').classList.add('show');
-}
-
-async function saveStaff() {
-  const code=document.getElementById('s-code').value.trim(), name=document.getElementById('s-name').value.trim();
-  if(!code||!name){ alert('กรุณากรอกรหัสและชื่อ'); return; }
-  try{ await call('addStaff',{code,name}); closeModal(); await renderStaff(); }
-  catch(e){ alert('เกิดข้อผิดพลาด: '+e.message); }
-}
-
-async function deleteStaff(code) {
-  if(!confirm('ยืนยันการลบ?')) return;
-  try{ await call('deleteStaff',code); await renderStaff(); } catch(e){ alert('เกิดข้อผิดพลาด: '+e.message); }
-}
-
-// ── USERS ──────────────────────────────────────────
+// ── USERS (พนักงานจากตาราง employees — ดูอย่างเดียว) ─────
 async function renderUsers() {
-  const users=await call('getUsers'); state.users=users;
-  setTopbarActions(`<button class="btn btn-primary" onclick="openUserModal()">➕ เพิ่มผู้ใช้งาน</button>`);
-  const rows=users.map(u=>`<tr>
-    <td><span class="badge badge-gray">${u.code}</span></td><td>${u.name}</td>
-    <td>${u.section||'—'}</td><td>${u.department||'—'}</td><td>${u.position||'—'}</td>
-    <td><button class="btn btn-danger btn-sm" onclick="deleteUser('${u.code}')">🗑 ลบ</button></td>
-  </tr>`).join('');
-  setContent(`<div class="card">
-    <div class="card-header"><div class="card-title"><div class="card-title-icon">👥</div>รายชื่อผู้ใช้งาน (${users.length} คน)</div></div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>แผนก/ฝ่าย</th><th>กอง</th><th>ตำแหน่ง</th><th></th></tr></thead>
-      <tbody>${rows||'<tr><td colspan="6" class="empty">ไม่มีข้อมูล</td></tr>'}</tbody>
-    </table></div>
-  </div>`);
+  const users = await call('getUsers'); state.users = users;
+  setContent(`
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><div class="card-title-icon">👥</div>รายชื่อผู้ใช้งาน (<span id="u-count">${users.length}</span> คน)</div>
+        <div class="search-bar"><input id="u-q" oninput="filterUsers()" placeholder="ค้นหา ชื่อ / รหัส / แผนก ..." style="width:260px"></div>
+      </div>
+      <div class="readonly-notice" style="margin-bottom:16px">ℹ️ ข้อมูลนี้มาจากตาราง employees ใช้ร่วมกับระบบแจ้งซ่อม — หน้านี้ดูอย่างเดียว</div>
+      <div class="table-wrap" id="u-table"></div>
+    </div>`);
+  filterUsers();
+}
+function filterUsers() {
+  const q = ($('u-q').value || '').trim().toLowerCase();
+  const list = state.users.filter(u => !q || [u.empCode, u.name, u.section, u.department, u.position].some(v => String(v || '').toLowerCase().includes(q)));
+  $('u-count').textContent = list.length;
+  const rows = list.map(u => `<tr data-key="${esc(u.id)}"><td><span class="badge badge-gray">${esc(u.empCode)}</span></td><td>${esc(u.name)}</td>
+    <td>${esc(u.department) || '—'}</td><td>${esc(u.section) || '—'}</td><td>${esc(u.position) || '—'}</td></tr>`).join('');
+  $('u-table').innerHTML = `<table><thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>แผนก</th><th>ส่วนงาน</th><th>ตำแหน่ง</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="5" class="empty">ไม่พบข้อมูล</td></tr>'}</tbody></table>`;
+  applySelection();
 }
 
-function openUserModal() {
-  document.getElementById('modal-title').textContent='➕ เพิ่มผู้ใช้งาน';
-  document.getElementById('modal-body').innerHTML=`
-    <div class="form-grid">
-      <div class="form-group"><label>รหัสผู้ใช้ *</label><input id="u-code" placeholder="เช่น US001"></div>
-      <div class="form-group"><label>ชื่อ-สกุล *</label><input id="u-name" placeholder="นางสาวกนกวรรณ สุขสวัสดิ์"></div>
-      <div class="form-group"><label>แผนก/ฝ่าย</label><input id="u-section" placeholder="แผนกทรัพยากรบุคคล"></div>
-      <div class="form-group"><label>กอง</label><input id="u-department" placeholder="กองบริหารทั่วไป"></div>
-      <div class="form-group full"><label>ตำแหน่ง</label><input id="u-position" placeholder="เจ้าหน้าที่บริหารงานทั่วไป"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveUser()"> เพิ่มผู้ใช้งาน</button>
-    </div>`;
-  document.getElementById('modal').classList.add('show');
+// ── ROW SELECTION (แถบไฮไลท์สีฟ้าค้างไว้จนกว่าจะเลือกแถวอื่น) ──
+state.sel = {};   // จำแถวที่เลือกแยกตามหน้า — ยังอยู่หลังกรอง/ค้นหา/แก้ไข/สลับหน้า
+function applySelection() {
+  const key = state.sel[state.page];
+  document.querySelectorAll('#content tbody tr[data-key]').forEach(tr =>
+    tr.classList.toggle('selected-row', key !== undefined && tr.dataset.key === String(key)));
 }
-
-async function saveUser() {
-  const code=document.getElementById('u-code').value.trim(), name=document.getElementById('u-name').value.trim();
-  if(!code||!name){ alert('กรุณากรอกรหัสและชื่อ'); return; }
-  try{
-    await call('addUser',{code,name,
-      section:   document.getElementById('u-section').value.trim(),
-      department:document.getElementById('u-department').value.trim(),
-      position:  document.getElementById('u-position').value.trim()
-    });
-    closeModal(); await renderUsers();
-  } catch(e){ alert('เกิดข้อผิดพลาด: '+e.message); }
-}
-
-async function deleteUser(code) {
-  if(!confirm('ยืนยันการลบ?')) return;
-  try{ await call('deleteUser',code); await renderUsers(); } catch(e){ alert('เกิดข้อผิดพลาด: '+e.message); }
-}
+$('content').addEventListener('click', e => {
+  const tr = e.target.closest('tbody tr[data-key]');
+  if (!tr) return;
+  state.sel[state.page] = tr.dataset.key;
+  applySelection();
+});
 
 // ── MODAL ──────────────────────────────────────────
 function closeModal() { document.getElementById('modal').classList.remove('show'); }
 document.getElementById('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
 
 // ── INIT ───────────────────────────────────────────
-document.getElementById('footer-year').textContent = ' © '+new Date().getFullYear();
-sb.auth.getSession().then(({ data }) => {
-  if (data && data.session && data.session.user.email === ADMIN_EMAIL) startApp('admin');
+$('footer-year').textContent = ' © '+new Date().getFullYear();
+sb.auth.getSession().then(async ({ data }) => {
+  if (data && data.session) {
+    const p = await loadProfile(data.session.user.id);
+    if (p) startApp(p.role, p);
+  }
 });
 </script>
 </body>
