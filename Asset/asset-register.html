@@ -270,23 +270,6 @@
   .section-heading { font-size: 12.5px; font-weight: 700; color: var(--text-mid); margin: 2px 0 6px; display: flex; align-items: center; gap: 7px; text-transform: uppercase; letter-spacing: 0.6px; }
   .section-heading .ic { width: 16px; height: 16px; }
 
-  /* ── INFO BOX ── */
-  .info-box {
-    background: var(--sky-pale);
-    border: 1px solid var(--sky-light);
-    border-left: 4px solid var(--sky);
-    border-radius: var(--radius-md);
-    padding: 16px 20px;
-    margin-bottom: 18px;
-  }
-  .info-box-title { font-family: var(--font); font-size: 12.5px; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
-  .info-box-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
-  .info-box-item { display: flex; flex-direction: column; gap: 3px; }
-  .info-box-label { font-size: 10.5px; font-weight: 700; color: var(--navy-light); text-transform: uppercase; letter-spacing: 0.6px; }
-  .info-box-value { font-size: 13px; color: var(--text); font-weight: 600; }
-  .info-box-value.mono { font-family: 'Courier New', monospace; font-size: 12.5px; }
-  .info-box-value.empty-val { color: var(--text-faint); font-weight: 400; font-style: italic; }
-
   /* ── READ-ONLY ── */
   .readonly-notice {
     display: flex; align-items: center; gap: 9px;
@@ -301,7 +284,6 @@
   .content > .readonly-notice { padding: 8px 14px; margin-bottom: 10px; }
 
   @media (max-width: 900px) {
-    .stats-grid { grid-template-columns: repeat(2,1fr); }
     .form-grid, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr; }
     .content { padding: 16px; }
     .topbar { padding: 10px 16px; }
@@ -376,7 +358,6 @@
       </div>
       <div class="top-actions">
         <span class="role-badge user" id="role-badge"></span>
-        <a class="btn btn-outline btn-sm" id="pm-link" href="https://sarawutc6689-cpu.github.io/Mouldmate-IT/Form/008/index.html" target="_blank" rel="noopener"><svg class="ic"><use href="#i-clipboard"/></svg> ระบบ PM <svg class="ic"><use href="#i-external"/></svg></a>
         <button class="logout-btn" id="btn-login" onclick="openLogin()"><svg class="ic"><use href="#i-lock"/></svg> เข้าสู่ระบบ</button>
         <button class="logout-btn" id="btn-logout" onclick="logout()" style="display:none"><svg class="ic"><use href="#i-logout"/></svg> ออกจากระบบ</button>
       </div>
@@ -400,7 +381,6 @@ const SUPABASE_URL      = 'https://fuarmmweqxxhczavkvqp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE';
 const KEY_OK = !SUPABASE_ANON_KEY.includes('ตรงนี้');
 const LOGO_URL    = '';
-const PM_PAGE_URL = 'pm-system-v2.html';
 const ROLE_CAN_EDIT   = ['admin', 'technician'];
 const ROLE_CAN_DELETE = ['admin'];
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -481,7 +461,7 @@ const FORM_GROUPS = [
   ['หมายเหตุ',                   ['remark']],
 ];
 const FORM_KEYS = FORM_GROUPS.flatMap(g => g[1]);
-const CHECKS = { '': 'ตรวจสอบข้อมูล: ทุกรายการ', dup: 'ชื่อซ้ำ / ไม่ไม่มีชื่อ', nosn: 'ยังไม่มี Serial Number',
+const CHECKS = { '': 'ตรวจสอบข้อมูล: ทุกรายการ', dup: 'ชื่อซ้ำ / ไม่มีชื่อ', nosn: 'ยังไม่มี Serial Number',
                  spare: 'เครื่องว่าง (ไม่มีผู้ใช้)', nodetail: 'สเปกไม่ครบ (ไม่มียี่ห้อ/CPU/RAM)' };
 
 // ═══════════ AUTH ═══════════
@@ -788,7 +768,6 @@ function errorHint(e) {
 }
 (async function init() {
   $('footer-year').textContent = new Date().getFullYear();
-  $('pm-link').href = PM_PAGE_URL;
   if (LOGO_URL) document.querySelectorAll('.brand-logo').forEach(el => {
     const def = el.innerHTML, img = new Image();
     img.alt = 'logo'; img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:inherit';
