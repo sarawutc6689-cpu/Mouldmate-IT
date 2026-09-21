@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบบำรุงรักษาคอมพิวเตอร์</title>
+<title>จัดการเจ้าหน้าที่ (บัญชีผู้ใช้ระบบ)</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2216%22%20fill%3D%22%233D4A6B%22%2F%3E%3Cg%20transform%3D%22translate%2810%2C10%29%20scale%281.83%29%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%222.5%22%20y%3D%223.5%22%20width%3D%2219%22%20height%3D%2213%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%2021h8M12%2016.5V21%22%2F%3E%3Cpath%20d%3D%22M8%2010l2.6%202.6L16%207.4%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
 <style>
@@ -38,7 +38,6 @@
     --text-muted: #7A8091;
     --text-faint: #A5A9B5;
 
-    --sidebar-w:  236px;
     --radius-sm:  8px;
     --radius-md:  12px;
     --radius-lg:  16px;
@@ -54,209 +53,12 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    display: flex;
     letter-spacing: 0.1px;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* ── LOGIN PAGE ────────────────────────────────── */
-  #login-page {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    min-height: 100vh;
-    padding: 24px;
-    background:
-      radial-gradient(circle at 20% 20%, rgba(91,155,155,0.18) 0%, transparent 55%),
-      radial-gradient(circle at 80% 80%, rgba(201,169,97,0.14) 0%, transparent 55%),
-      linear-gradient(135deg, #2E3852 0%, #3D4A6B 50%, #4E5D82 100%);
-    position: relative;
-    overflow: hidden;
-  }
-  #login-page::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-      radial-gradient(circle at 10% 30%, rgba(255,255,255,0.06) 0%, transparent 8%),
-      radial-gradient(circle at 90% 70%, rgba(255,255,255,0.05) 0%, transparent 10%),
-      radial-gradient(circle at 50% 10%, rgba(255,255,255,0.04) 0%, transparent 12%);
-    pointer-events: none;
-  }
-
-  .login-box {
-    position: relative;
-    background: var(--white);
-    border-radius: 18px;
-    padding: 36px 32px 32px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow:
-      0 20px 60px rgba(20,30,60,0.30),
-      0 8px 20px rgba(20,30,60,0.18),
-      0 0 0 1px rgba(255,255,255,0.06);
-    animation: loginFadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  @keyframes loginFadeIn {
-    from { opacity: 0; transform: translateY(12px) scale(0.98); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  .login-logo {
-    text-align: center;
-    margin-bottom: 26px;
-  }
-  .login-logo-icon {
-    width: 58px; height: 58px;
-    background: linear-gradient(135deg, #3D4A6B 0%, #5B6B8E 100%);
-    border-radius: 16px;
-    display: inline-flex; align-items: center; justify-content: center;
-    margin-bottom: 14px;
-    color: #fff;
-    box-shadow:
-      0 8px 22px rgba(61,74,107,0.35),
-      inset 0 1px 0 rgba(255,255,255,0.15);
-  }
-  .login-logo-icon .ic { width: 28px; height: 28px; stroke-width: 1.6; }
-  .login-logo-title {
-    font-family: var(--font);
-    font-size: 20px; font-weight: 700;
-    color: var(--navy);
-    line-height: 1.35;
-    letter-spacing: -0.2px;
-  }
-  .login-logo-sub {
-    font-size: 12.5px;
-    color: var(--text-muted);
-    margin-top: 5px;
-    letter-spacing: 0.3px;
-  }
-
-  .login-field { margin-bottom: 16px; }
-  .login-field label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-mid);
-    display: block;
-    margin-bottom: 6px;
-    letter-spacing: 0.2px;
-  }
-  .login-field input {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 9px;
-    font-size: 14px;
-    font-family: var(--font);
-    color: var(--text);
-    background: var(--surface);
-    transition: all 0.22s ease;
-    box-shadow: inset 0 1px 2px rgba(61,74,107,0.03);
-  }
-  .login-field input::placeholder { color: var(--text-faint); font-weight: 400; }
-  .login-field input:hover { border-color: #CFC7BB; background: var(--white); }
-  .login-field input:focus {
-    outline: none;
-    border-color: var(--sky);
-    background: var(--white);
-    box-shadow:
-      0 0 0 4px rgba(91,155,155,0.14),
-      inset 0 1px 2px rgba(61,74,107,0.03);
-  }
-
-  .login-error {
-    background: var(--danger-light);
-    border: 1px solid rgba(156,84,84,0.18);
-    border-radius: 9px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: var(--danger);
-    margin-bottom: 14px;
-    display: none;
-  }
-  .login-error.show { display: block; animation: shake 0.4s; }
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-4px); }
-    75% { transform: translateX(4px); }
-  }
-
-  .login-btn {
-    width: 100%;
-    padding: 12px 18px;
-    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-    color: var(--white);
-    border: none;
-    border-radius: 9px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: var(--font);
-    transition: all 0.22s ease;
-    box-shadow:
-      0 4px 12px rgba(61,74,107,0.25),
-      inset 0 1px 0 rgba(255,255,255,0.12);
-    letter-spacing: 0.2px;
-  }
-  .login-btn:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      0 8px 20px rgba(61,74,107,0.35),
-      inset 0 1px 0 rgba(255,255,255,0.15);
-    filter: brightness(1.05);
-  }
-  .login-btn:active { transform: translateY(0); }
-
-  .login-divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 12px;
-    color: var(--text-faint);
-    margin: 18px 0;
-    letter-spacing: 0.5px;
-  }
-  .login-divider::before,
-  .login-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border), transparent);
-  }
-
-  .user-login-btn {
-    width: 100%;
-    padding: 12px 18px;
-    background: var(--white);
-    color: var(--success);
-    border: 1.5px solid rgba(74,128,96,0.30);
-    border-radius: 9px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: var(--font);
-    transition: all 0.22s ease;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
-  }
-  .user-login-btn:hover {
-    background: var(--success-light);
-    border-color: rgba(74,128,96,0.50);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(74,128,96,0.15);
-  }
-  .user-login-btn:active { transform: translateY(0); }
-
-  .login-btn, .user-login-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .login-btn .ic, .user-login-btn .ic { width: 16px; height: 16px; }
-
-  /* ── ROLE BADGE ────────────────────────────────── */
+  /* ── ROLE BADGE ── */
   .role-badge {
     display: inline-flex; align-items: center; gap: 5px;
     padding: 4px 11px;
@@ -281,93 +83,36 @@
   .logout-btn:hover { background: var(--danger-light); color: var(--danger); border-color: rgba(156,84,84,0.22); }
   .logout-btn .ic { width: 14px; height: 14px; }
 
-  /* ── SIDEBAR ──────────────────────────────────────────── */
-  #sidebar {
-    width: var(--sidebar-w);
-    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0; left: 0;
-    height: 100vh;
-    z-index: 200;
-    box-shadow: 2px 0 16px rgba(61,74,107,0.15);
-  }
-  .sidebar-header {
-    padding: 20px 18px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    background: rgba(0,0,0,0.10);
-  }
-  .sidebar-emblem {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
-  }
-  .sidebar-emblem-icon {
-    width: 32px; height: 32px;
-    background: var(--gold);
-    border-radius: 9px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .sidebar-emblem-icon .ic { width: 18px; height: 18px; color: var(--navy-deep); }
-  .sidebar-logo {
-    font-family: var(--font);
-    font-size: 14px; font-weight: 700;
-    color: #FFFFFF; line-height: 1.35;
-  }
-  .sidebar-subtitle {
-    font-size: 11px;
-    color: rgba(255,255,255,0.42);
-    letter-spacing: 0.3px;
-  }
-  .nav-section { padding: 8px 0; }
-  .nav-label {
-    font-size: 10px; font-weight: 700;
-    color: rgba(255,255,255,0.30);
-    text-transform: uppercase; letter-spacing: 1.5px;
-    padding: 8px 18px 4px;
-  }
-  .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 18px;
-    cursor: pointer;
-    font-size: 14px;
-    color: rgba(255,255,255,0.62);
-    transition: all 0.18s ease;
-    border-left: 3px solid transparent;
-  }
-  .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.92); border-left-color: rgba(255,255,255,0.18); }
-  .nav-item.active { background: rgba(91,155,155,0.18); color: #FFFFFF; border-left-color: var(--sky); font-weight: 600; }
-  .nav-item.active .nav-icon { color: var(--sky-light); }
-  .nav-icon { display: inline-flex; align-items: center; justify-content: center; width: 18px; }
-  .nav-icon .ic { width: 17px; height: 17px; }
-  .nav-item.editor-only { display: none; }
-  .nav-item.editor-only.show { display: flex; }
-  .sidebar-footer {
-    margin-top: auto;
-    padding: 14px 18px;
-    border-top: 1px solid rgba(255,255,255,0.07);
-    background: rgba(0,0,0,0.10);
-  }
-  .footer-line { font-size: 11px; color: rgba(255,255,255,0.32); display: flex; align-items: center; gap: 6px; padding: 2px 0; }
-
-  /* ── MAIN ─────────────────────────────────────────── */
+  /* ── MAIN ── */
   #app { display: none; width: 100%; }
   #app.show { display: flex; }
-  #main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; min-width: 0; }
+  #main { flex: 1; display: flex; flex-direction: column; min-height: 100vh; min-width: 0; }
   .topbar {
     background: var(--white);
     border-bottom: 1px solid var(--border-soft);
-    padding: 0 24px;
-    height: 60px;
+    padding: 10px 24px;
+    min-height: 64px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 100;
     box-shadow: var(--shadow-sm);
+    gap: 12px 20px; flex-wrap: wrap;
   }
-  .page-title { font-family: var(--font); font-size: 19px; font-weight: 700; color: var(--navy); }
-  .page-subtitle { font-size: 12.5px; color: var(--text-muted); margin-top: 1px; }
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .brand .sidebar-emblem-icon { width: 42px; height: 42px; border-radius: 11px; flex-shrink: 0; }
+  .brand .sidebar-emblem-icon .ic { width: 24px; height: 24px; }
+  .sidebar-emblem-icon {
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--navy-deep);
+  }
+  .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .page-title { font-family: var(--font); font-size: 19px; font-weight: 700; color: var(--navy); line-height: 1.3; }
+  .page-subtitle { font-size: 12.5px; color: var(--text-muted); line-height: 1.3; }
   .content { padding: 24px; flex: 1; min-width: 0; }
+  .page-foot { text-align: center; color: var(--text-faint); font-size: 11.5px; padding: 0 20px 14px; }
+  a.btn { text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
 
-  /* ── CARDS ────────────────────────────────────────── */
+  /* ── CARDS ── */
   .card {
     background: var(--white);
     border: 1px solid var(--border-soft);
@@ -375,10 +120,8 @@
     padding: 22px;
     margin-bottom: 20px;
     box-shadow: var(--shadow-sm);
-    transition: box-shadow 0.25s;
     min-width: 0;
   }
-  .card:hover { box-shadow: var(--shadow-md); }
   .card-header {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 18px; padding-bottom: 14px;
@@ -399,40 +142,7 @@
   }
   .card-title-icon .ic { width: 16px; height: 16px; }
 
-  /* ── STATS ────────────────────────────────────────── */
-  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
-  .stat-card {
-    background: var(--white);
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-lg);
-    padding: 18px 20px;
-    box-shadow: var(--shadow-sm);
-    position: relative; overflow: hidden;
-    transition: all 0.25s;
-  }
-  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
-  .stat-card.blue::before  { background: var(--navy-mid); }
-  .stat-card.green::before { background: var(--success); }
-  .stat-card.amber::before { background: var(--warning); }
-  .stat-card.gray::before  { background: var(--text-muted); }
-  .stat-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-  .stat-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
-  .stat-value { font-family: var(--font); font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 5px; }
-  .stat-sub { font-size: 12px; color: var(--text-muted); }
-  .stat-card.blue  .stat-value { color: var(--navy-mid); }
-  .stat-card.green .stat-value { color: var(--success); }
-  .stat-card.amber .stat-value { color: var(--warning); }
-  .stat-card.gray  .stat-value { color: var(--text-mid); }
-
-  /* ── CHART ────────────────────────────────────────── */
-  .chart-wrap { display: flex; align-items: flex-end; gap: 8px; height: 120px; padding: 0 4px; }
-  .bar-col { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 5px; height: 100%; justify-content: flex-end; }
-  .bar { width: 100%; background: var(--sky-light); border-radius: 4px 4px 0 0; transition: all 0.4s; min-height: 3px; }
-  .bar.active { background: var(--sky); }
-  .bar-val { font-size: 11px; font-weight: 700; color: var(--navy-mid); }
-  .bar-lbl { font-size: 10.5px; color: var(--text-muted); }
-
-  /* ── TABLES ───────────────────────────────────────── */
+  /* ── TABLES ── */
   .table-wrap { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border-soft); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   thead tr { background: var(--navy); }
@@ -446,17 +156,18 @@
   tbody tr.selected-row:hover td { background: #DCE9E7; }
   tbody tr.selected-row td:first-child { box-shadow: inset 3px 0 0 var(--sky); }
 
-  /* ── BADGES ───────────────────────────────────────── */
-  .badge { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.2px; }
+  /* ── BADGES ── */
+  .badge { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
   .badge-success { background: var(--success-light); color: var(--success); }
   .badge-warning { background: var(--warning-light); color: var(--warning); }
   .badge-danger  { background: var(--danger-light);  color: var(--danger); }
   .badge-blue    { background: var(--sky-light);     color: var(--navy-mid); }
   .badge-gray    { background: var(--bg); color: var(--text-mid); border: 1px solid var(--border-soft); }
 
-  /* ── FORMS ────────────────────────────────────────── */
+  /* ── FORMS ── */
   .form-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 16px; }
+  .form-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px 14px; }
   .form-group  { display: flex; flex-direction: column; gap: 6px; }
   .form-group.full { grid-column: 1 / -1; }
   label { font-size: 13px; font-weight: 600; color: var(--text-mid); letter-spacing: 0.2px; }
@@ -480,22 +191,7 @@
   input[readonly] { background: var(--bg); color: var(--text-mid); cursor: default; }
   textarea { resize: vertical; min-height: 80px; }
 
-  /* ── CHECKLIST ────────────────────────────────────── */
-  .check-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-  .check-item {
-    display: flex; align-items: center; gap: 9px;
-    padding: 10px 12px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-md);
-    cursor: pointer; font-size: 13.5px;
-    transition: all 0.18s;
-    background: var(--white);
-  }
-  .check-item:hover { border-color: var(--sky); background: var(--sky-pale); color: var(--navy); }
-  .check-item input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--sky); }
-  .check-item.checked { border-color: var(--success); background: var(--success-light); color: var(--success); font-weight: 600; }
-
-  /* ── BUTTONS ──────────────────────────────────────── */
+  /* ── BUTTONS ── */
   .btn {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 9px 18px;
@@ -505,7 +201,6 @@
     transition: all 0.2s;
     font-family: var(--font);
     white-space: nowrap;
-    text-decoration: none;
   }
   .btn .ic { width: 16px; height: 16px; }
   .btn-primary  { background: var(--navy); color: var(--white); box-shadow: 0 1px 3px rgba(61,74,107,0.18); }
@@ -519,7 +214,7 @@
   .btn-sm { padding: 6px 13px; font-size: 12.5px; }
   .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
 
-  /* ── MODAL ────────────────────────────────────────── */
+  /* ── MODAL ── */
   .modal-bg {
     display: none; position: fixed; inset: 0;
     background: rgba(46,56,82,0.42);
@@ -538,11 +233,13 @@
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-soft);
   }
+  .modal.wide { width: 940px; padding: 20px 24px; }
   .modal-header {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 20px; padding-bottom: 14px;
     border-bottom: 1px solid var(--border-soft);
   }
+  .modal.wide .modal-header { margin-bottom: 12px; padding-bottom: 10px; }
   .modal-title { font-family: var(--font); font-size: 18px; font-weight: 700; color: var(--navy); }
   .modal-close {
     background: var(--surface); border: 1px solid var(--border);
@@ -555,44 +252,24 @@
     margin-top: 22px; display: flex; justify-content: flex-end; gap: 10px;
     padding-top: 16px; border-top: 1px solid var(--border-soft);
   }
+  .modal.wide .modal-footer {
+    position: sticky; bottom: -20px; z-index: 2; background: var(--white);
+    margin: 10px -24px -20px; padding: 12px 24px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+  .modal-meta { margin-right: auto; color: var(--text-muted); font-size: 12px; align-self: center; }
 
-  /* ── MISC ─────────────────────────────────────────── */
+  /* ── MISC ── */
   .search-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .search-bar select { max-width: 200px; }
-  .progress-bar { height: 7px; background: var(--sky-light); border-radius: 7px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--sky); border-radius: 7px; transition: width 0.5s; }
-  .progress-fill.success { background: var(--success); }
-  .progress-fill.warning { background: var(--warning); }
   .loading { display: flex; align-items: center; gap: 12px; color: var(--text-muted); padding: 50px; justify-content: center; font-size: 14px; }
   .spinner { width: 22px; height: 22px; border: 3px solid var(--sky-light); border-top-color: var(--sky); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .empty { text-align: center; padding: 50px; color: var(--text-faint); font-size: 14px; }
-  .location-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .location-name { font-size: 13px; width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; color: var(--text-mid); }
-  .location-stat { font-size: 12.5px; color: var(--text-muted); min-width: 80px; text-align: right; font-weight: 600; }
-  .section-divider { border: none; border-top: 1px solid var(--border-soft); margin: 20px 0; }
-  .section-heading { font-size: 12.5px; font-weight: 700; color: var(--text-mid); margin-bottom: 12px; display: flex; align-items: center; gap: 7px; text-transform: uppercase; letter-spacing: 0.6px; }
+  .section-heading { font-size: 12.5px; font-weight: 700; color: var(--text-mid); margin: 2px 0 6px; display: flex; align-items: center; gap: 7px; text-transform: uppercase; letter-spacing: 0.6px; }
   .section-heading .ic { width: 16px; height: 16px; }
 
-  /* ── INFO BOX ─────────────────────────────────────── */
-  .info-box {
-    background: var(--sky-pale);
-    border: 1px solid var(--sky-light);
-    border-left: 4px solid var(--sky);
-    border-radius: var(--radius-md);
-    padding: 16px 20px;
-    margin-bottom: 18px;
-  }
-  .info-box-title { font-family: var(--font); font-size: 12.5px; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
-  .info-box-title .ic { width: 16px; height: 16px; }
-  .info-box-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
-  .info-box-item { display: flex; flex-direction: column; gap: 3px; }
-  .info-box-label { font-size: 10.5px; font-weight: 700; color: var(--navy-light); text-transform: uppercase; letter-spacing: 0.6px; }
-  .info-box-value { font-size: 13px; color: var(--text); font-weight: 600; }
-  .info-box-value.mono { font-family: 'Courier New', monospace; font-size: 12.5px; }
-  .info-box-value.empty-val { color: var(--text-faint); font-weight: 400; font-style: italic; }
-
-  /* ── READ-ONLY NOTICE ─────────────────────────────── */
+  /* ── READ-ONLY ── */
   .readonly-notice {
     display: flex; align-items: center; gap: 9px;
     background: var(--warning-light);
@@ -603,23 +280,28 @@
     color: var(--warning);
     margin-bottom: 16px;
   }
-
-  @media (max-width: 900px) {
-    :root { --sidebar-w: 0px; }
-    #sidebar { transform: translateX(-236px); transition: transform 0.3s; }
-    #sidebar.open { transform: translateX(0); width: 236px; }
-    .stats-grid { grid-template-columns: repeat(2,1fr); }
-    .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
-    .check-grid { grid-template-columns: 1fr 1fr; }
-    .info-box-grid { grid-template-columns: repeat(2,1fr); }
-    .content { padding: 16px; }
-    .login-box { padding: 30px 24px 26px; }
-    .topbar { padding: 0 16px; height: auto; min-height: 60px; }
+  .content > .readonly-notice { padding: 8px 14px; margin-bottom: 10px; }
+  .login-error {
+    background: var(--danger-light);
+    border: 1px solid rgba(156,84,84,0.18);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--danger);
+    margin-bottom: 16px;
   }
 
-  /* ── ICONS ───────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .form-grid, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr; }
+    .content { padding: 16px; }
+    .topbar { padding: 10px 16px; }
+    .modal { padding: 20px; }
+  }
+
+  /* ── ICONS ── */
   .ic { display: inline-block; width: 1em; height: 1em; vertical-align: -0.15em; flex-shrink: 0;
         fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  a.btn .ic { width: 16px; height: 16px; }
 
   /* ── STICKY TABLES ── */
   .table-wrap.fit { overflow: auto; position: relative; }
@@ -635,6 +317,7 @@
   .table-wrap.compact th { padding: 9px 11px; }
   .table-wrap.compact td { padding: 6px 11px; line-height: 1.3; white-space: nowrap; font-size: 12.5px; }
   .clip { display: inline-block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+  .clip.muted { color: var(--text-muted); font-size: 11.5px; }
 
   .table-wrap.fit th.sticky-col, .table-wrap.fit td.sticky-col { position: sticky; left: 0; z-index: 2; }
   .table-wrap.fit th.sticky-act, .table-wrap.fit td.sticky-act { position: sticky; right: 0; z-index: 2; }
@@ -646,7 +329,13 @@
   .table-wrap.compact td .btn { padding: 3px 9px; font-size: 12px; gap: 3px; }
   .table-wrap.compact td .btn .ic { width: 14px; height: 14px; }
 
-  /* การ์ดแบบกะทัดรัด */
+  /* ── TOAST ── */
+  #toast { position: fixed; top: 76px; right: 20px; z-index: 900; display: flex; flex-direction: column; gap: 8px; max-width: min(480px, 90vw); }
+  .toast-item { padding: 10px 16px; border-radius: 10px; color: #fff; box-shadow: var(--shadow-md); font-size: 13px; line-height: 1.4; }
+  .toast-item.ok { background: var(--success); }
+  .toast-item.err { background: var(--danger); }
+
+  /* ── TIGHT CARD ── */
   .card.tight { padding: 16px 20px 18px; }
   .card.tight .card-header { margin-bottom: 12px; padding-bottom: 0; border-bottom: none; gap: 10px 14px; flex-wrap: wrap; }
   .card.tight .card-title { flex-wrap: wrap; }
@@ -654,92 +343,58 @@
   .card.tight .search-bar { gap: 8px; }
   .card.tight .search-bar select, .card.tight .search-bar input { padding: 6px 10px; font-size: 12.5px; width: auto; }
   .card.tight .search-bar input { width: 200px; }
-  .page-title, .page-subtitle { line-height: 1.3; }
+  .card.tight .search-bar select { max-width: 260px; }
+
+  /* ── FORM GROUP COMPACT (in modal) ── */
+  .modal.wide .form-group label { margin-bottom: 2px; font-size: 12.5px; }
+  .modal.wide .form-group input, .modal.wide .form-group select { padding: 5px 9px; font-size: 13.5px; }
+
+  /* ── เฉพาะหน้านี้ ── */
+  .muted-s { color: var(--text-muted); font-size: 12px; }
+  .card.tight.legend { display: grid; grid-template-columns: 1.7fr 1.35fr 0.75fr; gap: 6px 22px; padding: 12px 20px; margin-bottom: 14px; }
+  .role-sel { padding: 3px 8px; font-size: 13px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--white); color: var(--text); font-family: var(--font); }
+  .role-sel:focus { outline: none; border-color: var(--sky); box-shadow: 0 0 0 3px rgba(91,155,155,0.12); }
+  .cred-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-soft); }
+  .cred-row .muted-s { width: 78px; flex-shrink: 0; }
+  .cred-row b { flex: 1; word-break: break-all; font-size: 13px; }
+  code { background: var(--sky-pale); padding: 1px 7px; border-radius: 5px; font-size: 12px; font-family: 'Courier New', monospace; }
+  @media (max-width: 900px) { .card.tight.legend { grid-template-columns: 1fr; } }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-logo" viewBox="0 0 24 24"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 21h8M12 16.5V21"/><path d="M8 10l2.6 2.6L16 7.4"/></symbol><symbol id="i-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="9" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="5.5" rx="1.5"/><rect x="13.5" y="12" width="7.5" height="9" rx="1.5"/><rect x="3" y="15.5" width="7.5" height="5.5" rx="1.5"/></symbol><symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><rect x="9" y="2.5" width="6" height="3" rx="1"/><path d="M8.5 13.5l2.5 2.5 4.5-5"/></symbol><symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5"/><path d="M12 7.5V12l3 2"/></symbol><symbol id="i-computer" viewBox="0 0 24 24"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 21h8M12 16.5V21"/></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20"/><circle cx="9.5" cy="7.5" r="3.5"/><path d="M21 20v-1.5a4 4 0 0 0-3-3.9"/><path d="M15.5 4.2a3.5 3.5 0 0 1 0 6.6"/></symbol><symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5.5A2.5 2.5 0 0 1 3 18.5v-13A2.5 2.5 0 0 1 5.5 3H9"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></symbol><symbol id="i-cpu" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol><symbol id="i-checklist" viewBox="0 0 24 24"><path d="M11 6h10M11 12h10M11 18h10"/><path d="M3 6l1.5 1.5L7 4.5M3 12l1.5 1.5L7 10.5M3 18l1.5 1.5L7 16.5"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><path d="M3.5 3.5v17h17"/><path d="M8 16v-5M12.5 16V7M17 16v-7.5"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10.5c0 6-8 11.5-8 11.5S4 16.5 4 10.5a8 8 0 0 1 16 0z"/><circle cx="12" cy="10.5" r="3"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 15v2.5"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3.5h11.5L20.5 7.5V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V5A1.5 1.5 0 0 1 5 3.5z"/><path d="M8 3.5v5h7v-5"/><rect x="7.5" y="13" width="9" height="7.5" rx="1"/></symbol></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-logo" viewBox="0 0 24 24"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 21h8M12 16.5V21"/><path d="M8 10l2.6 2.6L16 7.4"/></symbol><symbol id="i-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="9" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="5.5" rx="1.5"/><rect x="13.5" y="12" width="7.5" height="9" rx="1.5"/><rect x="3" y="15.5" width="7.5" height="5.5" rx="1.5"/></symbol><symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><rect x="9" y="2.5" width="6" height="3" rx="1"/><path d="M8.5 13.5l2.5 2.5 4.5-5"/></symbol><symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5"/><path d="M12 7.5V12l3 2"/></symbol><symbol id="i-computer" viewBox="0 0 24 24"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 21h8M12 16.5V21"/></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20"/><circle cx="9.5" cy="7.5" r="3.5"/><path d="M21 20v-1.5a4 4 0 0 0-3-3.9"/><path d="M15.5 4.2a3.5 3.5 0 0 1 0 6.6"/></symbol><symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5.5A2.5 2.5 0 0 1 3 18.5v-13A2.5 2.5 0 0 1 5.5 3H9"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></symbol><symbol id="i-cpu" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol><symbol id="i-checklist" viewBox="0 0 24 24"><path d="M11 6h10M11 12h10M11 18h10"/><path d="M3 6l1.5 1.5L7 4.5M3 12l1.5 1.5L7 10.5M3 18l1.5 1.5L7 16.5"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><path d="M3.5 3.5v17h17"/><path d="M8 16v-5M12.5 16V7M17 16v-7.5"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10.5c0 6-8 11.5-8 11.5S4 16.5 4 10.5a8 8 0 0 1 16 0z"/><circle cx="12" cy="10.5" r="3"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 15v2.5"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3.5h11.5L20.5 7.5V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V5A1.5 1.5 0 0 1 5 3.5z"/><path d="M8 3.5v5h7v-5"/><rect x="7.5" y="13" width="9" height="7.5" rx="1"/></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M13.5 6.5l3 3"/></symbol><symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4h6v3"/></symbol><symbol id="i-printer" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><rect x="7" y="14" width="10" height="7" rx="1"/></symbol><symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.5-4.5L3 9"/><path d="M3 4v5h5"/><path d="M4 13a8 8 0 0 0 14.5 4.5L21 15"/><path d="M21 20v-5h-5"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 20h16"/></symbol><symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol><symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></symbol></svg>
 
-<!-- LOGIN -->
-<div id="login-page">
-  <div class="login-box">
-    <div class="login-logo">
-      <div class="login-logo-icon brand-logo"><svg class="ic"><use href="#i-logo"/></svg></div>
-      <div class="login-logo-title">ระบบบำรุงรักษาคอมพิวเตอร์</div>
-      <div class="login-logo-sub">IT Preventive Maintenance System</div>
+<div id="app" class="show">
+  <div id="main">
+    <div class="topbar">
+      <div class="brand">
+        <div class="sidebar-emblem-icon brand-logo"><svg class="ic"><use href="#i-logo"/></svg></div>
+        <div>
+          <div class="page-title">จัดการเจ้าหน้าที่</div>
+          <div class="page-subtitle">เพิ่ม / กำหนดสิทธิ์ / ตั้งรหัสผ่าน / ปิดใช้งานบัญชี — ใช้ร่วมกับหน้า Asset และระบบ PM</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span class="role-badge user" id="role-badge"></span>
+        <a class="btn btn-outline btn-sm" id="asset-link" href="#" target="_blank" rel="noopener"><svg class="ic"><use href="#i-computer"/></svg> หน้า Asset <svg class="ic"><use href="#i-external"/></svg></a>
+        <a class="btn btn-outline btn-sm" id="pm-link" href="#" target="_blank" rel="noopener"><svg class="ic"><use href="#i-clipboard"/></svg> ระบบ PM <svg class="ic"><use href="#i-external"/></svg></a>
+        <button class="logout-btn" id="btn-login" onclick="openLogin()"><svg class="ic"><use href="#i-lock"/></svg> เข้าสู่ระบบ</button>
+        <button class="logout-btn" id="btn-logout" onclick="logout()" style="display:none"><svg class="ic"><use href="#i-logout"/></svg> ออกจากระบบ</button>
+      </div>
     </div>
-    <div class="login-field">
-      <label>อีเมล</label>
-      <input type="email" id="login-email" placeholder="อีเมลที่ลงทะเบียนไว้" autocomplete="username" onkeydown="if(event.key==='Enter') $('admin-password').focus()">
-    </div>
-    <div class="login-field">
-      <label>รหัสผ่าน</label>
-      <input type="password" id="admin-password" placeholder="ใส่รหัสผ่าน" autocomplete="current-password" onkeydown="if(event.key==='Enter') loginAdmin()">
-    </div>
-    <div class="login-error" id="login-error">❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่</div>
-    <button class="login-btn" onclick="loginAdmin()"><svg class="ic"><use href="#i-lock"/></svg> เข้าสู่ระบบ (Admin / Technician)</button>
-    <div class="login-divider">หรือ</div>
-    <button class="user-login-btn" onclick="loginUser()"><svg class="ic"><use href="#i-eye"/></svg> เข้าดูข้อมูล (ไม่ต้องรหัส)</button>
+    <div class="content" id="content"></div>
+    <div class="page-foot">จัดการเจ้าหน้าที่ © <span id="footer-year"></span> | พัฒนาโดย Sarawut.C | สำหรับใช้ภายในองค์กรเท่านั้น</div>
   </div>
-</div>
-
-<!-- APP -->
-<div id="app">
-<div id="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-emblem">
-      <div class="sidebar-emblem-icon brand-logo"><svg class="ic"><use href="#i-logo"/></svg></div>
-      <div class="sidebar-logo">ระบบบำรุงรักษา<br>คอมพิวเตอร์</div>
-    </div>
-    <div class="sidebar-subtitle">IT Preventive Maintenance System</div>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">ภาพรวม</div>
-    <div class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon"><svg class="ic"><use href="#i-dashboard"/></svg></span> Dashboard</div>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">บันทึกข้อมูล</div>
-    <div class="nav-item editor-only" id="nav-record-pm" onclick="showPage('record-pm')"><span class="nav-icon"><svg class="ic"><use href="#i-clipboard"/></svg></span> บันทึก PM</div>
-    <div class="nav-item" onclick="showPage('history')"><span class="nav-icon"><svg class="ic"><use href="#i-history"/></svg></span> ประวัติการ PM</div>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">จัดการข้อมูล</div>
-    <div class="nav-item" onclick="showPage('computers')"><span class="nav-icon"><svg class="ic"><use href="#i-computer"/></svg></span> ข้อมูลเครื่อง</div>
-    <div class="nav-item editor-only" id="nav-users" onclick="showPage('users')"><span class="nav-icon"><svg class="ic"><use href="#i-users"/></svg></span> รายชื่อผู้ใช้งาน</div>
-  </div>
-  <div class="sidebar-footer">
-    <div class="footer-line">ระบบบำรุงรักษาคอมพิวเตอร์</div>
-    <div class="footer-line">พัฒนาโดย Sarawut.C</div>
-    <div class="footer-line" id="footer-year"></div>
-  </div>
-</div>
-
-<div id="main">
-  <div class="topbar">
-    <div>
-      <div class="page-title" id="page-title">Dashboard</div>
-      <div class="page-subtitle" id="page-subtitle">ภาพรวมระบบบำรุงรักษาคอมพิวเตอร์</div>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span class="role-badge" id="role-badge"></span>
-      <div id="topbar-actions"></div>
-      <button class="logout-btn" onclick="logout()"><svg class="ic"><use href="#i-logout"/></svg> ออกจากระบบ</button>
-    </div>
-  </div>
-  <div class="content" id="content"></div>
-</div>
 </div>
 
 <div class="modal-bg" id="modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-title"></div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
+  <div class="modal" id="modal-box">
+    <div class="modal-header"><div class="modal-title" id="modal-title"></div><button class="modal-close" onclick="closeModal()">✕</button></div>
     <div id="modal-body"></div>
   </div>
 </div>
+<div id="toast"></div>
 
 <script>
 // ═══════════ CONFIG ═══════════
@@ -750,48 +405,47 @@ function isSecretKey(k) {
   try { return JSON.parse(atob(k.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).role === 'service_role'; } catch (e) { return false; }
 }
 const KEY_OK = !SUPABASE_ANON_KEY.includes('ตรงนี้') && !isSecretKey(SUPABASE_ANON_KEY);
-const LOGO_URL = '';
-const ASSET_PAGE_URL = 'asset-register.html';
+const FUNCTION_NAME  = 'manage-users';
+const LOGO_URL       = '';
+const ASSET_PAGE_URL = 'https://sarawutc6689-cpu.github.io/Mouldmate-IT/Asset/asset-register.html';
+const PM_PAGE_URL    = 'https://sarawutc6689-cpu.github.io/Mouldmate-IT/Form/008/index.html';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const ROLES = [
+  { key: 'admin',      label: 'Admin',      desc: 'ทำได้ทุกอย่าง — จัดการเจ้าหน้าที่, เพิ่ม/แก้ไข/ลบเครื่อง, บันทึกและลบข้อมูล PM' },
+  { key: 'technician', label: 'Technician', desc: 'บันทึก PM และเพิ่ม/แก้ไขข้อมูลเครื่องได้ — ลบไม่ได้' },
+  { key: 'user',       label: 'User',       desc: 'ดูข้อมูลอย่างเดียว' },
+];
+const roleLabel = k => (ROLES.find(r => r.key === k) || { label: k || '—' }).label;
 
 // ═══════════ UTIL ═══════════
 const $   = id => document.getElementById(id);
 const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const SHORT_MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-const toCamel = s => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
-const toSnake = s => s.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
-const fromDb  = row => { const o = {}; for (const k in row) o[toCamel(k)] = row[k] == null ? '' : row[k]; return o; };
-const toDb    = obj => { const o = {}; for (const k in obj) o[toSnake(k)] = (obj[k] === '' || obj[k] === undefined) ? null : obj[k]; return o; };
-const nat     = (a, b) => String(a || '').localeCompare(String(b || ''), 'th', { numeric: true });
-const beYear  = y => { y = Number(y); return y < 2400 ? y + 543 : y; };
-const nameKey = v => String(v || '').trim().toUpperCase();
-function fmtDate(d) {
+const svg = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
+const nat = (a, b) => String(a || '').localeCompare(String(b || ''), 'th', { numeric: true });
+function fmtDT(d) {
   if (!d) return '';
-  const dt = new Date(String(d).length === 10 ? d + 'T00:00:00' : d);
-  return isNaN(dt) ? String(d) : dt.toLocaleDateString('th-TH', { day:'2-digit', month:'2-digit', year:'numeric' });
+  const dt = new Date(d);
+  return isNaN(dt) ? String(d) : dt.toLocaleString('th-TH', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
 }
-function friendlyError(err) {
-  const msg = (err && err.message) || String(err);
-  if (err && err.code === '23505') return 'ข้อมูลนี้มีอยู่ในระบบแล้ว';
-  if ((err && err.code === '42501') || /row-level security/i.test(msg)) return 'ไม่มีสิทธิ์ดำเนินการ (ต้องเข้าสู่ระบบด้วยบัญชี admin/technician และรัน step1_schema.sql แล้ว)';
-  return msg;
+function fmtD(d) { const dt = new Date(d); return !d || isNaN(dt) ? '' : dt.toLocaleDateString('th-TH', { day:'2-digit', month:'2-digit', year:'numeric' }); }
+function toast(msg, type) {
+  const el = document.createElement('div');
+  el.className = 'toast-item ' + (type === 'err' ? 'err' : 'ok'); el.textContent = msg;
+  $('toast').appendChild(el); setTimeout(() => el.remove(), type === 'err' ? 7000 : 3200);
 }
-async function run(p) { const { data, error } = await p; if (error) throw error; return data || []; }
-async function fetchAll(table, order) {
-  let all = [], from = 0; const size = 1000;
-  while (true) {
-    let qy = sb.from(table).select('*');
-    if (order) qy = order(qy);
-    const data = await run(qy.range(from, from + size - 1));
-    all = all.concat(data);
-    if (data.length < size) break;
-    from += size;
+function genPassword(len = 10) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789', a = new Uint32Array(len);
+  (window.crypto || window.msCrypto).getRandomValues(a);
+  return Array.from(a, n => chars[n % chars.length]).join('');
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); toast('คัดลอกแล้ว'); }
+  catch (e) {
+    const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select();
+    try { document.execCommand('copy'); toast('คัดลอกแล้ว'); } catch (e2) { toast('คัดลอกไม่สำเร็จ — เลือกข้อความแล้วกด Ctrl+C', 'err'); }
+    t.remove();
   }
-  return all;
-}
-async function fetchRecords() {
-  const rows = await fetchAll('pm_record_pm', q => q.order('record_date', { ascending:false }).order('id', { ascending:false }));
-  return rows.map(r => ({ ...fromDb(r), rowIndex: r.id, recordDate: fmtDate(r.record_date) }));
 }
 async function loadProfile(uid) {
   try {
@@ -801,542 +455,162 @@ async function loadProfile(uid) {
   } catch (e) { console.error('loadProfile', e); return null; }
 }
 
-const API = {
-  getComputers: async () => (await fetchAll('assets', q => q.order('id'))).map(fromDb)
-                              .sort((a, b) => nat(a.department, b.department) || nat(a.computerName, b.computerName)),
-  getDepartments: async () => {
-    try { return (await fetchAll('asset_departments', q => q.order('code'))).map(r => r.code); }
-    catch (e) { console.warn('asset_departments:', e.message); return []; }
-  },
-  getUsers: async () => (await fetchAll('employees', q => q.order('id'))).map(fromDb).sort((a, b) => nat(a.empCode, b.empCode)),
-  getOperatorNames: async () => {
-    try { return (await run(sb.from('employees').select('name').eq('department', 'เทคโนโลยีสารสนเทศ'))).map(r => r.name).filter(Boolean); }
-    catch (e) { return []; }
-  },
-  getRecordPM: () => fetchRecords(),
-  countPM: async ({ assetId, month, year }) => {
-    const { count, error } = await sb.from('pm_record_pm').select('id', { count:'exact', head:true })
-      .eq('asset_id', assetId).eq('month', Number(month)).eq('year', Number(year));
-    if (error) throw error;
-    return count || 0;
-  },
-  addRecordPM: d => run(sb.from('pm_record_pm').insert({
-    ...toDb(d), month: Number(d.month), year: Number(d.year), record_date: new Date().toLocaleDateString('en-CA') })),
-  deleteRecordPM: id => run(sb.from('pm_record_pm').delete().eq('id', id)),
-  getDashboardData: async () => {
-    const [computers, records] = await Promise.all([API.getComputers(), fetchRecords()]);
-    const now = new Date(), curM = now.getMonth() + 1, curY = now.getFullYear() + 543;
-    const inMonth = (r, m, y) => Number(r.month) === m && beYear(r.year) === y;
-    const doneIds = new Set(), doneNames = new Set();
-    records.filter(r => inMonth(r, curM, curY)).forEach(r => {
-      if (r.assetId) doneIds.add(r.assetId); else doneNames.add(nameKey(r.computerCode));
-    });
-    const isDone = c => doneIds.has(c.id) || (nameKey(c.computerName) && doneNames.has(nameKey(c.computerName)));
-    const locationStats = {};
-    let done = 0;
-    computers.forEach(c => {
-      const k = c.department || '';
-      if (!locationStats[k]) locationStats[k] = { total:0, done:0 };
-      locationStats[k].total++;
-      if (isDone(c)) { locationStats[k].done++; done++; }
-    });
-    const monthlyTrend = [];
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const m = d.getMonth() + 1, y = d.getFullYear() + 543;
-      monthlyTrend.push({ label: SHORT_MONTHS[d.getMonth()], count: records.filter(r => inMonth(r, m, y)).length });
-    }
-    return {
-      totalComputers: computers.length, doneThisMonth: done, pendingThisMonth: computers.length - done,
-      totalRecords: records.length, locationStats, monthlyTrend,
-      recentRecords: records.slice(0, 10).map(r => ({ ...r, computerName: r.computerCode, location: r.location }))
-    };
+async function callFn(action, payload) {
+  const { data, error } = await sb.functions.invoke(FUNCTION_NAME, { body: { action, ...(payload || {}) } });
+  if (error) {
+    let msg = error.message || 'เรียกฟังก์ชันไม่สำเร็จ', status = error.context && error.context.status;
+    try { if (error.context && typeof error.context.json === 'function') { const b = await error.context.json(); if (b && b.error) msg = b.error; else if (b && b.message) msg = b.message; } } catch (e) {}
+    const e = new Error(msg); e.status = status; e.kind = error.name; throw e;
   }
-};
-async function call(fn, ...args) {
-  try { return await API[fn](...args); }
-  catch (e) { throw new Error(friendlyError(e)); }
-}
-function errorHint(e) {
-  let hint = '';
-  if (!KEY_OK) hint = '<br><small>สาเหตุที่น่าจะเป็น: ยังไม่ได้ใส่ SUPABASE_ANON_KEY จริงในโค้ด</small>';
-  else if (/does not exist|schema cache|Could not find/i.test(e.message)) hint = '<br><small>ไม่พบตารางหรือคอลัมน์ — ตรวจว่า SUPABASE_URL เป็นโปรเจคที่มีตาราง assets และรัน step1_schema.sql ในโปรเจคนั้นแล้ว</small>';
-  return esc(e.message) + hint;
+  if (!data || data.ok === false) throw new Error((data && data.error) || 'เกิดข้อผิดพลาด');
+  return data;
 }
 
-let state = { page:'dashboard', role:null, computers:[], staff:[], users:[], pmRecords:[], dashboard:null };
-const THAI_MONTHS = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+// ═══════════ STATE & AUTH ═══════════
+const state = { role: null, me: null, users: [], loaded: false, q: '', roleFilter: '', sel: null, problem: null };
+const isAdmin = () => state.role === 'admin';
 
-// ── AUTH ──
-async function loginAdmin() {
-  const emailEl = $('login-email'), pwEl = $('admin-password'), err = $('login-error');
-  const fail = msg => { err.textContent = '❌ ' + msg; err.classList.add('show'); };
-  if (!KEY_OK) return fail('ยังไม่ได้ใส่ SUPABASE_ANON_KEY จริงในโค้ด');
-  const email = emailEl.value.trim();
-  if (!email || !pwEl.value) return fail('กรุณากรอกอีเมลและรหัสผ่าน');
-  const { data, error } = await sb.auth.signInWithPassword({ email, password: pwEl.value });
-  if (error) { pwEl.value = ''; return fail(error.message === 'Invalid login credentials' ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่' : error.message); }
-  const profile = await loadProfile(data.user.id);
-  if (!profile) { try { await sb.auth.signOut(); } catch (e) {} pwEl.value = ''; return fail('บัญชีนี้ยังไม่ได้ตั้งสิทธิ์ในตาราง profiles — ติดต่อผู้ดูแลระบบ'); }
-  err.classList.remove('show');
-  startApp(profile.role, profile);
-}
-function loginUser() { startApp('user', null); }
-function startApp(role, profile) {
-  state.role = (role === 'admin' || role === 'technician') ? role : 'user';
-  state.me   = profile || null;
-  $('login-page').style.display = 'none';
-  $('app').classList.add('show');
+function setRole(profile) {
+  state.me = profile || null; state.role = profile ? profile.role : null;
   const badge = $('role-badge');
-  const who = profile && profile.name ? ' · ' + profile.name : '';
-  if (state.role === 'admin')           { badge.className = 'role-badge admin'; badge.textContent = '🔐 Admin' + who; }
-  else if (state.role === 'technician') { badge.className = 'role-badge tech';  badge.textContent = '🛠 Technician' + who; }
-  else                                  { badge.className = 'role-badge user';  badge.textContent = '👁 User (ดูอย่างเดียว)'; }
-  document.querySelectorAll('.editor-only').forEach(el => el.classList.toggle('show', isEditor()));
-  showPage('dashboard');
+  badge.className = 'role-badge ' + (state.role === 'admin' ? 'admin' : state.role === 'technician' ? 'tech' : 'user');
+  badge.textContent = profile ? `${state.role === 'admin' ? '🔐' : '👤'} ${roleLabel(state.role)} · ${profile.name || profile.email || ''}` : 'ยังไม่ได้เข้าสู่ระบบ';
+  $('btn-login').style.display = profile ? 'none' : ''; $('btn-logout').style.display = profile ? '' : 'none';
+}
+function openLogin() {
+  $('modal-box').classList.remove('wide');
+  $('modal-title').textContent = 'เข้าสู่ระบบ (เฉพาะ Admin)';
+  $('modal-body').innerHTML = `
+    <div class="form-group" style="margin-bottom:14px"><label>อีเมล</label>
+      <input id="login-email" type="email" autocomplete="username" onkeydown="if(event.key==='Enter') $('login-pw').focus()"></div>
+    <div class="form-group"><label>รหัสผ่าน</label>
+      <input id="login-pw" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter') submitLogin()"></div>
+    <div id="login-err" class="login-error" style="display:none;margin-top:14px"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="submitLogin()">${svg('lock')} เข้าสู่ระบบ</button></div>`;
+  $('modal').classList.add('show'); setTimeout(() => $('login-email') && $('login-email').focus(), 30);
+}
+async function submitLogin() {
+  const err = $('login-err'), fail = m => { err.textContent = '❌ ' + m; err.style.display = 'block'; };
+  if (!KEY_OK) return fail('ยังไม่ได้ใส่ SUPABASE_ANON_KEY ที่ถูกต้องในโค้ด (ห้ามใช้ secret / service_role key)');
+  const email = $('login-email').value.trim(), password = $('login-pw').value;
+  if (!email || !password) return fail('กรุณากรอกอีเมลและรหัสผ่าน');
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { $('login-pw').value = ''; return fail(error.message === 'Invalid login credentials' ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' : error.message); }
+  const profile = await loadProfile(data.user.id);
+  if (!profile) { try { await sb.auth.signOut(); } catch (e) {} return fail('บัญชีนี้ยังไม่ได้ตั้งสิทธิ์ในตาราง profiles'); }
+  closeModal(); setRole(profile); await enter();
 }
 async function logout() {
-  if (!confirm('ออกจากระบบ?')) return;
   try { await sb.auth.signOut(); } catch (e) { console.error(e); }
-  state.role = null; state.me = null;
-  $('app').classList.remove('show');
-  $('login-page').style.display = 'flex';
-  $('login-email').value = '';
-  $('admin-password').value = '';
-  $('login-error').classList.remove('show');
-  document.querySelectorAll('.editor-only').forEach(el => el.classList.remove('show'));
+  state.users = []; state.loaded = false; state.problem = null; setRole(null); renderPage(); toast('ออกจากระบบแล้ว');
 }
-function isAdmin()  { return state.role === 'admin'; }
-function isEditor() { return state.role === 'admin' || state.role === 'technician'; }
+async function enter() {
+  if (isAdmin()) await reload(true); else renderPage();
+}
 
-// ── NAV ──
-function showPage(page) {
-  state.page = page;
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(el => {
-    if (el.textContent.trim().includes(getPageName(page))) el.classList.add('active');
-  });
-  const titles = {
-    'dashboard': ['Dashboard','ภาพรวมระบบบำรุงรักษาคอมพิวเตอร์'],
-    'record-pm': ['บันทึก PM','บันทึกการบำรุงรักษาประจำเดือน'],
-    'history':   ['ประวัติการ PM','ดูประวัติการบำรุงรักษาทั้งหมด'],
-    'computers': ['ข้อมูลเครื่อง','ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ (FOM 014) — ดูอย่างเดียว'],
-    'users':     ['รายชื่อผู้ใช้งาน','รายชื่อพนักงานจากตาราง employees (ดูอย่างเดียว)']
-  };
-  document.getElementById('page-title').textContent    = titles[page][0];
-  document.getElementById('page-subtitle').textContent = titles[page][1];
-  renderPage(page);
-}
-function getPageName(page) {
-  return {'dashboard':'Dashboard','record-pm':'บันทึก PM','history':'ประวัติ','computers':'ข้อมูลเครื่อง','staff':'เจ้าหน้าที่','users':'ผู้ใช้งาน'}[page]||'';
-}
-function setContent(h)       { document.getElementById('content').innerHTML = h; }
-function setTopbarActions(h) { document.getElementById('topbar-actions').innerHTML = h; }
-function loadingHtml()       { return `<div class="loading"><div class="spinner"></div> กำลังโหลดข้อมูล...</div>`; }
-function readonlyNotice() {
-  return isEditor() ? '' : `<div class="readonly-notice">⚠️ คุณกำลังเข้าชมในโหมด <strong>ดูอย่างเดียว</strong> — ไม่สามารถแก้ไขข้อมูลได้</div>`;
-}
-async function renderPage(page) {
-  setTopbarActions(''); setContent(loadingHtml());
+// ═══════════ DATA ═══════════
+async function reload(quiet) {
   try {
-    switch(page) {
-      case 'dashboard': await renderDashboard(); break;
-      case 'record-pm':
-        if (!isEditor()) { setContent(`<div class="card"><div class="readonly-notice">⚠️ เฉพาะ Admin / Technician เท่านั้นที่สามารถบันทึก PM ได้</div></div>`); return; }
-        await renderRecordPM(); break;
-      case 'history':   await renderHistory();   break;
-      case 'computers': await renderComputers(); break;
-      case 'users':
-        if (!isEditor()) { setContent(`<div class="card"><div class="readonly-notice">⚠️ เฉพาะ Admin / Technician เท่านั้นที่ดูข้อมูลนี้ได้</div></div>`); return; }
-        await renderUsers(); break;
-    }
-  } catch(e) { setContent(`<div class="card"><div class="empty">⚠️ เกิดข้อผิดพลาด: ${errorHint(e)}</div></div>`); }
+    const d = await callFn('list');
+    state.users = d.users.sort((a, b) => nat(a.name || a.email, b.name || b.email));
+    state.loaded = true; state.problem = null;
+    if (!quiet) toast('อัปเดตรายชื่อแล้ว');
+  } catch (e) { state.problem = e; state.loaded = false; console.error(e); }
+  renderPage();
+}
+function problemHtml(e) {
+  const notDeployed = e.status === 404 || /FunctionsFetchError|FunctionsRelayError/.test(e.kind || '') || /Failed to send a request|not found/i.test(e.message);
+  const jwt = /invalid jwt/i.test(e.message) || e.status === 401 && /jwt/i.test(e.message);
+  if (notDeployed) return `<div class="card"><h3 style="margin-bottom:8px">⚙️ ยังไม่ได้ติดตั้งฟังก์ชัน <code>${esc(FUNCTION_NAME)}</code></h3>
+    <p style="margin-bottom:10px">หน้านี้สร้างบัญชีผ่าน Edge Function บนเซิร์ฟเวอร์ Supabase (เพื่อไม่ให้ secret key อยู่ในหน้าเว็บ) ติดตั้งครั้งเดียว:</p>
+    <ol style="margin-left:22px;line-height:1.9">
+      <li>Supabase Dashboard → <b>Edge Functions</b> → <b>Deploy a new function</b> (เลือก Via Editor)</li>
+      <li>ตั้งชื่อฟังก์ชันว่า <code>${esc(FUNCTION_NAME)}</code> แล้ววางโค้ดจากไฟล์ <code>manage-users/index.ts</code> ทั้งไฟล์ → กด <b>Deploy</b></li>
+      <li>กลับมาที่หน้านี้แล้วกด "ลองใหม่"</li></ol>
+    <p style="margin-top:10px;color:var(--text-muted)">รายละเอียดข้อผิดพลาด: ${esc(e.message)}</p>
+    <div style="margin-top:14px"><button class="btn btn-primary" onclick="reload()">${svg('refresh')} ลองใหม่</button></div></div>`;
+  if (jwt) return `<div class="card"><h3 style="margin-bottom:8px">🔑 ฟังก์ชันปฏิเสธ token (Invalid JWT)</h3>
+    <p style="margin-bottom:10px">เกิดกับโปรเจคที่ใช้ key แบบใหม่ ให้ไปที่ Edge Functions → <code>${esc(FUNCTION_NAME)}</code> → Settings แล้วปิด <b>Verify JWT</b> (ฟังก์ชันตรวจสิทธิ์ด้วยตัวเองอยู่แล้ว ทุกครั้งที่เรียก) จากนั้นกด "ลองใหม่"</p>
+    <button class="btn btn-primary" onclick="reload()">${svg('refresh')} ลองใหม่</button></div>`;
+  return `<div class="card"><div class="empty">⚠️ โหลดรายชื่อไม่สำเร็จ: ${esc(e.message)}<br><br><button class="btn btn-primary" onclick="reload()">${svg('refresh')} ลองใหม่</button></div></div>`;
 }
 
-// ── DASHBOARD ──
-async function renderDashboard() {
-  const data = await call('getDashboardData');
-  state.dashboard = data;
-  const pct    = data.totalComputers>0 ? Math.round((data.doneThisMonth/data.totalComputers)*100) : 0;
-  const maxBar = Math.max(...data.monthlyTrend.map(m=>m.count),1);
-  const now    = new Date();
-  const thaiYear = now.getFullYear()+543;
-  const mLabel = THAI_MONTHS[now.getMonth()];
-  let locationRows = '';
-  for (const [loc,stat] of Object.entries(data.locationStats)) {
-    const p   = stat.total>0 ? Math.round((stat.done/stat.total)*100) : 0;
-    const cls = p>=80?'success':p>=50?'':'warning';
-    locationRows += `<div class="location-row">
-      <div class="location-name">${loc||'(ไม่ระบุ)'}</div>
-      <div style="flex:1"><div class="progress-bar"><div class="progress-fill ${cls}" style="width:${p}%"></div></div></div>
-      <div class="location-stat">${stat.done}/${stat.total} (${p}%)</div>
-    </div>`;
+// ═══════════ PAGE ═══════════
+function renderPage() {
+  if (!state.me) {
+    $('content').innerHTML = `<div class="card"><div class="empty" style="padding:44px 20px">
+      <div style="font-size:22px;margin-bottom:8px">${svg('users')}</div>
+      หน้านี้สำหรับ <b>Admin</b> เท่านั้น — เข้าสู่ระบบเพื่อเพิ่ม / แก้ไข / ปิดใช้งานบัญชีเจ้าหน้าที่<br><br>
+      <button class="btn btn-primary" onclick="openLogin()">${svg('lock')} เข้าสู่ระบบ</button></div></div>`;
+    return;
   }
-  let recentRows = '';
-  (data.recentRecords||[]).forEach(r => {
-    recentRows += `<tr><td>${esc(r.recordDate)}</td><td><span class="badge badge-blue">${esc(r.computerCode)}</span></td><td>${esc(r.location)}</td><td>${esc(r.operator)}</td></tr>`;
-  });
-  const barHtml = data.monthlyTrend.map((m,i) => {
-    const h = Math.round((m.count/maxBar)*100);
-    return `<div class="bar-col"><div class="bar-val">${m.count}</div><div class="bar ${i===data.monthlyTrend.length-1?'active':''}" style="height:${h}%"></div><div class="bar-lbl">${m.label}</div></div>`;
-  }).join('');
-  setContent(`
-    <div class="stats-grid">
-      <div class="stat-card blue"><div class="stat-label">เครื่องทั้งหมด</div><div class="stat-value">${data.totalComputers}</div><div class="stat-sub">เครื่อง</div></div>
-      <div class="stat-card green"><div class="stat-label">PM แล้ว (${mLabel})</div><div class="stat-value">${data.doneThisMonth}</div><div class="stat-sub">${pct}% ของทั้งหมด</div></div>
-      <div class="stat-card amber"><div class="stat-label">ยังไม่ PM (${mLabel})</div><div class="stat-value">${data.pendingThisMonth}</div><div class="stat-sub">เครื่อง</div></div>
-      <div class="stat-card gray"><div class="stat-label">รวมบันทึก PM</div><div class="stat-value">${data.totalRecords}</div><div class="stat-sub">ครั้งทั้งหมด</div></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-      <div class="card">
-        <div class="card-header"><div class="card-title"><div class="card-title-icon"><svg class="ic"><use href="#i-pin"/></svg></div>ความคืบหน้า PM รายสถานที่</div><span style="font-size: 12.5px;color:var(--text-muted)">${mLabel} ${thaiYear}</span></div>
-        ${locationRows||'<div class="empty">ไม่มีข้อมูล</div>'}
-      </div>
-      <div class="card">
-        <div class="card-header"><div class="card-title"><div class="card-title-icon"><svg class="ic"><use href="#i-chart"/></svg></div>PM รายเดือน (6 เดือนล่าสุด)</div></div>
-        <div class="chart-wrap">${barHtml}</div>
-      </div>
-    </div>
-    <div class="card" style="margin-top:20px">
-      <div class="card-header"><div class="card-title"><div class="card-title-icon"><svg class="ic"><use href="#i-clipboard"/></svg></div>บันทึก PM ล่าสุด</div><button class="btn btn-outline btn-sm" onclick="showPage('history')">ดูทั้งหมด &rsaquo;</button></div>
-      <div class="table-wrap"><table>
-        <thead><tr><th>วันที่</th><th>ชื่อเครื่อง</th><th>แผนก</th><th>ผู้ปฏิบัติงาน</th></tr></thead>
-        <tbody>${recentRows||'<tr><td colspan="4" class="empty">ไม่มีข้อมูล</td></tr>'}</tbody>
-      </table></div>
-    </div>`);
-}
-
-// ── RECORD PM ──
-const PM_CHECK_KEYS = ['cleanOutside','cleanInside','network','antivirus','virusScan','badSector','defrag','software','cables'];
-async function renderRecordPM() {
-  const [computers, operators] = await Promise.all([call('getComputers'), call('getOperatorNames')]);
-  state.computers = computers;
-  const now = new Date(), cm = now.getMonth() + 1, cy = now.getFullYear() + 543;
-  const me = (state.me && state.me.name) || '';
-  const names = [...new Set([me, ...operators].filter(Boolean))];
-  const mOpts = THAI_MONTHS.map((m, i) => `<option value="${i+1}" ${i+1 === cm ? 'selected' : ''}>${m}</option>`).join('');
-  const groups = {};
-  computers.forEach(c => { (groups[c.department || '(ไม่ระบุแผนก)'] = groups[c.department || '(ไม่ระบุแผนก)'] || []).push(c); });
-  const cOpts = Object.keys(groups).sort(nat).map(dep =>
-    `<optgroup label="${esc(dep)}">` + groups[dep].map(c =>
-      `<option value="${esc(c.id)}">${esc(c.computerName || '(ไม่มีชื่อเครื่อง)')}${c.loginName ? ' · ' + esc(c.loginName) : ''}</option>`).join('') + '</optgroup>').join('');
-  const checkItems = [
-    {key:'cleanOutside',label:'ความสะอาดภายนอกตัวเครื่อง'},{key:'cleanInside',label:'ความสะอาดภายในตัวเครื่อง'},
-    {key:'network',label:'ตรวจสอบการเชื่อมต่อเครือข่าย'},{key:'antivirus',label:'อัพเดท Antivirus'},
-    {key:'virusScan',label:'ค้นหาและลบ Virus'},{key:'badSector',label:'ตรวจสอบ Bad Sector'},
-    {key:'defrag',label:'Disk Defragment'},{key:'software',label:'ตรวจสอบการทำงาน Software'},
-    {key:'cables',label:'ตรวจสอบสายไฟและสายสัญญาณ'},
-  ];
-  const checkHtml = checkItems.map(item => `
-    <div class="check-item" id="ci-${item.key}" onclick="toggleCheck('${item.key}')">
-      <input type="checkbox" id="chk-${item.key}" onclick="event.stopPropagation()" onchange="syncCheck('${item.key}')">
-      <span>${item.label}</span>
-    </div>`).join('');
-  setContent(`
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title"><div class="card-title-icon"><svg class="ic"><use href="#i-clipboard"/></svg></div>บันทึกการบำรุงรักษา (Preventive Maintenance)</div>
-        <button class="btn btn-outline btn-sm" onclick="checkAll()">☑ เลือกทั้งหมด</button>
-      </div>
-      <div class="form-grid-3" style="margin-bottom:14px">
-        <div class="form-group">
-          <label>เครื่อง *</label>
-          <select id="pm-computer" onchange="selectComputerById(this.value)">
-            <option value="">— เลือกเครื่อง —</option>${cOpts}
-          </select>
-        </div>
-        <div class="form-group"><label>แผนก</label><input id="pm-location" readonly placeholder="(แสดงอัตโนมัติ)"></div>
-        <div class="form-group"><label>ประเภท</label><input id="pm-type" readonly placeholder="(แสดงอัตโนมัติ)"></div>
-      </div>
-      <div id="pm-info-box" class="info-box" style="display:none">
-        <div class="info-box-title"><svg class="ic"><use href="#i-cpu"/></svg> ข้อมูลจำเพาะเครื่อง</div>
-        <div class="info-box-grid">
-          <div class="info-box-item"><div class="info-box-label">ผู้ใช้</div><div class="info-box-value" id="pi-user">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">IP Address</div><div class="info-box-value mono" id="pi-ip">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">ยี่ห้อ / รุ่น</div><div class="info-box-value" id="pi-brand">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">Serial Number</div><div class="info-box-value mono" id="pi-sn">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">CPU</div><div class="info-box-value" id="pi-cpu">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">RAM</div><div class="info-box-value" id="pi-ram">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">Harddisk</div><div class="info-box-value" id="pi-storage">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">Windows</div><div class="info-box-value" id="pi-windows">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">MS Office</div><div class="info-box-value" id="pi-office">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">Monitor</div><div class="info-box-value" id="pi-monitor">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">Keyboard / Mouse</div><div class="info-box-value" id="pi-periph">—</div></div>
-          <div class="info-box-item"><div class="info-box-label">หมายเหตุ</div><div class="info-box-value" id="pi-remark">—</div></div>
-        </div>
-      </div>
-      <div class="form-grid" style="margin-bottom:20px">
-        <div class="form-group"><label>เดือน *</label><select id="pm-month">${mOpts}</select></div>
-        <div class="form-group"><label>ปี (พ.ศ.) *</label><input id="pm-year" type="number" value="${cy}"></div>
-      </div>
-      <hr class="section-divider">
-      <div class="section-heading"><svg class="ic"><use href="#i-checklist"/></svg> รายการตรวจสอบ</div>
-      <div class="check-grid" style="margin-bottom:22px">${checkHtml}</div>
-      <hr class="section-divider">
-      <div class="form-grid">
-        <div class="form-group"><label>ผู้ปฏิบัติงาน *</label>
-          <input id="pm-operator" list="pm-operator-list" value="${esc(me)}" placeholder="ชื่อผู้ปฏิบัติงาน">
-          <datalist id="pm-operator-list">${names.map(n => `<option value="${esc(n)}">`).join('')}</datalist>
-        </div>
-        <div class="form-group"><label>ผู้ตรวจรับงาน</label><input id="pm-checker" placeholder="ชื่อผู้ตรวจรับ"></div>
-        <div class="form-group full"><label>หมายเหตุเพิ่มเติม</label><textarea id="pm-remark" placeholder="บันทึกข้อมูลเพิ่มเติม (ถ้ามี)"></textarea></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="resetPMForm()">ล้างข้อมูล</button>
-        <button class="btn btn-success" onclick="submitPM()"><svg class="ic"><use href="#i-save"/></svg> บันทึก PM</button>
-      </div>
-    </div>`);
-}
-function selectComputerById(id) {
-  const c = state.computers.find(x => x.id === id);
-  const ib = $('pm-info-box');
-  if (!c) { $('pm-location').value = ''; $('pm-type').value = ''; ib.style.display = 'none'; return; }
-  $('pm-location').value = c.department || '';
-  $('pm-type').value     = c.type || '';
-  const si = (eid, val) => {
-    const el = $(eid); if (!el) return;
-    el.textContent = val || '—';
-    el.className = 'info-box-value' + (eid === 'pi-ip' || eid === 'pi-sn' ? ' mono' : '') + (val ? '' : ' empty-val');
-  };
-  si('pi-user', c.loginName);  si('pi-ip', c.ip);
-  si('pi-brand', [c.brand, c.model].filter(Boolean).join(' '));  si('pi-sn', c.sn);
-  si('pi-cpu', c.cpu);  si('pi-ram', c.ram);  si('pi-storage', c.storage);
-  si('pi-windows', c.windows);  si('pi-office', c.msOffice);
-  si('pi-monitor', [c.monitor, c.modelMonitor].filter(Boolean).join(' '));
-  si('pi-periph', [c.keyboard, c.mouse].filter(Boolean).join(' / '));
-  si('pi-remark', c.remark);
-  ib.style.display = 'block';
-}
-function toggleCheck(key) { const c = $('chk-' + key); c.checked = !c.checked; $('ci-' + key).classList.toggle('checked', c.checked); }
-function syncCheck(key)   { const c = $('chk-' + key); $('ci-' + key).classList.toggle('checked', c.checked); }
-function checkAll() {
-  const all = PM_CHECK_KEYS.every(k => $('chk-' + k).checked);
-  PM_CHECK_KEYS.forEach(k => { const c = $('chk-' + k); c.checked = !all; $('ci-' + k).classList.toggle('checked', !all); });
-}
-function resetPMForm() {
-  PM_CHECK_KEYS.forEach(k => { $('chk-' + k).checked = false; $('ci-' + k).classList.remove('checked'); });
-  ['pm-computer', 'pm-location', 'pm-type', 'pm-checker', 'pm-remark'].forEach(id => { const el = $(id); if (el) el.value = ''; });
-  $('pm-info-box').style.display = 'none';
-}
-async function submitPM() {
-  if (!isEditor()) { alert('เฉพาะ Admin / Technician เท่านั้น'); return; }
-  const assetId = $('pm-computer').value, month = $('pm-month').value, year = $('pm-year').value;
-  const op = $('pm-operator').value.trim();
-  if (!assetId || !month || !year || !op) { alert('กรุณากรอกข้อมูลที่จำเป็น: เครื่อง / เดือน / ปี / ผู้ปฏิบัติงาน'); return; }
-  const comp = state.computers.find(c => c.id === assetId);
-  const gv = k => $('chk-' + k).checked ? 'ผ่าน' : 'ไม่ผ่าน';
-  try {
-    const dup = await call('countPM', { assetId, month, year });
-    if (dup > 0 && !confirm(`เครื่องนี้มีบันทึก PM ของ ${THAI_MONTHS[month - 1]} ${year} อยู่แล้ว ${dup} รายการ\nต้องการบันทึกซ้ำหรือไม่?`)) return;
-    const rec = { assetId, computerCode: comp ? comp.computerName : '', computerName: comp ? comp.computerName : '',
-      location: comp ? comp.department : '', month, year, operator: op,
-      checker: $('pm-checker').value.trim(), remark: $('pm-remark').value.trim() };
-    PM_CHECK_KEYS.forEach(k => { rec[k] = gv(k); });
-    await call('addRecordPM', rec);
-    alert('บันทึก PM เรียบร้อย!'); resetPMForm();
-  } catch (e) { alert('เกิดข้อผิดพลาด: ' + e.message); }
-}
-
-// ── HISTORY ──
-async function renderHistory() {
-  const [records, computers] = await Promise.all([call('getRecordPM'), call('getComputers')]);
-  state.pmRecords = records; state.computers = computers;
-  const cOpts = computers.map(c => `<option value="${esc(c.id)}">${esc(c.computerName || '(ไม่มีชื่อ)')} – ${esc(c.department)}</option>`).join('');
-  const mOpts = THAI_MONTHS.map((m, i) => `<option value="${i+1}">${m}</option>`).join('');
-  const cy = new Date().getFullYear() + 543;
-  let yOpts = ''; for (let y = cy; y >= cy - 5; y--) yOpts += `<option value="${y}">${y}</option>`;
-  setTopbarActions(`<div class="search-bar">
-    <select id="f-comp"  onchange="filterHistory()"><option value=""> ทุกเครื่อง</option>${cOpts}</select>
-    <select id="f-month" onchange="filterHistory()"><option value=""> ทุกเดือน</option>${mOpts}</select>
-    <select id="f-year"  onchange="filterHistory()"><option value=""> ทุกปี</option>${yOpts}</select>
-  </div>`);
-  renderHistoryTable(records);
-}
-function renderHistoryTable(records) {
-  const cl = ['ภายนอก','ภายใน','เครือข่าย','Antivirus','Virus','Bad Sector','Defrag','Software','สาย'];
-  const showDelete = isAdmin();
-  const rows = records.map(r => {
-    const checks = PM_CHECK_KEYS.map((k, i) => `<span class="badge ${r[k] === 'ผ่าน' ? 'badge-success' : 'badge-danger'}" title="${cl[i]}">${cl[i]}</span>`).join(' ');
-    const delCell = showDelete ? `<td><button class="btn btn-danger btn-sm" data-id="${esc(r.rowIndex)}" onclick="deletePM(this.dataset.id)">🗑 ลบ</button></td>` : '';
-    return `<tr data-key="${esc(r.rowIndex)}"><td>${esc(r.recordDate)}</td><td><span class="badge badge-blue">${esc(r.computerCode)}</span></td><td>${esc(r.location)}</td>
-      <td>${r.month ? THAI_MONTHS[r.month - 1] : ''} ${esc(r.year)}</td><td>${esc(r.operator)}</td>
-      <td style="font-size: 11.5px;line-height:2">${checks}</td>${delCell}</tr>`;
-  }).join('');
-  const delHeader = showDelete ? '<th></th>' : '';
-  setContent(`
-    ${readonlyNotice()}
-    <div class="card tight">
-      <div class="card-header"><div class="card-title"><div class="card-title-icon"><svg class="ic"><use href="#i-history"/></svg></div>ประวัติการบำรุงรักษา (${records.length} รายการ)</div></div>
-      <div class="table-wrap fit"><table>
-        <thead><tr><th>วันที่บันทึก</th><th>ชื่อเครื่อง</th><th>แผนก</th><th>เดือน/ปี</th><th>ผู้ปฏิบัติงาน</th><th>รายการตรวจสอบ</th>${delHeader}</tr></thead>
-        <tbody>${rows || `<tr><td colspan="7" class="empty">ไม่มีข้อมูล</td></tr>`}</tbody>
-      </table></div>
-    </div>`);
-  applySelection();
-  fitTables();
-}
-function filterHistory() {
-  const ci = $('f-comp') && $('f-comp').value;
-  const mo = $('f-month') && $('f-month').value;
-  const yr = $('f-year') && $('f-year').value;
-  const comp = ci ? state.computers.find(c => c.id === ci) : null;
-  let f = state.pmRecords;
-  if (comp) f = f.filter(r => r.assetId === comp.id || (!r.assetId && nameKey(r.computerCode) === nameKey(comp.computerName)));
-  if (mo) f = f.filter(r => Number(r.month) === Number(mo));
-  if (yr) f = f.filter(r => beYear(r.year) === Number(yr));
-  renderHistoryTable(f);
-}
-async function deletePM(id) {
-  if (!isAdmin()) { alert('เฉพาะ Admin เท่านั้น'); return; }
-  if (!confirm('ยืนยันการลบรายการนี้?')) return;
-  try { await call('deleteRecordPM', id); await renderHistory(); alert('ลบเรียบร้อย'); }
-  catch (e) { alert('เกิดข้อผิดพลาด: ' + e.message); }
-}
-
-// ── COMPUTERS ──
-state.cf = { dept: '', type: '', q: '' };
-const REGISTER_COLS = ['department','type','loginName','computerName','brand','model','sn','cpu','storage','ram','windows',
-  'msOffice','etc','monitor','modelMonitor','snMonitor','usb','remark'];
-const REGISTER_HEADS = ['Department','Type','User','Computer Name','Brand','Model','SN','CPU','Harddisk','RAM','Windows',
-  'MS Office','ETC','Monitor','Model Monitor','SN Monitor','USB','Remark'];
-const COMPUTER_TYPES = ['PC','Laptop','Tablet','All-in-One'];
-async function renderComputers() {
-  const [computers, depts] = await Promise.all([call('getComputers'), call('getDepartments')]);
-  state.computers = computers;
-  state.departments = [...new Set([...depts, ...computers.map(c => c.department)])].filter(Boolean).sort(nat);
-  setTopbarActions(`<a class="btn btn-outline" href="${esc(ASSET_PAGE_URL)}" target="_blank" rel="noopener">จัดการข้อมูลเครื่อง (หน้า Asset) ↗</a>`);
-  const types = [...new Set([...COMPUTER_TYPES, ...computers.map(c => c.type)])].filter(Boolean);
-  setContent(`
-    <div class="readonly-notice" style="background:var(--sky-pale);border-color:var(--border);color:var(--navy-mid)">ℹ️ หน้านี้ดูอย่างเดียว — เพิ่ม / แก้ไข / ลบข้อมูลเครื่องได้ที่ <a href="${esc(ASSET_PAGE_URL)}" target="_blank" rel="noopener" style="color:inherit;font-weight:700">หน้า Asset</a> (ใช้ฐานข้อมูลเดียวกัน)</div>
+  if (!isAdmin()) {
+    $('content').innerHTML = `<div class="card"><div class="readonly-notice" style="margin:0">⚠️ บัญชี ${esc(state.me.name || state.me.email || '')} มีสิทธิ์ ${esc(roleLabel(state.role))} — หน้านี้เฉพาะ Admin เท่านั้น</div></div>`;
+    return;
+  }
+  if (state.problem) { $('content').innerHTML = problemHtml(state.problem); return; }
+  if (!state.loaded) { $('content').innerHTML = `<div class="loading"><div class="spinner"></div> กำลังโหลดรายชื่อ...</div>`; return; }
+  const legend = ROLES.map(r => `<div><span class="badge ${r.key === 'admin' ? 'badge-blue' : r.key === 'technician' ? 'badge-warning' : 'badge-gray'}">${r.label}</span> <span class="muted-s">${esc(r.desc)}</span></div>`).join('');
+  $('content').innerHTML = `
+    <div class="card tight legend">${legend}</div>
     <div class="card tight">
       <div class="card-header">
-        <div class="card-title"><div class="card-title-icon"><svg class="ic"><use href="#i-computer"/></svg></div>ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ <span id="cf-summary" class="card-note"></span></div>
+        <div class="card-title"><div class="card-title-icon">${svg('users')}</div>เจ้าหน้าที่ทั้งหมด <span id="u-summary" class="card-note"></span></div>
         <div class="search-bar">
-          <select id="cf-dept" onchange="applyComputerFilter()"><option value="">ทุกแผนก</option>${state.departments.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join('')}</select>
-          <select id="cf-type" onchange="applyComputerFilter()"><option value="">ทุกประเภท</option>${types.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')}</select>
-          <input id="cf-q" oninput="applyComputerFilter()" placeholder="ค้นหา ชื่อเครื่อง / ผู้ใช้ / SN ...">
-          <button class="btn btn-outline btn-sm" onclick="printRegister()">🖨 พิมพ์ทะเบียน</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()">${svg('plus')} เพิ่มเจ้าหน้าที่</button>
+          <select id="u-role" onchange="applyFilter()"><option value="">ทุกสิทธิ์</option>${ROLES.map(r => `<option value="${r.key}">${r.label}</option>`).join('')}
+            <option value="__none__">ยังไม่มีสิทธิ์</option><option value="__off__">ปิดใช้งานอยู่</option></select>
+          <input id="u-q" oninput="applyFilter()" placeholder="ค้นหา ชื่อ / อีเมล ...">
+          <button class="btn btn-outline btn-sm" onclick="reload()">${svg('refresh')} รีเฟรช</button>
         </div>
       </div>
-      <div class="table-wrap fit compact" id="cf-table"></div>
-    </div>`);
-  $('cf-dept').value = state.cf.dept; $('cf-type').value = state.cf.type; $('cf-q').value = state.cf.q;
-  applyComputerFilter();
+      <div class="table-wrap fit compact" id="u-table"></div>
+    </div>`;
+  $('u-role').value = state.roleFilter; $('u-q').value = state.q;
+  applyFilter();
 }
-function filteredComputers() {
-  const d = $('cf-dept').value, t = $('cf-type').value, q = $('cf-q').value.trim().toLowerCase();
-  state.cf = { dept: d, type: t, q: $('cf-q').value };
-  return state.computers.filter(c => (!d || c.department === d) && (!t || c.type === t) &&
-    (!q || [c.computerName, c.loginName, c.brand, c.model, c.sn, c.cpu, c.department].some(v => String(v || '').toLowerCase().includes(q))));
+
+function filteredUsers() {
+  const rf = $('u-role').value, q = $('u-q').value.trim().toLowerCase();
+  state.roleFilter = rf; state.q = $('u-q').value;
+  return state.users.filter(u => (!rf || (rf === '__none__' ? !u.hasProfile : rf === '__off__' ? u.disabled : u.role === rf)) &&
+    (!q || [u.name, u.email, u.username].some(v => String(v || '').toLowerCase().includes(q))));
 }
-const SCREEN_COLS = ['computerName','department','type','loginName','brand','model','sn','cpu','storage','ram','windows',
-  'msOffice','etc','monitor','modelMonitor','snMonitor','usb','remark'];
-const HEAD_OF = Object.fromEntries(REGISTER_COLS.map((k, i) => [k, REGISTER_HEADS[i]]));
-function applyComputerFilter() {
-  const list = filteredComputers();
-  const count = {}; state.computers.forEach(c => { const k = nameKey(c.computerName); if (k) count[k] = (count[k] || 0) + 1; });
-  const rows = list.map(c => {
-    const k = nameKey(c.computerName);
-    const flag = !k ? ' <span class="badge badge-warning">ไม่มีชื่อ</span>' : count[k] > 1 ? ' <span class="badge badge-warning">ชื่อซ้ำ</span>' : '';
-    const tds = SCREEN_COLS.map(col => {
-      if (col === 'computerName') return `<td class="sticky-col"><strong>${esc(c.computerName)}</strong>${flag}</td>`;
-      const v = String(c[col] == null ? '' : c[col]);
-      return `<td><span class="clip"${v.length > 24 ? ` title="${esc(v)}"` : ''}>${esc(v)}</span></td>`;
-    }).join('');
-    return `<tr data-key="${esc(c.id)}">${tds}</tr>`;
+function applyFilter() {
+  const list = filteredUsers();
+  const rows = list.map(u => {
+    const roleCell = u.isMe
+      ? `<span class="badge badge-blue">${esc(roleLabel(u.role))}</span> <span class="muted-s">(คุณ)</span>`
+      : `<select class="role-sel" data-id="${esc(u.id)}" onchange="changeRole(this)">
+           ${u.hasProfile ? '' : '<option value="" selected>— กำหนดสิทธิ์ —</option>'}
+           ${ROLES.map(r => `<option value="${r.key}" ${u.role === r.key ? 'selected' : ''}>${r.label}</option>`).join('')}</select>`;
+    const status = u.disabled ? '<span class="badge badge-danger">ปิดใช้งาน</span>'
+      : !u.hasProfile ? '<span class="badge badge-warning">ยังไม่มีสิทธิ์</span>' : '<span class="badge badge-success">ใช้งานอยู่</span>';
+    const acts = `<div class="btn-group">
+      <button class="btn btn-outline btn-sm" data-id="${esc(u.id)}" onclick="openEditModal(this.dataset.id)">${svg('edit')} แก้ไข</button>
+      <button class="btn btn-outline btn-sm" data-id="${esc(u.id)}" onclick="openResetModal(this.dataset.id)">${svg('lock')} รหัสผ่าน</button>
+      ${u.isMe ? '' : `<button class="btn btn-outline btn-sm" data-id="${esc(u.id)}" onclick="toggleActive(this.dataset.id)">${u.disabled ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}</button>
+      <button class="btn btn-danger btn-sm" data-id="${esc(u.id)}" onclick="deleteUser(this.dataset.id)">${svg('trash')} ลบ</button>`}</div>`;
+    return `<tr data-key="${esc(u.id)}"${u.disabled ? ' style="opacity:.62"' : ''}>
+      <td class="sticky-col"><strong>${esc(u.name || '(ไม่มีชื่อ)')}</strong></td><td>${esc(u.email)}</td><td>${esc(u.username)}</td>
+      <td>${roleCell}</td><td>${status}</td>
+      <td><span class="clip muted">${u.lastSignIn ? esc(fmtDT(u.lastSignIn)) : 'ยังไม่เคยเข้าใช้'}</span></td>
+      <td><span class="clip muted">${esc(fmtD(u.createdAt))}</span></td><td class="sticky-act">${acts}</td></tr>`;
   }).join('');
-  const heads = SCREEN_COLS.map(k => `<th${k === 'computerName' ? ' class="sticky-col"' : ''}>${HEAD_OF[k]}</th>`).join('');
-  const n = t => list.filter(c => c.type === t).length;
-  $('cf-summary').textContent = `พบ ${list.length} รายการ  (PC: ${n('PC')}  Laptop: ${n('Laptop')})`;
-  $('cf-table').innerHTML = list.length
-    ? `<table><thead><tr>${heads}</tr></thead><tbody>${rows}</tbody></table>`
-    : `<div class="empty">ไม่พบข้อมูลที่ตรงกับการค้นหา</div>`;
-  applySelection();
-  fitTables();
+  $('u-summary').textContent = `${list.length} บัญชี` + (state.users.some(u => !u.hasProfile) ? `  ·  ⚠ ยังไม่มีสิทธิ์ ${state.users.filter(u => !u.hasProfile).length} บัญชี` : '');
+  $('u-table').innerHTML = list.length
+    ? `<table><thead><tr><th class="sticky-col">ชื่อ</th><th>อีเมล (ใช้เข้าสู่ระบบ)</th><th>Username</th><th>สิทธิ์</th><th>สถานะ</th><th>เข้าใช้ล่าสุด</th><th>สร้างเมื่อ</th><th class="sticky-act"></th></tr></thead><tbody>${rows}</tbody></table>`
+    : `<div class="empty">ไม่พบบัญชีที่ตรงกับการค้นหา</div>`;
+  applySelection(); fitTables();
 }
-function printRegister() {
-  const list = filteredComputers();
-  if (!list.length) { alert('ไม่มีข้อมูลที่จะพิมพ์'); return; }
-  const dept = $('cf-dept').value;
-  const n = t => list.filter(c => c.type === t).length;
-  const pc = n('PC'), lp = n('Laptop'), tb = n('Tablet'), aio = n('All-in-One');
-  const today = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
-  const body = list.map((c, i) => `<tr><td class="c">${i + 1}</td>${REGISTER_COLS.map(k => `<td>${esc(c[k])}</td>`).join('')}</tr>`).join('');
-  const html = `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-  @page { size: A4 landscape; margin: 8mm 8mm 12mm; }
-  body { font-family: 'AngsanaUPC', 'Angsana New', 'Sarabun', sans-serif; color: #000; margin: 0; }
-  .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 8px; }
-  .header h1 { margin: 0; font-size: 18px; }
-  .info { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; }
-  table { width: 100%; border-collapse: collapse; font-size: 10px; }
-  thead { display: table-header-group; }
-  th, td { border: 1px solid #000; padding: 3px 4px; text-align: left; word-break: break-word; }
-  th { background: #eee; text-align: center; }
-  td.c { text-align: center; }
-  tr { page-break-inside: avoid; }
-  .summary { margin-top: 10px; font-size: 12px; }
-  .footer { position: fixed; bottom: 0; right: 0; font-size: 10px; color: #444; }
-  .bar { text-align: center; margin: 14px 0; }
-  @media print { .bar { display: none; } }
-</style></head><body>
-  <div class="header"><h1>ทะเบียนคอมพิวเตอร์และเทคโนโลยีสารสนเทศ</h1><div style="font-size: 13px">แผนก: ${dept ? esc(dept) : 'ทุกแผนก'}</div></div>
-  <div class="info"><div>วันที่พิมพ์: ${today}</div><div>จำนวนทั้งหมด: ${list.length} รายการ</div></div>
-  <table><thead><tr><th>No.</th>${REGISTER_HEADS.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table>
-  <div class="summary">สรุป: PC ${pc} เครื่อง · Laptop ${lp} เครื่อง${tb ? ` · Tablet ${tb} เครื่อง` : ''}${aio ? ` · All-in-One ${aio} เครื่อง` : ''}</div>
-  <div class="footer">FOM 014 IT Rev.01 (12/05/2026)</div>
-  <div class="bar"><button onclick="window.print()" style="padding:8px 20px;font-size:15px">🖨 พิมพ์</button>
-  <button onclick="window.close()" style="padding:8px 20px;font-size:15px;margin-left:10px">ปิด</button></div>
-</body></html>`;
-  const w = window.open('', '_blank');
-  if (!w) { alert('เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต pop-up สำหรับหน้านี้'); return; }
-  w.document.write(html); w.document.close();
-}
-
-// ── USERS ──
-async function renderUsers() {
-  const users = await call('getUsers'); state.users = users;
-  setContent(`
-    <div class="card tight">
-      <div class="card-header">
-        <div class="card-title"><div class="card-title-icon"><svg class="ic"><use href="#i-users"/></svg></div>รายชื่อผู้ใช้งาน (<span id="u-count">${users.length}</span> คน)</div>
-        <div class="search-bar"><input id="u-q" oninput="filterUsers()" placeholder="ค้นหา ชื่อ / รหัส / แผนก ..." style="width:240px"></div>
-      </div>
-      <div class="readonly-notice" style="margin-bottom:14px">ℹ️ ข้อมูลนี้มาจากตาราง employees ใช้ร่วมกับระบบแจ้งซ่อม — หน้านี้ดูอย่างเดียว</div>
-      <div class="table-wrap fit" id="u-table"></div>
-    </div>`);
-  filterUsers();
-}
-function filterUsers() {
-  const q = ($('u-q').value || '').trim().toLowerCase();
-  const list = state.users.filter(u => !q || [u.empCode, u.name, u.section, u.department, u.position].some(v => String(v || '').toLowerCase().includes(q)));
-  $('u-count').textContent = list.length;
-  const rows = list.map(u => `<tr data-key="${esc(u.id)}"><td><span class="badge badge-gray">${esc(u.empCode)}</span></td><td>${esc(u.name)}</td>
-    <td>${esc(u.department) || '—'}</td><td>${esc(u.section) || '—'}</td><td>${esc(u.position) || '—'}</td></tr>`).join('');
-  $('u-table').innerHTML = `<table><thead><tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>แผนก</th><th>ส่วนงาน</th><th>ตำแหน่ง</th></tr></thead>
-    <tbody>${rows || '<tr><td colspan="5" class="empty">ไม่พบข้อมูล</td></tr>'}</tbody></table>`;
-  applySelection();
-  fitTables();
-}
-
-// ── SELECTION ──
-state.sel = {};
 function applySelection() {
-  const key = state.sel[state.page];
-  document.querySelectorAll('#content tbody tr[data-key]').forEach(tr =>
-    tr.classList.toggle('selected-row', key !== undefined && tr.dataset.key === String(key)));
+  document.querySelectorAll('#content tbody tr[data-key]').forEach(tr => tr.classList.toggle('selected-row', state.sel !== null && tr.dataset.key === String(state.sel)));
 }
-$('content').addEventListener('click', e => {
-  const tr = e.target.closest('tbody tr[data-key]');
-  if (!tr) return;
-  state.sel[state.page] = tr.dataset.key;
-  applySelection();
-});
+$('content').addEventListener('click', e => { const tr = e.target.closest('tbody tr[data-key]'); if (tr) { state.sel = tr.dataset.key; applySelection(); } });
 function fitTables() {
   document.querySelectorAll('#content .table-wrap.fit').forEach(el => {
-    const top = el.getBoundingClientRect().top + window.scrollY;
-    const h = Math.max(260, window.innerHeight - top - 24);
+    const top = el.getBoundingClientRect().top + window.scrollY, h = Math.max(260, window.innerHeight - top - 24);
     el.style.maxHeight = h + 'px';
     const over = document.documentElement.scrollHeight - window.innerHeight;
     if (over > 0) el.style.maxHeight = Math.max(260, h - over) + 'px';
@@ -1344,22 +618,137 @@ function fitTables() {
 }
 window.addEventListener('resize', fitTables);
 
-function closeModal() { document.getElementById('modal').classList.remove('show'); }
-document.getElementById('modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+// ═══════════ ACTIONS ═══════════
+function closeModal() { $('modal').classList.remove('show'); }
+$('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+const userOf = id => state.users.find(u => u.id === id);
+const nameOf = u => (u && (u.name || u.email)) || '';
 
-$('footer-year').textContent = ' © '+new Date().getFullYear();
-if (LOGO_URL) document.querySelectorAll('.brand-logo').forEach(el => {
-  const def = el.innerHTML, img = new Image();
-  img.alt = 'logo'; img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:inherit';
-  img.onerror = () => { el.innerHTML = def; el.style.background = ''; el.style.padding = ''; };
-  img.src = LOGO_URL; el.innerHTML = ''; el.appendChild(img); el.style.background = '#fff'; el.style.padding = '4px';
-});
-sb.auth.getSession().then(async ({ data }) => {
-  if (data && data.session) {
-    const p = await loadProfile(data.session.user.id);
-    if (p) startApp(p.role, p);
-  }
-});
+function pwField(id) {
+  return `<div class="form-group"><label>รหัสผ่าน * (อย่างน้อย 8 ตัวอักษร)</label>
+    <div style="display:flex;gap:8px"><input id="${id}" type="text" autocomplete="new-password" style="flex:1;font-family:'Courier New',monospace">
+    <button type="button" class="btn btn-outline btn-sm" onclick="$('${id}').value = genPassword()">🎲 สุ่มรหัสผ่าน</button></div></div>`;
+}
+
+function openAddModal() {
+  $('modal-box').classList.add('wide'); $('modal-title').textContent = '➕ เพิ่มเจ้าหน้าที่';
+  $('modal-body').innerHTML = `
+    <div class="form-grid-3" style="margin-bottom:14px">
+      <div class="form-group"><label>ชื่อ-สกุล *</label><input id="n-name" autocomplete="off"></div>
+      <div class="form-group"><label>อีเมล * (ใช้เข้าสู่ระบบ)</label><input id="n-email" type="email" autocomplete="off" placeholder="เช่น somchai@company.com"></div>
+      <div class="form-group"><label>Username (ไม่บังคับ)</label><input id="n-username" autocomplete="off" placeholder="เว้นว่าง = ใช้ส่วนหน้าอีเมล"></div>
+    </div>
+    <div class="form-grid-3" style="margin-bottom:8px">
+      <div class="form-group"><label>สิทธิ์ *</label><select id="n-role" onchange="$('n-role-desc').textContent = (ROLES.find(r => r.key === this.value) || {}).desc || ''">
+        <option value="">— เลือกสิทธิ์ —</option>${ROLES.map(r => `<option value="${r.key}">${r.label}</option>`).join('')}</select>
+        <div id="n-role-desc" class="muted-s" style="margin-top:4px"></div></div>
+      <div style="grid-column: span 2">${pwField('n-pw')}</div>
+    </div>
+    <div id="n-err" class="login-error" style="display:none"></div>
+    <div class="modal-footer"><div class="modal-meta">ระบบจะแสดงรหัสผ่านให้คัดลอกหลังสร้างบัญชี (แสดงครั้งเดียว)</div>
+      <button class="btn btn-outline" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn btn-primary" id="n-save" onclick="submitAdd(this)">${svg('save')} สร้างบัญชี</button></div>`;
+  $('n-pw').value = genPassword(); $('modal').classList.add('show'); setTimeout(() => $('n-name').focus(), 30);
+}
+async function submitAdd(btn) {
+  const err = $('n-err'), fail = m => { err.textContent = '❌ ' + m; err.style.display = 'block'; };
+  const v = { name: $('n-name').value.trim(), email: $('n-email').value.trim().toLowerCase(), username: $('n-username').value.trim(), role: $('n-role').value, password: $('n-pw').value };
+  if (!v.name) return fail('กรุณากรอกชื่อ-สกุล');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) return fail('รูปแบบอีเมลไม่ถูกต้อง');
+  if (!v.role) return fail('กรุณาเลือกสิทธิ์');
+  if (v.password.length < 8) return fail('รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร');
+  btn.disabled = true;
+  try {
+    await callFn('create', v);
+    await reload(true);
+    showCredentials('สร้างบัญชีสำเร็จ', v.name, v.email, v.password);
+  } catch (e) { btn.disabled = false; fail(e.message); }
+}
+function showCredentials(title, name, email, password) {
+  const url = new URL(ASSET_PAGE_URL, location.href).href;
+  const text = `เข้าสู่ระบบทะเบียนคอมพิวเตอร์ / ระบบบำรุงรักษา\nชื่อ: ${name}\nอีเมล: ${email}\nรหัสผ่าน: ${password}\nลิงก์: ${url}\n(กรุณาเก็บรหัสผ่านเป็นความลับ)`;
+  $('modal-box').classList.remove('wide'); $('modal-title').textContent = '✅ ' + title;
+  $('modal-body').innerHTML = `
+    <div class="readonly-notice" style="background:var(--success-light);border-color:rgba(74,128,96,.25);color:var(--success)">รหัสผ่านนี้แสดงเพียงครั้งเดียว — คัดลอกส่งให้เจ้าหน้าที่ตอนนี้ (ถ้าลืมภายหลัง ใช้ปุ่ม "รหัสผ่าน" เพื่อตั้งใหม่ได้)</div>
+    <div class="cred-row"><span class="muted-s">ชื่อ</span><b>${esc(name)}</b></div>
+    <div class="cred-row"><span class="muted-s">อีเมล</span><b id="c-email">${esc(email)}</b><button class="btn btn-outline btn-sm" onclick="copyText($('c-email').textContent)">คัดลอก</button></div>
+    <div class="cred-row"><span class="muted-s">รหัสผ่าน</span><b id="c-pw" style="font-family:'Courier New',monospace">${esc(password)}</b><button class="btn btn-outline btn-sm" onclick="copyText($('c-pw').textContent)">คัดลอก</button></div>
+    <div class="modal-footer"><button class="btn btn-outline" id="c-all" data-text="${esc(text)}" onclick="copyText(this.dataset.text)">คัดลอกข้อความทั้งหมด</button>
+      <button class="btn btn-primary" onclick="closeModal()">เสร็จสิ้น</button></div>`;
+}
+
+function openEditModal(id) {
+  const u = userOf(id); if (!u) return;
+  $('modal-box').classList.remove('wide'); $('modal-title').textContent = '✏️ แก้ไขข้อมูลเจ้าหน้าที่';
+  $('modal-body').innerHTML = `
+    <div class="muted-s" style="margin-bottom:12px">อีเมลที่ใช้เข้าสู่ระบบ: <b>${esc(u.email)}</b> (เปลี่ยนไม่ได้จากหน้านี้)</div>
+    <div class="form-group" style="margin-bottom:14px"><label>ชื่อ-สกุล *</label><input id="e-name" value="${esc(u.name)}"></div>
+    <div class="form-group"><label>Username</label><input id="e-username" value="${esc(u.username)}"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn btn-primary" data-id="${esc(id)}" onclick="submitEdit(this)">${svg('save')} บันทึก</button></div>`;
+  $('modal').classList.add('show'); setTimeout(() => $('e-name').focus(), 30);
+}
+async function submitEdit(btn) {
+  const u = userOf(btn.dataset.id), name = $('e-name').value.trim(), username = $('e-username').value.trim();
+  if (!name) return toast('กรุณากรอกชื่อ-สกุล', 'err');
+  const payload = { id: u.id, name, username };
+  if (!u.hasProfile) return toast('บัญชีนี้ยังไม่มีสิทธิ์ — เลือกสิทธิ์ในคอลัมน์ "สิทธิ์" ก่อน', 'err');
+  btn.disabled = true;
+  try { await callFn('update', payload); closeModal(); await reload(true); toast('บันทึกแล้ว'); }
+  catch (e) { btn.disabled = false; toast(e.message, 'err'); }
+}
+async function changeRole(sel) {
+  const u = userOf(sel.dataset.id), role = sel.value; if (!u || !role) return;
+  if (!confirm(`เปลี่ยนสิทธิ์ของ ${nameOf(u)} เป็น ${roleLabel(role)} ?\n\n${(ROLES.find(r => r.key === role) || {}).desc || ''}`)) { sel.value = u.role || ''; return; }
+  try { await callFn('update', { id: u.id, role }); await reload(true); toast(`เปลี่ยนสิทธิ์ ${nameOf(u)} เป็น ${roleLabel(role)} แล้ว`); }
+  catch (e) { sel.value = u.role || ''; toast(e.message, 'err'); }
+}
+function openResetModal(id) {
+  const u = userOf(id); if (!u) return;
+  $('modal-box').classList.remove('wide'); $('modal-title').textContent = '🔑 ตั้งรหัสผ่านใหม่';
+  $('modal-body').innerHTML = `
+    <div class="muted-s" style="margin-bottom:12px">บัญชี: <b>${esc(nameOf(u))}</b> (${esc(u.email)})</div>${pwField('r-pw')}
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn btn-primary" data-id="${esc(id)}" onclick="submitReset(this)">${svg('save')} ตั้งรหัสผ่านใหม่</button></div>`;
+  $('r-pw').value = genPassword(); $('modal').classList.add('show');
+}
+async function submitReset(btn) {
+  const u = userOf(btn.dataset.id), password = $('r-pw').value;
+  if (password.length < 8) return toast('รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร', 'err');
+  btn.disabled = true;
+  try { await callFn('reset_password', { id: u.id, password }); showCredentials('ตั้งรหัสผ่านใหม่แล้ว', nameOf(u), u.email, password); }
+  catch (e) { btn.disabled = false; toast(e.message, 'err'); }
+}
+async function toggleActive(id) {
+  const u = userOf(id); if (!u) return; const enable = u.disabled;
+  if (!confirm(enable ? `เปิดใช้งานบัญชี ${nameOf(u)} อีกครั้ง?` : `ปิดใช้งานบัญชี ${nameOf(u)} ?\n\nจะเข้าสู่ระบบไม่ได้อีก แต่ข้อมูลและประวัติที่เคยบันทึกยังอยู่ (เปิดใช้ใหม่ได้ทุกเมื่อ)`)) return;
+  try { await callFn('set_active', { id, active: enable }); await reload(true); toast(enable ? 'เปิดใช้งานแล้ว' : 'ปิดใช้งานแล้ว'); }
+  catch (e) { toast(e.message, 'err'); }
+}
+async function deleteUser(id) {
+  const u = userOf(id); if (!u) return;
+  if (!confirm(`ลบบัญชี ${nameOf(u)} (${u.email}) ถาวร?\n\nลบแล้วกู้คืนไม่ได้ — ถ้าแค่ไม่ต้องการให้เข้าระบบ แนะนำให้ใช้ "ปิดใช้งาน" แทน`)) return;
+  try { await callFn('delete', { id }); if (state.sel === id) state.sel = null; await reload(true); toast('ลบบัญชี ' + nameOf(u) + ' แล้ว'); }
+  catch (e) { toast(e.message, 'err'); }
+}
+
+// ═══════════ INIT ═══════════
+(async function init() {
+  $('footer-year').textContent = new Date().getFullYear();
+  $('asset-link').href = ASSET_PAGE_URL; $('pm-link').href = PM_PAGE_URL;
+  if (LOGO_URL) document.querySelectorAll('.brand-logo').forEach(el => {
+    const def = el.innerHTML, img = new Image(); img.alt = 'logo'; img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:inherit';
+    img.onerror = () => { el.innerHTML = def; el.style.background = ''; el.style.padding = ''; };
+    img.src = LOGO_URL; el.innerHTML = ''; el.appendChild(img); el.style.background = '#fff'; el.style.padding = '4px';
+  });
+  setRole(null); renderPage();
+  if (!KEY_OK) { $('content').innerHTML = `<div class="card"><div class="empty">⚠️ ยังไม่ได้ใส่ <b>SUPABASE_ANON_KEY</b> ที่ถูกต้องในโค้ด (ใช้ anon / publishable key เท่านั้น — ห้ามใช้ secret / service_role key)</div></div>`; return; }
+  try {
+    const { data } = await sb.auth.getSession();
+    if (data && data.session) { const p = await loadProfile(data.session.user.id); if (p) { setRole(p); await enter(); } }
+  } catch (e) { console.error(e); }
+})();
 </script>
 </body>
 </html>
