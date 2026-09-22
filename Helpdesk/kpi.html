@@ -141,10 +141,12 @@
         .cat-rate-value{font-weight:700;}
         .cat-rate-value.ok{color:var(--success);}
         .cat-rate-value.warn{color:var(--warning);}
+        .cat-rate-value.na{color:var(--gray-300);}
         .cat-progress-bar{width:100%;height:6px;background:var(--gray-200);border-radius:3px;overflow:hidden;margin-bottom:12px;}
         .cat-progress-fill{height:100%;border-radius:3px;}
         .cat-progress-fill.ok{background:var(--success);}
         .cat-progress-fill.warn{background:var(--warning);}
+        .cat-progress-fill.na{background:var(--gray-200);}
         .cat-stats-row{display:flex;justify-content:space-between;font-size:12px;color:var(--gray-600);margin-bottom:8px;}
         .cat-formula{font-size:11px;color:var(--gray-300);text-align:right;}
         @media(max-width:1200px){.category-grid{grid-template-columns:repeat(2,1fr)}}
@@ -380,7 +382,8 @@
                     <button class="btn-apply" onclick="renderCategoryCards()"><i class="fas fa-check"></i> แสดงผล</button>
                     <div class="cat-filter-spacer"></div>
                     <button class="btn-export csv" onclick="exportCategoryCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
-                    <button class="btn-export pdf-full" id="fullReportBtn" onclick="exportFullKpiReportPDF()"><i class="fas fa-file-invoice"></i> Export PDF </button>
+                    <button class="btn-export pdf" onclick="exportCategoryPDF()"><i class="fas fa-file-pdf"></i> PDF (ตารางนี้)</button>
+                    <button class="btn-export pdf-full" id="fullReportBtn" onclick="exportFullKpiReportPDF()"><i class="fas fa-file-invoice"></i> รายงาน PDF ฉบับเต็ม</button>
                 </div>
 
                 <div class="category-grid" id="categoryGrid">
@@ -825,14 +828,35 @@
             const allCats = [...CATEGORIES, { key: OTHER_LABEL, icon: 'fa-ellipsis-h' }];
             lastCategorySummary = allCats.map(c => {
                 const b = buckets[c.key];
-                const rate = b.total ? (b.closed / b.total * 100) : 0;
-                return { name: c.key, closed: b.closed, total: b.total, rate };
+                const hasData = b.total > 0;
+                // ประเภทที่ไม่มีเคสเกิดขึ้นเลย ไม่ควรถูกตัดสินว่า "ต่ำกว่าเป้าหมาย" เพราะไม่มีอะไรให้สำเร็จ/ล้มเหลว
+                const rate = hasData ? (b.closed / b.total * 100) : null;
+                return { name: c.key, closed: b.closed, total: b.total, rate, hasData };
             });
 
             const grid = document.getElementById('categoryGrid');
             grid.innerHTML = lastCategorySummary.map((c, idx) => {
-                const ok = c.rate >= CATEGORY_TARGET_PCT;
                 const icon = allCats[idx].icon;
+                if (!c.hasData) {
+                    return `
+                    <div class="cat-card">
+                        <div class="cat-card-top">
+                            <span class="cat-name"><i class="fas ${icon}"></i> ${c.name}</span>
+                            <span class="cat-total-badge">0</span>
+                        </div>
+                        <div class="cat-rate-row">
+                            <span>อัตราสำเร็จ</span>
+                            <span class="cat-rate-value na">ไม่มีข้อมูล <i class="fas fa-minus-circle"></i></span>
+                        </div>
+                        <div class="cat-progress-bar"><div class="cat-progress-fill na" style="width:0%"></div></div>
+                        <div class="cat-stats-row">
+                            <span>ปิดสำเร็จ: <strong>0</strong> งาน</span>
+                            <span>ทั้งหมด: <strong>0</strong> งาน</span>
+                        </div>
+                        <div class="cat-formula">ยังไม่มีเคสเกิดขึ้นในช่วงเวลานี้ · ไม่นับรวมในการประเมินเป้าหมาย</div>
+                    </div>`;
+                }
+                const ok = c.rate >= CATEGORY_TARGET_PCT;
                 return `
                 <div class="cat-card">
                     <div class="cat-card-top">
@@ -848,7 +872,7 @@
                         <span>ปิดสำเร็จ: <strong>${c.closed}</strong> งาน</span>
                         <span>ทั้งหมด: <strong>${c.total}</strong> งาน</span>
                     </div>
-                    <div class="cat-formula">Target ≥ ${CATEGORY_TARGET_PCT}% | (${c.closed} ÷ ${c.total || 1}) × 100 = ${c.rate.toFixed(1)}%</div>
+                    <div class="cat-formula">Target ≥ ${CATEGORY_TARGET_PCT}% | (${c.closed} ÷ ${c.total}) × 100 = ${c.rate.toFixed(1)}%</div>
                 </div>`;
             }).join('');
         }
@@ -857,7 +881,8 @@
             if (!lastCategorySummary.length) return;
             let csv = '\uFEFFประเภทงาน,ปิดสำเร็จ,ทั้งหมด,อัตราสำเร็จ (%),Target (%)\n';
             lastCategorySummary.forEach(c => {
-                csv += `"${c.name}",${c.closed},${c.total},${c.rate.toFixed(1)},${CATEGORY_TARGET_PCT}\n`;
+                const rateStr = c.hasData ? c.rate.toFixed(1) : 'ไม่มีข้อมูล';
+                csv += `"${c.name}",${c.closed},${c.total},${rateStr},${CATEGORY_TARGET_PCT}\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
@@ -1059,6 +1084,16 @@
             const closedAll = rows.reduce((s, c) => s + c.closed, 0);
             const overallRate = totalAll ? (closedAll / totalAll * 100) : 0;
             const rowsHtml = rows.map(c => {
+                if (!c.hasData) {
+                    return `
+                    <tr>
+                        <td>${c.name}</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td style="color:var(--gray-300);">ไม่มีข้อมูล</td>
+                        <td style="color:var(--gray-300);">ไม่มีงาน</td>
+                    </tr>`;
+                }
                 const ok = c.rate >= CATEGORY_TARGET_PCT;
                 return `
                 <tr>
