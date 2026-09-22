@@ -153,6 +153,59 @@
         footer{text-align:center;padding:20px;color:var(--gray-600);font-size:12px;margin-top:10px;}
         @media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.charts-row{grid-template-columns:1fr}}
         @media(max-width:768px){.sidebar{width:0;display:none}.main-content{margin-left:0}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+
+        /* ============================================================
+           PDF Report template (offscreen, captured page-by-page for the
+           "รายงาน PDF ฉบับเต็ม" export). Fixed width == A4 @96dpi so
+           screenshots map 1:1 onto an A4 page.
+        ============================================================ */
+        .btn-export.pdf-full{background:var(--primary-light);color:var(--primary);}
+        .btn-export.pdf-full:hover{background:var(--primary-soft);}
+        .btn-export.pdf-full:disabled{opacity:.6;cursor:wait;}
+
+        #pdfTemplateHost{position:fixed;left:-11000px;top:0;width:794px;z-index:-1;background:#fff;}
+        .pdfrpt-page{width:794px;min-height:1123px;background:#fff;padding:52px 48px 70px;position:relative;color:var(--gray-800);}
+        .pdfrpt-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:18px;border-bottom:3px solid var(--primary);margin-bottom:26px;}
+        .pdfrpt-header-left{display:flex;align-items:center;gap:14px;}
+        .pdfrpt-header-icon{width:50px;height:50px;background:var(--primary);color:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+        .pdfrpt-header-title{font-size:20px;font-weight:700;color:var(--gray-800);line-height:1.3;}
+        .pdfrpt-header-sub{font-size:12px;color:var(--gray-600);margin-top:2px;}
+        .pdfrpt-header-meta{text-align:right;font-size:11px;color:var(--gray-600);line-height:1.7;}
+        .pdfrpt-header-meta b{color:var(--gray-800);}
+        .pdfrpt-cover-title{font-size:28px;font-weight:800;color:var(--gray-800);margin:10px 0 4px;}
+        .pdfrpt-cover-sub{font-size:13px;color:var(--gray-600);margin-bottom:26px;}
+        .pdfrpt-section-title{font-size:15px;font-weight:700;color:var(--gray-800);margin:0 0 14px;display:flex;align-items:center;gap:9px;}
+        .pdfrpt-section-title::before{content:'';width:5px;height:17px;background:var(--primary);border-radius:3px;display:inline-block;}
+        .pdfrpt-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px;}
+        .pdfrpt-kpi-card{border:1px solid var(--gray-200);border-radius:14px;padding:15px 17px;border-top:4px solid var(--primary);}
+        .pdfrpt-kpi-card.g{border-top-color:var(--success);}
+        .pdfrpt-kpi-card.o{border-top-color:var(--warning);}
+        .pdfrpt-kpi-card.p{border-top-color:#9333ea;}
+        .pdfrpt-kpi-card .lbl{font-size:11px;color:var(--gray-600);margin-bottom:6px;}
+        .pdfrpt-kpi-card .val{font-size:23px;font-weight:800;color:var(--gray-800);}
+        .pdfrpt-kpi-card .val .unit{font-size:11.5px;font-weight:500;color:var(--gray-600);margin-left:4px;}
+        .pdfrpt-kpi-card .sub{font-size:10.5px;color:var(--gray-600);margin-top:7px;padding-top:7px;border-top:1px solid var(--gray-100);}
+        .pdfrpt-insight-box{background:var(--primary-light);border-radius:14px;padding:18px 20px;margin-bottom:8px;}
+        .pdfrpt-insight-box h4{font-size:12.5px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+        .pdfrpt-insight-box ul{margin:0;padding-left:18px;}
+        .pdfrpt-insight-box li{font-size:12px;color:var(--gray-700);line-height:1.9;}
+        .pdfrpt-charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+        .pdfrpt-chart-box{border:1px solid var(--gray-200);border-radius:14px;padding:14px;}
+        .pdfrpt-chart-box h4{font-size:12px;font-weight:700;color:var(--gray-800);margin-bottom:8px;}
+        .pdfrpt-chart-box img{width:100%;display:block;}
+        .pdfrpt-table{width:100%;border-collapse:collapse;margin-bottom:6px;}
+        .pdfrpt-table th{background:var(--primary);color:#fff;padding:10px 12px;font-size:11.5px;text-align:left;}
+        .pdfrpt-table th:first-child{border-radius:8px 0 0 0;}
+        .pdfrpt-table th:last-child{border-radius:0 8px 0 0;}
+        .pdfrpt-table td{padding:9px 12px;font-size:12px;border-bottom:1px solid var(--gray-200);color:var(--gray-700);}
+        .pdfrpt-table tr:nth-child(even) td{background:var(--gray-50);}
+        .pdfrpt-badge-ok{color:var(--success);font-weight:700;}
+        .pdfrpt-badge-warn{color:var(--danger);font-weight:700;}
+        .pdfrpt-minibar{display:inline-block;width:70px;height:6px;background:var(--gray-200);border-radius:3px;overflow:hidden;vertical-align:middle;margin-right:6px;}
+        .pdfrpt-minibar-fill{height:100%;background:var(--success);}
+        .pdfrpt-rank{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:700;margin-right:8px;}
+        .pdfrpt-summary-note{font-size:11px;color:var(--gray-600);margin-top:12px;text-align:right;}
+        .pdfrpt-footer{position:absolute;bottom:26px;left:48px;right:48px;display:flex;justify-content:space-between;font-size:10px;color:var(--gray-300);border-top:1px solid var(--gray-200);padding-top:10px;}
     </style>
 </head>
 <body>
@@ -327,7 +380,7 @@
                     <button class="btn-apply" onclick="renderCategoryCards()"><i class="fas fa-check"></i> แสดงผล</button>
                     <div class="cat-filter-spacer"></div>
                     <button class="btn-export csv" onclick="exportCategoryCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
-                    <button class="btn-export pdf" onclick="exportCategoryPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                    <button class="btn-export pdf-full" id="fullReportBtn" onclick="exportFullKpiReportPDF()"><i class="fas fa-file-invoice"></i> Export PDF </button>
                 </div>
 
                 <div class="category-grid" id="categoryGrid">
@@ -862,6 +915,267 @@
                 </tr>
             `).join('');
         }
+
+        // ============================================================
+        // รายงาน PDF ฉบับเต็ม — สร้างเป็นหน้ารายงานสวยงามหลายหน้า
+        // (ปก + KPI สรุป, กราฟ, ตารางประเภทงาน, ตารางผลงานช่าง)
+        // แต่ละหน้าจะถูก render เป็น HTML แล้ว capture ด้วย html2canvas
+        // เพื่อให้ข้อความภาษาไทยแสดงผลถูกต้อง (jsPDF ฟอนต์มาตรฐานไม่รองรับไทย)
+        // ============================================================
+
+        function nowThaiString() {
+            const d = new Date();
+            const datePart = d.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+            const timePart = d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+            return `${datePart} เวลา ${timePart} น.`;
+        }
+
+        function currentRangeLabel() {
+            const sel = document.getElementById('rangeFilter');
+            return sel.options[sel.selectedIndex].text;
+        }
+
+        function pdfReportFooter(pageName) {
+            return `
+                <div class="pdfrpt-footer">
+                    <span>IT Helpdesk KPI Dashboard · พัฒนาโดย Sarawut.C</span>
+                    <span>${pageName} · สร้างเมื่อ ${nowThaiString()}</span>
+                </div>`;
+        }
+
+        function pdfReportHeader(title, sub) {
+            return `
+                <div class="pdfrpt-header">
+                    <div class="pdfrpt-header-left">
+                        <div class="pdfrpt-header-icon"><i class="fas fa-headset"></i></div>
+                        <div>
+                            <div class="pdfrpt-header-title">${title}</div>
+                            <div class="pdfrpt-header-sub">${sub}</div>
+                        </div>
+                    </div>
+                    <div class="pdfrpt-header-meta">
+                        <div><b>ช่วงข้อมูล:</b> ${currentRangeLabel()}</div>
+                        <div><b>วันที่ออกรายงาน:</b> ${nowThaiString()}</div>
+                    </div>
+                </div>`;
+        }
+
+        function buildCoverPageHTML() {
+            const filtered = getFilteredTickets();
+            const m = calcMonthCard();
+            const y = calcYearCard();
+            const sla = calcSLA(filtered);
+            const mttr = calcMTTR(filtered);
+            const backlog = allTickets.filter(t => t.status !== 'เสร็จสิ้น').length;
+
+            // สร้าง insight สั้น ๆ จากข้อมูลจริง
+            const cats = lastCategorySummary.length ? lastCategorySummary : [];
+            const topVolumeCat = cats.length ? [...cats].sort((a, b) => b.total - a.total)[0] : null;
+            const worstRateCat = cats.length ? [...cats].filter(c => c.total > 0).sort((a, b) => a.rate - b.rate)[0] : null;
+            const bestTech = techRows.length ? [...techRows].filter(t => t.avgHours !== null).sort((a, b) => a.avgHours - b.avgHours)[0] : null;
+
+            const insights = [];
+            if (backlog >= BACKLOG_THRESHOLD) insights.push(`มีงานคงค้าง ${backlog} งาน ซึ่งเกินเกณฑ์ปกติ (< ${BACKLOG_THRESHOLD} งาน) ควรเร่งดำเนินการ`);
+            else insights.push(`งานคงค้างอยู่ที่ ${backlog} งาน ยังอยู่ในเกณฑ์ปกติ (< ${BACKLOG_THRESHOLD} งาน)`);
+            if (topVolumeCat) insights.push(`ประเภทงานที่มีปริมาณมากที่สุดคือ "${topVolumeCat.name}" จำนวน ${topVolumeCat.total} งาน`);
+            if (worstRateCat) insights.push(`ประเภทงานที่มีอัตราสำเร็จต่ำที่สุดคือ "${worstRateCat.name}" ที่ ${worstRateCat.rate.toFixed(1)}% (Target ≥ ${CATEGORY_TARGET_PCT}%)`);
+            if (bestTech) insights.push(`ช่างที่ปิดงานเฉลี่ยเร็วที่สุดคือ "${bestTech.name}" ที่ ${bestTech.avgHours.toFixed(1)} ชม./งาน`);
+            insights.push(sla.total ? `อัตรา SLA Compliance โดยรวมอยู่ที่ ${sla.rate.toFixed(1)}% (ภายใน ${SLA_HOURS} ชม.)` : `ยังไม่มีงานที่ปิดสำเร็จในช่วงเวลาที่เลือก จึงยังไม่สามารถประเมิน SLA ได้`);
+
+            return `
+            <div class="pdfrpt-page">
+                ${pdfReportHeader('รายงานสรุปผล KPI IT Helpdesk', 'IT Helpdesk KPI Report')}
+                <div class="pdfrpt-cover-title">สรุปภาพรวมประสิทธิภาพการให้บริการ</div>
+                <div class="pdfrpt-cover-sub">ข้อมูล ณ ช่วงเวลา: ${currentRangeLabel()} &nbsp;|&nbsp; จำนวน Ticket ทั้งหมดในระบบ: ${allTickets.length.toLocaleString('th-TH')} งาน</div>
+
+                <div class="pdfrpt-section-title">ตัวชี้วัดหลัก (Key Metrics)</div>
+                <div class="pdfrpt-kpi-grid">
+                    <div class="pdfrpt-kpi-card">
+                        <div class="lbl">งานเข้าเดือนนี้</div>
+                        <div class="val">${m.thisCount}<span class="unit">Ticket</span></div>
+                        <div class="sub">เทียบเดือนก่อน ${m.lastCount} งาน (${m.pct >= 0 ? '+' : ''}${m.pct.toFixed(1)}%)</div>
+                    </div>
+                    <div class="pdfrpt-kpi-card g">
+                        <div class="lbl">งานปิดสำเร็จ (เดือนนี้)</div>
+                        <div class="val">${m.completed}<span class="unit">Ticket</span></div>
+                        <div class="sub">อัตราปิดสำเร็จ ${m.completionRate.toFixed(1)}%</div>
+                    </div>
+                    <div class="pdfrpt-kpi-card ${backlog >= BACKLOG_THRESHOLD ? 'o' : ''}">
+                        <div class="lbl">งานคงค้าง</div>
+                        <div class="val">${backlog}<span class="unit">Ticket</span></div>
+                        <div class="sub">เกณฑ์คงค้าง &lt; ${BACKLOG_THRESHOLD} งาน · ${backlog >= BACKLOG_THRESHOLD ? 'ควรเร่งดำเนินการ' : 'อยู่ในเกณฑ์ปกติ'}</div>
+                    </div>
+                    <div class="pdfrpt-kpi-card o">
+                        <div class="lbl">งานรวมปีนี้</div>
+                        <div class="val">${y.thisCount}<span class="unit">Ticket</span></div>
+                        <div class="sub">เทียบปีก่อน ${y.lastCount} งาน (${y.pct >= 0 ? '+' : ''}${y.pct.toFixed(1)}%)</div>
+                    </div>
+                    <div class="pdfrpt-kpi-card p">
+                        <div class="lbl">SLA Compliance (ภายใน ${SLA_HOURS} ชม.)</div>
+                        <div class="val">${sla.total ? sla.rate.toFixed(1) + '%' : '-'}</div>
+                        <div class="sub">${sla.total ? `ภายใน SLA ${sla.within} จาก ${sla.total} งาน` : 'ยังไม่มีงานปิดในช่วงนี้'}</div>
+                    </div>
+                    <div class="pdfrpt-kpi-card p">
+                        <div class="lbl">เวลาแก้ไขเฉลี่ย (MTTR)</div>
+                        <div class="val">${mttr.count ? mttr.avgHours.toFixed(1) : '-'}<span class="unit">ชม.</span></div>
+                        <div class="sub">${mttr.count ? `คำนวณจาก ${mttr.count} งานที่ปิดแล้ว` : 'ยังไม่มีข้อมูล'}</div>
+                    </div>
+                </div>
+
+                <div class="pdfrpt-section-title">ข้อมูลเชิงลึก (Insights)</div>
+                <div class="pdfrpt-insight-box">
+                    <h4><i class="fas fa-lightbulb"></i> สรุปประเด็นสำคัญจากข้อมูลจริง</h4>
+                    <ul>${insights.map(i => `<li>${i}</li>`).join('')}</ul>
+                </div>
+                ${pdfReportFooter('หน้า 1 · ภาพรวม')}
+            </div>`;
+        }
+
+        function buildChartsPageHTML() {
+            const volImg = volumeChart ? volumeChart.toBase64Image() : '';
+            const statImg = statusChart ? statusChart.toBase64Image() : '';
+            const deptImg = mttrByDeptChart ? mttrByDeptChart.toBase64Image() : '';
+            const slaImg = slaChart ? slaChart.toBase64Image() : '';
+            return `
+            <div class="pdfrpt-page">
+                ${pdfReportHeader('กราฟและแนวโน้ม', 'Charts & Trends')}
+                <div class="pdfrpt-section-title">ปริมาณ Ticket และสถานะงาน</div>
+                <div class="pdfrpt-charts-grid" style="margin-bottom:16px;">
+                    <div class="pdfrpt-chart-box"><h4><i class="fas fa-chart-bar"></i> ปริมาณ Ticket รายเดือน (6 เดือนล่าสุด)</h4>${volImg ? `<img src="${volImg}">` : ''}</div>
+                    <div class="pdfrpt-chart-box"><h4><i class="fas fa-chart-pie"></i> สถานะ Ticket</h4>${statImg ? `<img src="${statImg}">` : ''}</div>
+                </div>
+                <div class="pdfrpt-section-title">MTTR และ SLA</div>
+                <div class="pdfrpt-charts-grid">
+                    <div class="pdfrpt-chart-box"><h4><i class="fas fa-stopwatch"></i> MTTR เฉลี่ยตามแผนก (ชั่วโมง)</h4>${deptImg ? `<img src="${deptImg}">` : ''}</div>
+                    <div class="pdfrpt-chart-box"><h4><i class="fas fa-shield-alt"></i> SLA Breakdown</h4>${slaImg ? `<img src="${slaImg}">` : ''}</div>
+                </div>
+                ${pdfReportFooter('หน้า 2 · กราฟและแนวโน้ม')}
+            </div>`;
+        }
+
+        function buildCategoryPageHTML() {
+            const rows = lastCategorySummary.length ? lastCategorySummary : [];
+            const totalAll = rows.reduce((s, c) => s + c.total, 0);
+            const closedAll = rows.reduce((s, c) => s + c.closed, 0);
+            const overallRate = totalAll ? (closedAll / totalAll * 100) : 0;
+            const rowsHtml = rows.map(c => {
+                const ok = c.rate >= CATEGORY_TARGET_PCT;
+                return `
+                <tr>
+                    <td>${c.name}</td>
+                    <td>${c.total}</td>
+                    <td>${c.closed}</td>
+                    <td class="${ok ? 'pdfrpt-badge-ok' : 'pdfrpt-badge-warn'}">${c.rate.toFixed(1)}%</td>
+                    <td class="${ok ? 'pdfrpt-badge-ok' : 'pdfrpt-badge-warn'}">${ok ? 'ผ่านเป้าหมาย' : 'ต่ำกว่าเป้าหมาย'}</td>
+                </tr>`;
+            }).join('');
+            return `
+            <div class="pdfrpt-page">
+                ${pdfReportHeader('อัตราความสำเร็จแยกตามประเภทงาน', `Target ≥ ${CATEGORY_TARGET_PCT}% · ${document.getElementById('catModeToggle').dataset.mode === 'month' ? 'รายเดือน' : 'รายปี'}`)}
+                <div class="pdfrpt-section-title">รายละเอียดตามประเภทงาน</div>
+                <table class="pdfrpt-table">
+                    <thead><tr><th>ประเภทงาน</th><th>ทั้งหมด</th><th>ปิดสำเร็จ</th><th>อัตราสำเร็จ</th><th>สถานะ</th></tr></thead>
+                    <tbody>${rowsHtml || `<tr><td colspan="5" style="text-align:center;color:var(--gray-600);">ไม่มีข้อมูลในช่วงที่เลือก</td></tr>`}</tbody>
+                </table>
+                <div class="pdfrpt-summary-note">รวมทั้งหมด ${totalAll} งาน · ปิดสำเร็จ ${closedAll} งาน · อัตราสำเร็จเฉลี่ยรวม ${overallRate.toFixed(1)}%</div>
+                ${pdfReportFooter('หน้า 3 · ประเภทงาน')}
+            </div>`;
+        }
+
+        function buildTechPageHTML() {
+            const sorted = [...techRows].sort((a, b) => b.completionRate - a.completionRate);
+            const rowsHtml = sorted.map((t, i) => `
+                <tr>
+                    <td><span class="pdfrpt-rank">${i + 1}</span>${t.name}</td>
+                    <td>${t.total}</td>
+                    <td>${t.completed}</td>
+                    <td><span class="pdfrpt-minibar"><span class="pdfrpt-minibar-fill" style="width:${t.completionRate.toFixed(0)}%"></span></span>${t.completionRate.toFixed(0)}%</td>
+                    <td>${t.avgHours !== null ? t.avgHours.toFixed(1) + ' ชม.' : '-'}</td>
+                </tr>`).join('');
+            return `
+            <div class="pdfrpt-page">
+                ${pdfReportHeader('ผลงานของแผนก/ผู้รับผิดชอบ', 'Technician Performance')}
+                <div class="pdfrpt-section-title">อันดับตามอัตราปิดงาน</div>
+                <table class="pdfrpt-table">
+                    <thead><tr><th>ช่าง</th><th>งานทั้งหมด</th><th>ปิดงานแล้ว</th><th>อัตราปิดงาน</th><th>เวลาเฉลี่ย</th></tr></thead>
+                    <tbody>${rowsHtml || `<tr><td colspan="5" style="text-align:center;color:var(--gray-600);">ไม่มีข้อมูลผู้รับผิดชอบในช่วงที่เลือก</td></tr>`}</tbody>
+                </table>
+                ${pdfReportFooter('หน้า 4 · ผลงานรายบุคคล')}
+            </div>`;
+        }
+
+        // แปลง canvas ที่ capture มา ให้พอดีกับหน้า A4 (210x297mm)
+        // ถ้าเนื้อหาสูงเกิน 1 หน้า จะตัดแบ่งเป็นหลายหน้าอัตโนมัติ
+        function addCanvasFittedToPdf(pdf, canvas, startNewPage) {
+            const pageWidthMM = pdf.internal.pageSize.getWidth();
+            const pageHeightMM = pdf.internal.pageSize.getHeight();
+            const imgWidthMM = pageWidthMM;
+            const pxPerMM = canvas.width / imgWidthMM;
+            const pageHeightPx = pageHeightMM * pxPerMM;
+
+            if (startNewPage) pdf.addPage();
+
+            if (canvas.height <= pageHeightPx + 2) {
+                const imgHeightMM = canvas.height / pxPerMM;
+                pdf.addImage(canvas.toDataURL('image/jpeg', 0.93), 'JPEG', 0, 0, imgWidthMM, imgHeightMM);
+                return;
+            }
+
+            let renderedPx = 0;
+            let first = true;
+            while (renderedPx < canvas.height) {
+                const sliceHeightPx = Math.min(pageHeightPx, canvas.height - renderedPx);
+                const sliceCanvas = document.createElement('canvas');
+                sliceCanvas.width = canvas.width;
+                sliceCanvas.height = sliceHeightPx;
+                const ctx = sliceCanvas.getContext('2d');
+                ctx.drawImage(canvas, 0, renderedPx, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
+                if (!first) pdf.addPage();
+                first = false;
+                const sliceHeightMM = sliceHeightPx / pxPerMM;
+                pdf.addImage(sliceCanvas.toDataURL('image/jpeg', 0.93), 'JPEG', 0, 0, imgWidthMM, sliceHeightMM);
+                renderedPx += sliceHeightPx;
+            }
+        }
+
+        async function renderTemplateToCanvas(html) {
+            const host = document.getElementById('pdfTemplateHost');
+            host.innerHTML = html;
+            // ให้เวลา layout/รูปภาพ (กราฟ base64) เซ็ตตัวก่อน capture
+            await new Promise(r => setTimeout(r, 60));
+            const el = host.firstElementChild;
+            const canvas = await html2canvas(el, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', logging: false });
+            host.innerHTML = '';
+            return canvas;
+        }
+
+        async function exportFullKpiReportPDF() {
+            const btn = document.getElementById('fullReportBtn');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin-on-load"></i> กำลังสร้างรายงาน...';
+            try {
+                if (!allTickets.length) { alert('ยังไม่มีข้อมูล ticket ให้สร้างรายงาน'); return; }
+                renderCategoryCards();
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+                const pageBuilders = [buildCoverPageHTML, buildChartsPageHTML, buildCategoryPageHTML, buildTechPageHTML];
+                for (let i = 0; i < pageBuilders.length; i++) {
+                    const canvas = await renderTemplateToCanvas(pageBuilders[i]());
+                    addCanvasFittedToPdf(pdf, canvas, i > 0);
+                }
+
+                pdf.save(`kpi-report-full-${new Date().toISOString().split('T')[0]}.pdf`);
+            } catch (err) {
+                console.error('Full KPI PDF export error:', err);
+                alert('เกิดข้อผิดพลาดในการสร้างรายงาน PDF กรุณาลองใหม่อีกครั้ง');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
     </script>
+    <div id="pdfTemplateHost"></div>
 </body>
 </html>
