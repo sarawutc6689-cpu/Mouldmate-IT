@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>รายงานคำขอเบิกอุปกรณ์ - FM009</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f4f5f7; color:#1f2937; }
+  .topbar { background:#1f2937; color:#fff; padding:14px 20px; }
+  .container { max-width: 1200px; margin: 20px auto; padding: 0 16px; }
+  .card { background:#fff; border-radius:8px; padding:20px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,.1); }
+  .filter-row { display:flex; gap:10px; flex-wrap:wrap; align-items:end; }
+  .filter-group { display:flex; flex-direction:column; gap:4px; }
+  label { font-size:13px; color:#6b7280; }
+  input, select, button { padding:8px 12px; font-size:14px; border-radius:6px; border:1px solid #ccc; }
+  button { cursor:pointer; border:none; color:#fff; }
+  .btn-primary { background:#2563eb; }
+  .btn-print { background:#374151; }
+  .btn-csv { background:#16a34a; }
+  .actions { display:flex; gap:8px; margin-top:12px; }
+  table { width:100%; border-collapse: collapse; margin-top:8px; font-size:13px; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid #eee; white-space:nowrap; }
+  th { background:#f9fafb; position:sticky; top:0; }
+  .table-wrap { overflow-x:auto; }
+  .status-pending { color:#b45309; font-weight:bold; }
+  .status-approved { color:#16a34a; font-weight:bold; }
+  .status-rejected { color:#dc2626; font-weight:bold; }
+  .muted { color:#6b7280; font-size:13px; }
+  .err { color:#dc2626; font-size:14px; }
+  .summary-line { margin-top:10px; font-size:14px; }
+  @media print {
+    .no-print { display:none !important; }
+    .topbar { background:#fff; color:#000; padding:0 0 10px 0; border-bottom:2px solid #000; }
+    .card { box-shadow:none; padding:0; }
+    body { background:#fff; }
+    table { font-size:11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <strong>FM009 · รายงานคำขอเบิกอุปกรณ์</strong>
+</div>
+
+<div class="container">
+  <div class="card no-print">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>วันที่ยื่นตั้งแต่</label>
+        <input type="date" id="date-from">
+      </div>
+      <div class="filter-group">
+        <label>ถึงวันที่</label>
+        <input type="date" id="date-to">
+      </div>
+      <div class="filter-group">
+        <label>แผนก</label>
+        <select id="department-filter"><option value="all">ทั้งหมด</option></select>
+      </div>
+      <div class="filter-group">
+        <label>สถานะ</label>
+        <select id="status-filter">
+          <option value="all">ทั้งหมด</option>
+          <option value="pending">รอดำเนินการ</option>
+          <option value="approved">อนุมัติแล้ว</option>
+          <option value="rejected">ปฏิเสธแล้ว</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <button class="btn-primary" onclick="loadReport()">ค้นหา</button>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn-print" onclick="window.print()">พิมพ์รายงาน</button>
+      <button class="btn-csv" onclick="exportCSV()">ดาวน์โหลด CSV</button>
+    </div>
+    <p class="err" id="load-error"></p>
+  </div>
+
+  <div class="card">
+    <p class="summary-line" id="summary-line"></p>
+    <div class="table-wrap">
+      <table id="report-table">
+        <thead>
+          <tr>
+            <th>เลข Ticket</th>
+            <th>วันที่ยื่น</th>
+            <th>รหัสพนักงาน</th>
+            <th>ชื่อพนักงาน</th>
+            <th>แผนก</th>
+            <th>สถานะ</th>
+            <th>เหตุผล</th>
+            <th>อุปกรณ์</th>
+            <th>ยี่ห้อ</th>
+            <th>รุ่น</th>
+            <th>S/N</th>
+            <th>จำนวน</th>
+            <th>วันที่คืน</th>
+            <th>สภาพตอนคืน</th>
+            <th>ผู้รับคืน</th>
+          </tr>
+        </thead>
+        <tbody id="report-body">
+          <tr><td colspan="15" class="muted">กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://fnbkcgkuykdabbensvif.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE'; // TODO: ใส่ anon key จริง
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const statusLabel = { pending: 'รอดำเนินการ', approved: 'อนุมัติแล้ว', rejected: 'ปฏิเสธแล้ว' };
+  let flatRows = []; // เก็บผลลัพธ์ล่าสุดไว้ใช้ export CSV
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await populateDepartmentFilter();
+    loadReport();
+  });
+
+  async function populateDepartmentFilter() {
+    const { data, error } = await sb.from('fm009_requests').select('department');
+    if (error || !data) return;
+    const depts = [...new Set(data.map(d => d.department).filter(Boolean))].sort();
+    const sel = document.getElementById('department-filter');
+    sel.innerHTML = '<option value="all">ทั้งหมด</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
+  }
+
+  async function loadReport() {
+    const errEl = document.getElementById('load-error');
+    const bodyEl = document.getElementById('report-body');
+    errEl.textContent = '';
+    bodyEl.innerHTML = '<tr><td colspan="15" class="muted">กำลังโหลด...</td></tr>';
+
+    const dateFrom = document.getElementById('date-from').value;
+    const dateTo = document.getElementById('date-to').value;
+    const department = document.getElementById('department-filter').value;
+    const status = document.getElementById('status-filter').value;
+
+    let query = sb.from('fm009_requests').select('*').order('request_date', { ascending: false });
+    if (dateFrom) query = query.gte('request_date', dateFrom + 'T00:00:00');
+    if (dateTo) query = query.lte('request_date', dateTo + 'T23:59:59');
+    if (department !== 'all') query = query.eq('department', department);
+    if (status !== 'all') query = query.eq('status', status);
+
+    const { data: requests, error } = await query;
+
+    if (error) {
+      errEl.textContent = 'โหลดข้อมูลล้มเหลว: ' + error.message;
+      bodyEl.innerHTML = '';
+      return;
+    }
+
+    if (!requests || requests.length === 0) {
+      bodyEl.innerHTML = '<tr><td colspan="15" class="muted">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>';
+      document.getElementById('summary-line').textContent = '';
+      flatRows = [];
+      return;
+    }
+
+    const requestIds = requests.map(r => r.id);
+
+    const [{ data: items, error: itemsErr }, { data: returns, error: retErr }] = await Promise.all([
+      sb.from('fm009_request_items').select('*').in('request_id', requestIds),
+      sb.from('fm009_returns').select('*').in('request_id', requestIds)
+    ]);
+
+    if (itemsErr || retErr) {
+      errEl.textContent = 'โหลดรายละเอียดล้มเหลว: ' + ((itemsErr || retErr).message);
+      bodyEl.innerHTML = '';
+      return;
+    }
+
+    flatRows = buildFlatRows(requests, items || [], returns || []);
+    renderTable(flatRows);
+    renderSummary(requests, flatRows);
+  }
+
+  function buildFlatRows(requests, items, returns) {
+    const rows = [];
+    for (const req of requests) {
+      const reqItems = items.filter(i => i.request_id === req.id);
+      const reqReturns = returns.filter(r => r.request_id === req.id);
+      const returnInfo = reqReturns.length > 0 ? reqReturns[0] : null; // ใช้บันทึกล่าสุดสุด (query ไม่ได้ sort ในนี้ ใช้ตัวแรกที่เจอ)
+
+      if (reqItems.length === 0) {
+        rows.push(makeRow(req, null, returnInfo));
+      } else {
+        for (const it of reqItems) {
+          rows.push(makeRow(req, it, returnInfo));
+        }
+      }
+    }
+    return rows;
+  }
+
+  function makeRow(req, item, ret) {
+    return {
+      ticket_no: req.ticket_no,
+      request_date: req.request_date,
+      employee_code: req.employee_code,
+      employee_name: req.employee_name,
+      department: req.department || '',
+      status: req.status,
+      reason: req.reason || '',
+      item_name: item ? item.item_name : '',
+      brand: item ? (item.brand || '') : '',
+      model: item ? (item.model || '') : '',
+      serial_no: item ? (item.serial_no || '') : '',
+      quantity: item ? item.quantity : '',
+      return_date: ret ? ret.return_date : '',
+      condition: ret ? (ret.condition || '') : '',
+      received_by: ret ? (ret.received_by || '') : ''
+    };
+  }
+
+  function renderTable(rows) {
+    const bodyEl = document.getElementById('report-body');
+    if (rows.length === 0) {
+      bodyEl.innerHTML = '<tr><td colspan="15" class="muted">ไม่พบข้อมูล</td></tr>';
+      return;
+    }
+    bodyEl.innerHTML = rows.map(r => `
+      <tr>
+        <td>${r.ticket_no}</td>
+        <td>${new Date(r.request_date).toLocaleString('th-TH')}</td>
+        <td>${r.employee_code}</td>
+        <td>${r.employee_name}</td>
+        <td>${r.department}</td>
+        <td class="status-${r.status}">${statusLabel[r.status] || r.status}</td>
+        <td>${r.reason}</td>
+        <td>${r.item_name}</td>
+        <td>${r.brand}</td>
+        <td>${r.model}</td>
+        <td>${r.serial_no}</td>
+        <td>${r.quantity}</td>
+        <td>${r.return_date ? new Date(r.return_date).toLocaleString('th-TH') : '-'}</td>
+        <td>${r.condition || '-'}</td>
+        <td>${r.received_by || '-'}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderSummary(requests, rows) {
+    const total = requests.length;
+    const returned = rows.filter(r => r.return_date).length;
+    document.getElementById('summary-line').textContent =
+      `พบคำขอทั้งหมด ${total} รายการ (${rows.length} แถวรายการอุปกรณ์) · มีบันทึกการคืนแล้ว ${returned} รายการ`;
+  }
+
+  function exportCSV() {
+    if (flatRows.length === 0) {
+      alert('ไม่มีข้อมูลให้ดาวน์โหลด');
+      return;
+    }
+
+    const headers = ['เลข Ticket', 'วันที่ยื่น', 'รหัสพนักงาน', 'ชื่อพนักงาน', 'แผนก', 'สถานะ', 'เหตุผล', 'อุปกรณ์', 'ยี่ห้อ', 'รุ่น', 'S/N', 'จำนวน', 'วันที่คืน', 'สภาพตอนคืน', 'ผู้รับคืน'];
+    const csvRows = [headers.join(',')];
+
+    for (const r of flatRows) {
+      const line = [
+        r.ticket_no,
+        new Date(r.request_date).toLocaleString('th-TH'),
+        r.employee_code,
+        r.employee_name,
+        r.department,
+        statusLabel[r.status] || r.status,
+        r.reason,
+        r.item_name,
+        r.brand,
+        r.model,
+        r.serial_no,
+        r.quantity,
+        r.return_date ? new Date(r.return_date).toLocaleString('th-TH') : '',
+        r.condition,
+        r.received_by
+      ].map(escapeCSV).join(',');
+      csvRows.push(line);
+    }
+
+    const csvContent = '\uFEFF' + csvRows.join('\n'); // BOM เพื่อให้ Excel เปิดภาษาไทยไม่เพี้ยน
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fm009_report_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function escapeCSV(val) {
+    const s = String(val ?? '');
+    if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+</script>
+
+</body>
+</html>
