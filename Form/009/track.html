@@ -110,6 +110,11 @@
 
   function navigateTo(page) { window.location.href = page + '.html'; }
 
+  function esc(s) {
+    if (s === null || s === undefined || s === '') return '-';
+    return s.toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  }
+
   document.getElementById('search-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') searchRequests();
   });
@@ -158,16 +163,16 @@
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <strong>${req.ticket_no}</strong>
+            <strong>${esc(req.ticket_no)}</strong>
           </div>
-          <span class="${statusClass}">${statusRaw}</span>
+          <span class="${statusClass}">${esc(statusRaw)}</span>
         </div>
         <p class="muted" style="margin:8px 0;">
-          พนักงาน: ${req.employee_name} (${req.employee_code}) &nbsp;|&nbsp;
-          แผนก: ${req.department || '-'} <br>
-          วันที่ยื่น: ${new Date(req.request_date).toLocaleString('th-TH')}
+          พนักงาน: ${esc(req.employee_name)} (${esc(req.employee_code)}) &nbsp;|&nbsp;
+          แผนก: ${esc(req.department)} <br>
+          วันที่ยื่น: ${esc(new Date(req.request_date).toLocaleString('th-TH'))}
         </p>
-        <p><strong>เหตุผล:</strong> ${req.reason || '-'}</p>
+        <p><strong>เหตุผล:</strong> ${esc(req.reason)}</p>
         <div id="items-${req.id}" class="muted" style="margin-top:12px;">กำลังโหลดรายการอุปกรณ์...</div>
       `;
       resultsEl.appendChild(card);
@@ -193,7 +198,7 @@
 
     let table = '<table><tr><th>อุปกรณ์</th><th>ยี่ห้อ</th><th>รุ่น</th><th>S/N</th><th>จำนวน</th></tr>';
     for (const it of items) {
-      table += `<tr><td>${it.item_name}</td><td>${it.brand || '-'}</td><td>${it.model || '-'}</td><td>${it.serial_no || '-'}</td><td>${it.quantity}</td></tr>`;
+      table += `<tr><td>${esc(it.item_name)}</td><td>${esc(it.brand)}</td><td>${esc(it.model)}</td><td>${esc(it.serial_no)}</td><td>${it.quantity}</td></tr>`;
     }
     table += '</table>';
     el.innerHTML = table;
