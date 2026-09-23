@@ -107,11 +107,12 @@
   async function checkUser() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) {
-      // กรณีไม่ได้ Login ผ่าน Supabase Auth ให้ใช้ค่าจำลองหรือเด้งไปหน้า login ตามโครงสร้างโปรเจกต์คุณ
-      document.getElementById('userEmailDisplay').textContent = '104058@local.com (Mock)';
-    } else {
-      document.getElementById('userEmailDisplay').textContent = session.user.email;
+      // ยังไม่ได้ login ผ่าน Supabase Auth -> เด้งไปหน้า login ทันที
+      window.location.href = 'login.html';
+      return null;
     }
+    document.getElementById('userEmailDisplay').textContent = session.user.email;
+    return session;
   }
 
   async function loadRequests() {
@@ -225,11 +226,13 @@
 
   async function logout() {
     await sb.auth.signOut();
-    window.location.reload();
+    window.location.href = 'login.html';
   }
 
-  checkUser();
-  loadRequests();
+  (async () => {
+    const session = await checkUser();
+    if (session) loadRequests();
+  })();
 </script>
 </body>
 </html>
