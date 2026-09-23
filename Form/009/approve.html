@@ -111,6 +111,30 @@
       window.location.href = 'login.html';
       return null;
     }
+
+    // เช็คว่า email ที่ login เข้ามา มีสิทธิ์ role = 'approver' ในตาราง profiles หรือไม่
+    const { data: profile, error: profileErr } = await sb
+      .from('profiles')
+      .select('role, email')
+      .eq('email', session.user.email)
+      .eq('role', 'approver')
+      .maybeSingle();
+
+    if (profileErr) {
+      alert('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์: ' + profileErr.message);
+      await sb.auth.signOut();
+      window.location.href = 'login.html';
+      return null;
+    }
+
+    if (!profile) {
+      // login สำเร็จ แต่ไม่มีสิทธิ์ผู้อนุมัติ (ไม่มีใน profiles หรือ role ไม่ใช่ approver)
+      alert('บัญชีนี้ไม่มีสิทธิ์ผู้อนุมัติ (ไม่พบใน profiles หรือ role ไม่ใช่ approver)');
+      await sb.auth.signOut();
+      window.location.href = 'login.html';
+      return null;
+    }
+
     document.getElementById('userEmailDisplay').textContent = session.user.email;
     return session;
   }
