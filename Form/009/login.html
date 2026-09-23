@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เข้าสู่ระบบ - ระบบนำอุปกรณ์ออกนอกบริษัท</title>
+<style>
+    :root {
+      --primary:#1a56db; --primary-dark:#1e40af;
+      --sidebar-bg1:#0f2050; --sidebar-bg2:#1a3a7a;
+      --bg:#f0f4f8; --white:#ffffff; --border:#e2e8f0;
+      --text:#1e293b; --text-muted:#64748b; --danger:#ef4444;
+      --radius:10px; --shadow:0 4px 20px rgba(15,32,80,.15);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'Sarabun','TH Sarabun New','Noto Sans Thai',Tahoma,sans-serif;
+      font-size:16px;min-height:100vh;
+      display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,var(--sidebar-bg1) 0%,var(--sidebar-bg2) 100%);
+      padding:20px;
+    }
+    .login-card{
+      background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);
+      width:100%;max-width:380px;padding:34px 30px;
+    }
+    .login-logo{text-align:center;margin-bottom:26px;}
+    .login-logo .title{font-size:17px;font-weight:700;color:var(--text);line-height:1.4;}
+    .login-logo .sub{font-size:13px;color:var(--text-muted);margin-top:4px;}
+    label{display:block;font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;}
+    .field{margin-bottom:18px;}
+    input{
+      width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:8px;
+      font-size:16px;font-family:inherit;color:var(--text);
+    }
+    input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.12);}
+    .btn-login{
+      width:100%;padding:12px;background:var(--primary);color:#fff;border:none;
+      border-radius:8px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;
+      margin-top:6px;transition:background .15s;
+    }
+    .btn-login:hover{background:var(--primary-dark);}
+    .btn-login:disabled{opacity:.6;cursor:not-allowed;}
+    .error-msg{
+      background:#fef2f2;color:var(--danger);border:1px solid #fecaca;
+      border-radius:8px;padding:10px 13px;font-size:14px;margin-bottom:16px;display:none;
+    }
+    .error-msg.show{display:block;}
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="login-logo">
+    <div class="title">ระบบนำอุปกรณ์ออกนอกบริษัท</div>
+    <div class="sub">IT Asset Management</div>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <form id="loginForm">
+    <div class="field">
+      <label for="empCode">รหัสพนักงาน</label>
+      <input type="text" id="empCode" placeholder="เช่น 104058" required autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="password">รหัสผ่าน</label>
+      <input type="password" id="password" placeholder="รหัสผ่าน" required autocomplete="current-password">
+    </div>
+    <button type="submit" class="btn-login" id="btnLogin">เข้าสู่ระบบ</button>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://fnbkcgkuykdabbensvif.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ถ้ามี session อยู่แล้ว ให้เด้งเข้าหน้าแรกทันที ไม่ต้อง login ซ้ำ
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) window.location.href = 'index.html';
+  })();
+
+  const form = document.getElementById('loginForm');
+  const errorMsg = document.getElementById('errorMsg');
+  const btnLogin = document.getElementById('btnLogin');
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorMsg.classList.add('show');
+  }
+  function hideError() {
+    errorMsg.classList.remove('show');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideError();
+
+    const empCode = document.getElementById('empCode').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!empCode || !password) {
+      showError('กรุณากรอกรหัสพนักงานและรหัสผ่าน');
+      return;
+    }
+
+    // แปลงรหัสพนักงานเป็น email รูปแบบเดียวกับที่ใช้สมัคร user ใน Supabase Auth
+    // *** ปรับ pattern ตรงนี้ให้ตรงกับที่ระบบคุณใช้จริง ถ้าไม่ใช่ {รหัส}@local.com ***
+    const email = empCode + '@local.com';
+
+    btnLogin.disabled = true;
+    btnLogin.textContent = 'กำลังเข้าสู่ระบบ...';
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+    btnLogin.disabled = false;
+    btnLogin.textContent = 'เข้าสู่ระบบ';
+
+    if (error) {
+      showError('เข้าสู่ระบบไม่สำเร็จ: รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
+      return;
+    }
+
+    window.location.href = 'index.html';
+  });
+</script>
+</body>
+</html>
