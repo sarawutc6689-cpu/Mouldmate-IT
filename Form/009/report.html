@@ -253,7 +253,7 @@
     for (const r of rows) {
       let statusClass = '';
       if (r.status === 'อนุมัติแล้ว') statusClass = 'status-approved';
-      else if (r.status === 'ไม่อนุมัติ') statusClass = 'status-danger';
+      else if (r.status === 'ไม่อนุมัติ') statusClass = 'status-rejected';
       else if (r.status === 'รอการอนุมัติ') statusClass = 'status-pending';
 
       html += `<tr>
