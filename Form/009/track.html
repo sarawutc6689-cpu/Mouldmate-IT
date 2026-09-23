@@ -3,51 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ติดตามสถานะคำขอเบิกอุปกรณ์ - FM009</title>
+<title>FM009 · ติดตามสถานะคำขอเบิกอุปกรณ์</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f4f5f7; }
-  .topbar { background:#1f2937; color:#fff; padding:14px 20px; }
-  .container { max-width: 800px; margin: 20px auto; padding: 0 16px; }
-  .card { background:#fff; border-radius:8px; padding:20px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,.1); }
-  .search-row { display:flex; gap:8px; flex-wrap:wrap; }
-  input, select, button { padding:10px; font-size:15px; border-radius:6px; border:1px solid #ccc; box-sizing:border-box; }
-  input { flex:1; min-width:200px; }
-  button { cursor:pointer; border:none; color:#fff; background:#2563eb; padding:10px 20px; }
-  button:hover { background:#1d4ed8; }
-  .status-pending { color:#b45309; font-weight:bold; }
-  .status-approved { color:#16a34a; font-weight:bold; }
-  .status-rejected { color:#dc2626; font-weight:bold; }
-  table { width:100%; border-collapse: collapse; margin-top:8px; }
-  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid #eee; font-size:14px; }
-  .muted { color:#6b7280; font-size:13px; }
-  .err { color:#dc2626; font-size:14px; }
-  .empty { text-align:center; color:#9ca3af; padding:30px 0; }
+  :root {
+    --primary:#1a56db; --primary-dark:#1e40af; --primary-light:#dbeafe;
+    --sidebar-bg1:#0f2050; --sidebar-bg2:#1a3a7a;
+    --bg:#f0f4f8; --white:#ffffff; --border:#e2e8f0;
+    --text:#1e293b; --text-muted:#64748b;
+    --success:#059669; --warning:#f59e0b; --danger:#ef4444;
+    --sidebar-w:240px; --topbar-h:60px; --radius:10px;
+    --shadow:0 2px 8px rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Sarabun','TH Sarabun New','Noto Sans Thai',Tahoma,sans-serif;font-size:16px;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+  
+  /* Sidebar */
+  .sidebar{width:var(--sidebar-w);min-height:100vh;background:linear-gradient(180deg,var(--sidebar-bg1) 0%,var(--sidebar-bg2) 100%);position:fixed;top:0;left:0;bottom:0;z-index:200;display:flex;flex-direction:column;box-shadow:3px 0 12px rgba(0,0,0,0.18);}
+  .sidebar-logo{padding:22px 20px 16px;border-bottom:1px solid rgba(255,255,255,.10);}
+  .sidebar-logo .logo-title{font-size:15px;font-weight:700;color:#fff;line-height:1.4;}
+  .sidebar-logo .logo-sub{font-size:12px;color:rgba(255,255,255,.45);margin-top:3px;}
+  .sidebar-nav{flex:1;padding:10px 0;overflow-y:auto;}
+  .nav-group-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:1.1px;text-transform:uppercase;padding:16px 20px 6px;}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:rgba(255,255,255,.70);text-decoration:none;font-size:15px;font-weight:500;border:none;background:none;width:100%;text-align:left;cursor:pointer;position:relative;transition:all .18s;}
+  .nav-item:hover{background:rgba(255,255,255,.09);color:#fff;}
+  .nav-item.active{background:rgba(59,130,246,.20);color:#93c5fd;font-weight:700;}
+  .nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:#3b82f6;border-radius:0 4px 4px 0;}
+
+  /* Topbar */
+  .topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:var(--topbar-h);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+  .topbar-title{font-size:18px;font-weight:700;color:var(--text);}
+
+  /* Main Layout */
+  .main-wrapper{margin-left:var(--sidebar-w);padding-top:var(--topbar-h);flex:1;width:calc(100% - var(--sidebar-w));display:flex;flex-direction:column;min-height:100vh;}
+  .main-content{padding:28px;flex:1;}
+  
+  /* Components */
+  .card { background:var(--white); border-radius:var(--radius); border:1px solid var(--border); padding:20px; margin-bottom:16px; box-shadow:var(--shadow); }
+  .search-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+  input, button { padding:10px 14px; font-size:15px; border-radius:8px; border:1px solid var(--border); font-family:inherit; outline:none; }
+  input { flex:1; min-width:220px; }
+  button { cursor:pointer; border:none; color:#fff; background:var(--primary); font-weight:600; transition:background .15s; }
+  button:hover { background:var(--primary-dark); }
+  
+  .status-pending { color:var(--warning); font-weight:700; }
+  .status-approved, .status-อนุมัติแล้ว { color:var(--success); font-weight:700; }
+  .status-rejected, .status-ไม่อนุมัติ { color:var(--danger); font-weight:700; }
+  
+  table { width:100%; border-collapse: collapse; margin-top:10px; font-size:14px; }
+  th, td { text-align:left; padding:8px 10px; border:1px solid var(--border); }
+  th { background:#f1f5f9; color:var(--primary-dark); font-weight:700; }
+  
+  .muted { color:var(--text-muted); font-size:14px; }
+  .err { color:var(--danger); font-size:14px; margin-top:8px; display:block; }
+  .empty { text-align:center; color:var(--text-muted); padding:30px 0; }
+
+  /* Footer */
+  .footer { text-align:center; padding:16px; font-size:13px; color:var(--text-muted); border-top:1px solid var(--border); background:var(--white); margin-top:auto; }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <strong>FM009 · ติดตามสถานะคำขอเบิกอุปกรณ์</strong>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-title">ระบบนำอุปกรณ์<br>ออกนอกบริษัท</div>
+    <div class="logo-sub">IT Asset Management</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">เมนูหลัก</div>
+    <button class="nav-item" onclick="navigateTo('index')">ยื่นคำขอ</button>
+    <button class="nav-item" onclick="navigateTo('approve')">อนุมัติคำขอ</button>
+    <button class="nav-item active" onclick="navigateTo('track')">ติดตามสถานะ</button>
+    <button class="nav-item" onclick="navigateTo('return')">บันทึกการคืน</button>
+    <div class="nav-group-label">รายงาน</div>
+    <button class="nav-item" onclick="navigateTo('report')">รายงานสรุป</button>
+  </nav>
 </div>
 
-<div class="container">
-  <div class="card">
-    <p class="muted">ค้นหาด้วยเลข Ticket (เช่น TK241205-001) หรือรหัสพนักงาน</p>
-    <div class="search-row">
-      <input type="text" id="search-input" placeholder="เลข Ticket หรือ รหัสพนักงาน">
-      <button onclick="searchRequests()">ค้นหา</button>
-    </div>
-    <p class="err" id="search-error"></p>
+<div class="main-wrapper">
+  <div class="topbar">
+    <div class="topbar-title">FM009 · ติดตามสถานะคำขอเบิกอุปกรณ์</div>
   </div>
 
-  <div id="results"></div>
+  <div class="main-content">
+    <div class="card">
+      <p class="muted">ค้นหาด้วยเลข Ticket (เช่น TK260923-001) หรือรหัสพนักงาน</p>
+      <div class="search-row">
+        <input type="text" id="search-input" placeholder="เลข Ticket หรือ รหัสพนักงาน">
+        <button onclick="searchRequests()">ค้นหา</button>
+      </div>
+      <span class="err" id="search-error"></span>
+    </div>
+
+    <div id="results"></div>
+  </div>
+
+  <footer class="footer">
+    พัฒนาโดย Sarawut.C &copy; 2026
+  </footer>
 </div>
 
 <script>
   const SUPABASE_URL = 'https://fnbkcgkuykdabbensvif.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE'; // TODO: ใส่ anon key จริง
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE';
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  function navigateTo(page) { window.location.href = page + '.html'; }
 
   document.getElementById('search-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') searchRequests();
@@ -67,7 +128,6 @@
 
     resultsEl.innerHTML = '<p class="muted">กำลังค้นหา...</p>';
 
-    // ค้นหาแบบ OR: ตรงกับ ticket_no หรือ employee_code
     const { data: requests, error } = await sb
       .from('fm009_requests')
       .select('*')
@@ -90,15 +150,17 @@
       const card = document.createElement('div');
       card.className = 'card';
 
-      const statusClass = 'status-' + req.status;
-      const statusText = { pending: 'รอดำเนินการ', approved: 'อนุมัติแล้ว', rejected: 'ปฏิเสธแล้ว' }[req.status] || req.status;
+      const statusRaw = req.status || 'รอการอนุมัติ';
+      let statusClass = 'status-pending';
+      if (statusRaw === 'อนุมัติแล้ว') statusClass = 'status-approved';
+      else if (statusRaw === 'ไม่อนุมัติ') statusClass = 'status-rejected';
 
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
             <strong>${req.ticket_no}</strong>
           </div>
-          <span class="${statusClass}">${statusText}</span>
+          <span class="${statusClass}">${statusRaw}</span>
         </div>
         <p class="muted" style="margin:8px 0;">
           พนักงาน: ${req.employee_name} (${req.employee_code}) &nbsp;|&nbsp;
@@ -106,7 +168,7 @@
           วันที่ยื่น: ${new Date(req.request_date).toLocaleString('th-TH')}
         </p>
         <p><strong>เหตุผล:</strong> ${req.reason || '-'}</p>
-        <div id="items-${req.id}" class="muted">กำลังโหลดรายการอุปกรณ์...</div>
+        <div id="items-${req.id}" class="muted" style="margin-top:12px;">กำลังโหลดรายการอุปกรณ์...</div>
       `;
       resultsEl.appendChild(card);
       loadItems(req.id);
