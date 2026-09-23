@@ -46,6 +46,18 @@
       border-radius:8px;padding:10px 13px;font-size:14px;margin-bottom:16px;display:none;
     }
     .error-msg.show{display:block;}
+    .success-msg{
+      background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;
+      border-radius:8px;padding:10px 13px;font-size:14px;margin-bottom:16px;display:none;
+    }
+    .success-msg.show{display:block;}
+    .forgot-link{
+      display:block;text-align:center;margin-top:14px;font-size:14px;
+      color:var(--primary);background:none;border:none;cursor:pointer;font-family:inherit;
+      text-decoration:underline;
+    }
+    .forgot-link:hover{color:var(--primary-dark);}
+    #forgotPanel{display:none;}
 </style>
 </head>
 <body>
@@ -69,6 +81,21 @@
     </div>
     <button type="submit" class="btn-login" id="btnLogin">เข้าสู่ระบบ</button>
   </form>
+
+  <button type="button" class="forgot-link" id="showForgotBtn">ลืมรหัสผ่าน?</button>
+
+  <div id="forgotPanel">
+    <div class="success-msg" id="forgotSuccess"></div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">
+      กรอกรหัสพนักงาน ระบบจะส่งลิงก์สำหรับตั้งรหัสผ่านใหม่ไปยังอีเมลที่ลงทะเบียนไว้ในระบบ
+    </p>
+    <div class="field">
+      <label for="forgotEmpCode">รหัสพนักงาน</label>
+      <input type="text" id="forgotEmpCode" placeholder="เช่น 104058">
+    </div>
+    <button type="button" class="btn-login" id="btnForgot">ส่งลิงก์ตั้งรหัสผ่านใหม่</button>
+    <button type="button" class="forgot-link" id="backToLoginBtn">กลับไปหน้าเข้าสู่ระบบ</button>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -136,6 +163,55 @@
     }
 
     window.location.href = 'index.html';
+  });
+
+  // --- ลืมรหัสผ่าน ---
+  const forgotPanel = document.getElementById('forgotPanel');
+  const forgotSuccess = document.getElementById('forgotSuccess');
+  const btnForgot = document.getElementById('btnForgot');
+
+  document.getElementById('showForgotBtn').addEventListener('click', () => {
+    form.style.display = 'none';
+    document.getElementById('showForgotBtn').style.display = 'none';
+    forgotPanel.style.display = 'block';
+    hideError();
+  });
+
+  document.getElementById('backToLoginBtn').addEventListener('click', () => {
+    forgotPanel.style.display = 'none';
+    forgotSuccess.classList.remove('show');
+    form.style.display = 'block';
+    document.getElementById('showForgotBtn').style.display = 'block';
+  });
+
+  btnForgot.addEventListener('click', async () => {
+    const empCode = document.getElementById('forgotEmpCode').value.trim();
+    if (!empCode) return;
+
+    btnForgot.disabled = true;
+    btnForgot.textContent = 'กำลังส่ง...';
+
+    // ค้นหา email จริงจากรหัสพนักงาน (เหมือนตอน login)
+    const { data: profile } = await sb
+      .from('profiles_login_lookup')
+      .select('email')
+      .eq('username', empCode)
+      .maybeSingle();
+
+    if (profile && profile.email) {
+      // redirectTo ต้องอยู่ใน allow-list ของ Supabase (Authentication > URL Configuration)
+      const redirectTo = new URL('reset-password.html', window.location.href).href;
+      await sb.auth.resetPasswordForEmail(profile.email, { redirectTo });
+    }
+
+    btnForgot.disabled = false;
+    btnForgot.textContent = 'ส่งลิงก์ตั้งรหัสผ่านใหม่';
+
+    // แสดงข้อความเดียวกันเสมอ ไม่ว่าจะพบรหัสพนักงานนี้ในระบบหรือไม่
+    // เพื่อไม่เปิดเผยว่ารหัสพนักงานนี้มีอยู่จริงหรือไม่ (ป้องกัน enumeration)
+    forgotSuccess.textContent = 'หากรหัสพนักงานนี้มีอยู่ในระบบ เราได้ส่งลิงก์สำหรับตั้งรหัสผ่านใหม่ไปยังอีเมลที่ลงทะเบียนไว้แล้ว กรุณาตรวจสอบกล่องจดหมาย (รวมถึง Junk/Spam)';
+    forgotSuccess.classList.add('show');
+    document.getElementById('forgotEmpCode').value = '';
   });
 </script>
 </body>
