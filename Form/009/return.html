@@ -71,21 +71,7 @@
 </head>
 <body>
 
-<!-- Login View (แสดงเฉพาะตอนยังไม่ล็อกอินแอดมิน) -->
-<div id="login-view" style="width:100%; display:flex; justify-content:center; align-items:center; min-height:100vh; background:var(--bg);">
-  <div class="login-box card">
-    <h2 style="margin-bottom:6px; color:var(--primary-dark);">เข้าสู่ระบบแอดมิน</h2>
-    <p class="muted" style="margin-bottom:16px;">ต้องเป็นบัญชีที่มีสิทธิ์ role = admin เท่านั้น</p>
-    <input type="email" id="login-email" placeholder="อีเมล">
-    <input type="password" id="login-password" placeholder="รหัสผ่าน">
-    <button class="btn-primary" onclick="handleLogin()">เข้าสู่ระบบ</button>
-    <span class="err" id="login-error"></span>
-    <button onclick="window.location.href='index.html'" style="background:none; color:var(--text-muted); width:100%; margin-top:10px; font-size:14px;">กลับสู่หน้าแรก</button>
-  </div>
-</div>
-
-<!-- App View (แสดงหลังล็อกอินแอดมินสำเร็จ พร้อม Sidebar) -->
-<div id="app-view" style="display:flex; width:100%;">
+<div id="app-view" style="display:none; width:100%;">
   <div class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="logo-title">ระบบนำอุปกรณ์<br>ออกนอกบริษัท</div>
@@ -137,52 +123,41 @@
 
   function navigateTo(page) { window.location.href = page + '.html'; }
 
-  document.addEventListener('DOMContentLoaded', async () => {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) {
-      onLoginSuccess(session.user);
-    }
-  });
+  function esc(s) {
+    if (s === null || s === undefined || s === '') return '-';
+    return s.toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  }
+
+  document.addEventListener('DOMContentLoaded', checkUser);
 
   document.getElementById('search-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') searchRequests();
   });
 
-  async function handleLogin() {
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    const errEl = document.getElementById('login-error');
-    errEl.textContent = '';
-
-    if (!email || !password) {
-      errEl.textContent = 'กรุณากรอกอีเมลและรหัสผ่าน';
+  async function checkUser() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      // ยังไม่ login -> เด้งไปหน้า login กลางของระบบ
+      window.location.href = 'login.html';
       return;
     }
 
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) {
-      errEl.textContent = 'เข้าสู่ระบบไม่สำเร็จ: ' + error.message;
+    const role = session.user.app_metadata && session.user.app_metadata.role;
+    if (role !== 'admin') {
+      // login สำเร็จ แต่ไม่มีสิทธิ์แอดมิน -> sign out แล้วเด้งกลับไป login พร้อมแจ้งเหตุผล
+      await sb.auth.signOut();
+      alert('บัญชีนี้ไม่มีสิทธิ์แอดมิน (role != admin) ไม่สามารถบันทึกการคืนอุปกรณ์ได้');
+      window.location.href = 'login.html';
       return;
     }
-    onLoginSuccess(data.user);
+
+    document.getElementById('app-view').style.display = 'flex';
+    document.getElementById('user-email').textContent = session.user.email + ' (admin)';
   }
 
   async function handleLogout() {
     await sb.auth.signOut();
-    document.getElementById('login-view').style.display = 'flex';
-    document.getElementById('app-view').style.display = 'none';
-  }
-
-  function onLoginSuccess(user) {
-    const role = user.app_metadata && user.app_metadata.role;
-    if (role !== 'admin') {
-      document.getElementById('login-error').textContent = 'บัญชีนี้ไม่มีสิทธิ์แอดมิน (role != admin) ไม่สามารถบันทึกการคืนอุปกรณ์ได้';
-      sb.auth.signOut();
-      return;
-    }
-    document.getElementById('login-view').style.display = 'none';
-    document.getElementById('app-view').style.display = 'flex';
-    document.getElementById('user-email').textContent = user.email + ' (admin)';
+    window.location.href = 'login.html';
   }
 
   async function searchRequests() {
@@ -234,12 +209,12 @@
 
     card.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div><strong>${req.ticket_no}</strong></div>
-        <span class="${statusClass}">${statusRaw}</span>
+        <div><strong>${esc(req.ticket_no)}</strong></div>
+        <span class="${statusClass}">${esc(statusRaw)}</span>
       </div>
       <p class="muted" style="margin:8px 0;">
-        พนักงาน: ${req.employee_name} (${req.employee_code}) &nbsp;|&nbsp; แผนก: ${req.department || '-'}<br>
-        วันที่ยื่น: ${new Date(req.request_date).toLocaleString('th-TH')}
+        พนักงาน: ${esc(req.employee_name)} (${esc(req.employee_code)}) &nbsp;|&nbsp; แผนก: ${esc(req.department)}<br>
+        วันที่ยื่น: ${esc(new Date(req.request_date).toLocaleString('th-TH'))}
       </p>
       <div id="items-${req.id}" class="muted">กำลังโหลดรายการอุปกรณ์...</div>
       <div id="return-area-${req.id}"></div>
@@ -262,7 +237,7 @@
     } else {
       let table = '<table><tr><th>อุปกรณ์</th><th>ยี่ห้อ</th><th>รุ่น</th><th>S/N</th><th>จำนวน</th></tr>';
       for (const it of items) {
-        table += `<tr><td>${it.item_name}</td><td>${it.brand || '-'}</td><td>${it.model || '-'}</td><td>${it.serial_no || '-'}</td><td>${it.quantity}</td></tr>`;
+        table += `<tr><td>${esc(it.item_name)}</td><td>${esc(it.brand)}</td><td>${esc(it.model)}</td><td>${esc(it.serial_no)}</td><td>${it.quantity}</td></tr>`;
       }
       table += '</table>';
       itemsEl.innerHTML = table;
@@ -285,7 +260,7 @@
     if (existingReturns && existingReturns.length > 0) {
       historyHtml = '<p class="ok" style="margin-top:12px;">มีบันทึกการคืนแล้ว ' + existingReturns.length + ' ครั้ง:</p><table><tr><th>วันที่คืน</th><th>สภาพ</th><th>ผู้รับคืน</th><th>หมายเหตุ</th></tr>';
       for (const r of existingReturns) {
-        historyHtml += `<tr><td>${new Date(r.return_date).toLocaleString('th-TH')}</td><td>${r.condition || '-'}</td><td>${r.received_by || '-'}</td><td>${r.note || '-'}</td></tr>`;
+        historyHtml += `<tr><td>${esc(new Date(r.return_date).toLocaleString('th-TH'))}</td><td>${esc(r.condition)}</td><td>${esc(r.received_by)}</td><td>${esc(r.note)}</td></tr>`;
       }
       historyHtml += '</table>';
     }
