@@ -112,7 +112,7 @@
 
     // ค้นหา email จริงจากตาราง profiles โดยใช้รหัสพนักงาน (username) เป็น key
     const { data: profile, error: lookupErr } = await sb
-      .from('profiles')
+      .from('profiles_login_lookup')
       .select('email')
       .eq('username', empCode)
       .maybeSingle();
