@@ -107,14 +107,25 @@
       return;
     }
 
-    // แปลงรหัสพนักงานเป็น email รูปแบบเดียวกับที่ใช้สมัคร user ใน Supabase Auth
-    // *** ปรับ pattern ตรงนี้ให้ตรงกับที่ระบบคุณใช้จริง ถ้าไม่ใช่ {รหัส}@local.com ***
-    const email = empCode + '@local.com';
-
     btnLogin.disabled = true;
     btnLogin.textContent = 'กำลังเข้าสู่ระบบ...';
 
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    // ค้นหา email จริงจากตาราง profiles โดยใช้รหัสพนักงาน (username) เป็น key
+    const { data: profile, error: lookupErr } = await sb
+      .from('profiles')
+      .select('email')
+      .eq('username', empCode)
+      .maybeSingle();
+
+    if (lookupErr || !profile || !profile.email) {
+      btnLogin.disabled = false;
+      btnLogin.textContent = 'เข้าสู่ระบบ';
+      // ใช้ข้อความเดียวกับกรณีรหัสผ่านผิด เพื่อไม่เปิดเผยว่ารหัสพนักงานนี้มีอยู่จริงหรือไม่
+      showError('เข้าสู่ระบบไม่สำเร็จ: รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
+      return;
+    }
+
+    const { data, error } = await sb.auth.signInWithPassword({ email: profile.email, password });
 
     btnLogin.disabled = false;
     btnLogin.textContent = 'เข้าสู่ระบบ';
