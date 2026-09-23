@@ -150,12 +150,12 @@
         <p class="muted">แผนก: ${req.department || '-'} &nbsp;|&nbsp; วันที่ยื่น: ${new Date(req.request_date).toLocaleString('th-TH')}</p>
         <p><strong>เหตุผล:</strong> ${req.reason || '-'}</p>
         <div id="items-${req.id}" class="muted">กำลังโหลดรายการอุปกรณ์...</div>
-        ${req.status === 'pending' ? `
-          <div style="margin-top:12px;">
-            <button class="btn-approve" onclick="updateStatus(${req.id}, 'approved')">อนุมัติ</button>
-            <button class="btn-reject" onclick="updateStatus(${req.id}, 'rejected')">ปฏิเสธ</button>
-          </div>
-        ` : ''}
+        ${(req.status === 'pending' || req.status === 'รอการอนุมัติ') ? `
+  <div style="margin-top:15px; display:flex; gap:10px;">
+    <button onclick="approveRequest('${req.id}')" style="background:#059669; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;">อนุมัติ</button>
+    <button onclick="rejectRequest('${req.id}')" style="background:#dc2626; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;">ไม่อนุมัติ</button>
+  </div>
+` : ''}
       `;
       listEl.appendChild(card);
       loadItems(req.id);
