@@ -373,7 +373,7 @@
       const { error: itemsErr } = await sb.from('fm009_request_items').insert(itemsPayload);
       if (itemsErr) throw itemsErr;
 
-      await notifyManager(managerEmail, ticketNo, empName, department, reason, items);
+      //await notifyManager(managerEmail, ticketNo, empName, department, reason, items);
 
       hideLoading();
       document.getElementById('submitBtn').disabled = false;
