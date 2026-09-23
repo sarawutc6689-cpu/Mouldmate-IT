@@ -112,6 +112,7 @@
         <div id="searchResult"></div>
         <div class="form-row">
           <div class="form-group"><label>ชื่อ-นามสกุล</label><input type="text" id="empName" readonly></div>
+          <div class="form-group"><label>ฝ่าย</label><input type="text" id="section" readonly></div>
           <div class="form-group"><label>แผนก</label><input type="text" id="department" readonly></div>
           <div class="form-group"><label>ตำแหน่ง</label><input type="text" id="position" readonly></div>
         </div>
@@ -169,12 +170,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // ⚠️ ใส่ anon public key จริงแทน SUPABASE_ANON_KEY
+  // ⚠️ ใส่ URL และ anon key ให้ถูกต้อง
   const SUPABASE_URL = 'https://fnbkcgkuykdabbensvif.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE';
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  var rowCount = 0, currentManagerInfo = null, currentEmployee = null, searchTimeout = null;
+  var rowCount = 0, currentManagerInfo = null, currentEmployee = null, searchTimeout = null, managerOptions = [];
 
   document.getElementById('requestDate').value = new Date().toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' });
 
@@ -219,7 +220,7 @@
   function setupAutoSearch() {
     document.getElementById('empCode').addEventListener('input', function() {
       var v = this.value.trim();
-      if (!v) { clearEmp(); document.getElementById('managerSection').style.display = 'none'; document.getElementById('searchResult').innerHTML = ''; currentManagerInfo = null; currentEmployee = null; return; }
+      if (!v) { clearEmp(); document.getElementById('managerSection').style.display = 'none'; document.getElementById('searchResult').innerHTML = ''; currentManagerInfo = null; currentEmployee = null; managerOptions = []; return; }
       if (searchTimeout) clearTimeout(searchTimeout);
       searchTimeout = setTimeout(function() { performSearch(v); }, 500);
     });
@@ -227,39 +228,67 @@
 
   async function performSearch(empCode) {
     showMsg('searchResult', 'กำลังค้นหาข้อมูล...', 'info');
-    const { data, error } = await sb.from('fm009_users').select('*').eq('employee_code', empCode).maybeSingle();
+    const { data, error } = await sb.from('employees').select('*').eq('employees_code', empCode).maybeSingle();
     if (error) { clearEmp(); showMsg('searchResult', 'เกิดข้อผิดพลาด: ' + error.message, 'error'); return; }
     if (data) {
       currentEmployee = data;
-      document.getElementById('empName').value   = data.name || '';
+      document.getElementById('empName').value    = data.name_thai || '';
+      document.getElementById('section').value    = data.section || '';
       document.getElementById('department').value = data.department || '';
       document.getElementById('position').value   = data.position || '';
-      showMsg('searchResult', 'พบข้อมูล: ' + (data.name||'') + ' (' + (data.position||'') + ')', 'success');
-      if (data.manager_email) searchManager(data.manager_email);
-      else { document.getElementById('managerSection').style.display = 'none'; currentManagerInfo = null; }
+      showMsg('searchResult', 'พบข้อมูล: ' + (data.name_thai||'') + ' (' + (data.position||'') + ')', 'success');
+      if (data.section) loadManagersForSection(data.section);
+      else { document.getElementById('managerSection').style.display = 'none'; currentManagerInfo = null; managerOptions = []; }
     } else {
       clearEmp();
       showMsg('searchResult', 'ไม่พบรหัสพนักงาน: ' + empCode, 'error');
       document.getElementById('managerSection').style.display = 'none';
-      currentManagerInfo = null; currentEmployee = null;
+      currentManagerInfo = null; currentEmployee = null; managerOptions = [];
     }
   }
 
-  async function searchManager(managerEmail) {
-    const { data, error } = await sb.from('fm009_managers').select('*').eq('email', managerEmail).maybeSingle();
-    const box = document.getElementById('managerSection');
+  async function loadManagersForSection(section) {
+    var box = document.getElementById('managerSection');
     box.style.display = 'block';
-    if (!error && data) {
-      currentManagerInfo = data;
-      document.getElementById('managerInfo').innerHTML = '<strong>' + esc(data.name) + '</strong><br>อีเมล: ' + esc(data.email) + '<br><span style="color:#f59e0b;font-size:14px;margin-top:8px;display:inline-block;">ระบบจะแจ้งการอนุมัติไปยังอีเมลผู้จัดการอัตโนมัติ</span>';
+    document.getElementById('managerInfo').innerHTML = '<span style="color:#64748b;">กำลังค้นหาผู้อนุมัติ...</span>';
+
+    // ดึงข้อมูลผู้อนุมัติทั้งหมดมาเช็คฝั่ง JS เพื่อรองรับช่องว่างหรืออักขระซ่อนในข้อมูลเดิม
+    const { data, error } = await sb.from('profiles').select('name,email,section').eq('role', 'approver');
+
+    if (error) {
+      currentManagerInfo = null;
+      managerOptions = [];
+      document.getElementById('managerInfo').innerHTML = '<strong style="color:#dc2626;">เกิดข้อผิดพลาดในการค้นหาผู้อนุมัติ: ' + esc(error.message) + '</strong>';
+      return;
+    }
+
+    var cleanTargetSection = (section || '').trim();
+    managerOptions = (data || []).filter(function(m) {
+      return (m.section || '').trim() === cleanTargetSection;
+    });
+
+    if (managerOptions.length === 0) {
+      currentManagerInfo = null;
+      document.getElementById('managerInfo').innerHTML = '<strong style="color:#dc2626;">ไม่พบผู้อนุมัติสำหรับฝ่าย "' + esc(section) + '" กรุณาติดต่อผู้ดูแลระบบ</strong>';
+    } else if (managerOptions.length === 1) {
+      currentManagerInfo = managerOptions[0];
+      document.getElementById('managerInfo').innerHTML = '<strong>' + esc(currentManagerInfo.name) + '</strong><br>อีเมล: ' + esc(currentManagerInfo.email) + '<br><span style="color:#f59e0b;font-size:14px;margin-top:8px;display:inline-block;">ระบบจะแจ้งการอนุมัติไปยังอีเมลผู้จัดการอัตโนมัติ</span>';
     } else {
-      currentManagerInfo = { name: 'ไม่พบข้อมูล', email: managerEmail };
-      document.getElementById('managerInfo').innerHTML = '<strong style="color:#dc2626;">ไม่พบข้อมูลผู้จัดการสำหรับอีเมล ' + esc(managerEmail) + '</strong>';
+      currentManagerInfo = null;
+      var options = '<option value="">-- กรุณาเลือกผู้อนุมัติ --</option>'
+        + managerOptions.map(function(m) { return '<option value="' + esc(m.email) + '">' + esc(m.name) + '</option>'; }).join('');
+      document.getElementById('managerInfo').innerHTML =
+        '<label style="margin-bottom:6px;">ฝ่ายนี้มีผู้อนุมัติมากกว่า 1 คน กรุณาเลือก <span class="req">*</span></label>'
+        + '<select id="managerSelect" style="margin-top:6px;">' + options + '</select>';
+      document.getElementById('managerSelect').addEventListener('change', function() {
+        var email = this.value;
+        currentManagerInfo = managerOptions.find(function(m) { return m.email === email; }) || null;
+      });
     }
   }
 
   function clearEmp() {
-    ['empName','department','position'].forEach(function(id) { document.getElementById(id).value = ''; });
+    ['empName','section','department','position'].forEach(function(id) { document.getElementById(id).value = ''; });
   }
 
   async function generateTicketNo() {
@@ -295,6 +324,13 @@
     var empCode = document.getElementById('empCode').value.trim();
     var empName = document.getElementById('empName').value.trim();
     if (!empCode || !empName || !currentEmployee) { alert('กรุณากรอกรหัสพนักงานที่ถูกต้อง'); return; }
+
+    if (!currentManagerInfo || !currentManagerInfo.email) {
+      if (managerOptions.length > 1) alert('กรุณาเลือกผู้อนุมัติก่อนบันทึกคำขอ');
+      else alert('ไม่พบผู้อนุมัติสำหรับฝ่ายนี้ กรุณาติดต่อผู้ดูแลระบบก่อนยื่นคำขอ');
+      return;
+    }
+
     var reason = document.getElementById('reason').value.trim();
     if (!reason) { alert('กรุณาระบุเหตุผลการนำออก'); return; }
     var rows = document.querySelectorAll('#itemsBody tr');
@@ -315,7 +351,7 @@
     if (hasError) return;
 
     var department = document.getElementById('department').value;
-    var managerEmail = currentEmployee.manager_email || null;
+    var managerEmail = currentManagerInfo.email;
 
     document.getElementById('submitBtn').disabled = true;
     showLoading('กำลังบันทึกข้อมูล กรุณารอสักครู่...');
@@ -351,11 +387,11 @@
   }
 
   function resetForm() {
-    ['empCode','empName','department','position','reason'].forEach(function(id) { document.getElementById(id).value = ''; });
+    ['empCode','empName','section','department','position','reason'].forEach(function(id) { document.getElementById(id).value = ''; });
     document.getElementById('searchResult').innerHTML = '';
     document.getElementById('managerSection').style.display = 'none';
     document.getElementById('itemsBody').innerHTML = '';
-    rowCount = 0; currentManagerInfo = null; currentEmployee = null;
+    rowCount = 0; currentManagerInfo = null; currentEmployee = null; managerOptions = [];
     addItemRow();
   }
 
