@@ -67,7 +67,7 @@
 
     <button class="btn btn-primary" style="width:100%" id="submitBtn" onclick="submitForm()"><i class="fas fa-paper-plane"></i> ส่งคำร้อง</button>
   </div>
-  <p class="iso-label" id="isoLabel">FOM 012 IT Rev.02 (12/05/2026) หน้า 1/2</p>
+  <p class="iso-label" id="isoLabel">ฟอร์มขอนำเครื่องมือและอุปกรณ์สารสนเทศส่วนตัวเข้า-ออกบริษัท หน้า 1/2 | พัฒนาโดย Sarawut.C</p>
 
   <div id="successScreen" class="card success-screen">
     <i class="fas fa-check-circle" style="font-size:64px;color:#10b981"></i>
@@ -86,7 +86,7 @@ function setType(type) {
   currentType = type;
   document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', (type === 'import') === (i === 0)));
   $('refSection').classList.toggle('show', type === 'export');
-  $('isoLabel').textContent = 'FOM 012 IT Rev.02 (12/05/2026) หน้า ' + (type === 'export' ? '2' : '1') + '/2';
+  $('isoLabel').textContent = 'ฟอร์มขอนำเครื่องมือและอุปกรณ์สารสนเทศส่วนตัวเข้า-ออกบริษัท หน้า ' + (type === 'export' ? '2' : '1') + '/2'| พัฒนาโดย Sarawut.C;
   if (type === 'import') {
     ticketValidated = false;
     LOCKED.forEach(f => $(f).disabled = false);
