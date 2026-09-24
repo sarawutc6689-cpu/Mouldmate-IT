@@ -94,6 +94,7 @@
   const SUPABASE_URL = 'https://fnbkcgkuykdabbensvif.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE';
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let currentApproverEmail = null;
 
   function navigateTo(page) { window.location.href = page + '.html'; }
   function showLoading() { document.getElementById('loadingOverlay').classList.add('show'); }
@@ -136,12 +137,15 @@
     }
 
     document.getElementById('userEmailDisplay').textContent = session.user.email;
+    currentApproverEmail = session.user.email;
     return session;
   }
 
   async function loadRequests() {
     const statusFilter = document.getElementById('status-filter').value;
-    let query = sb.from('fm009_requests').select('*, fm009_request_items(*)').order('request_date', { ascending: false });
+    let query = sb.from('fm009_requests').select('*, fm009_request_items(*)')
+      .eq('manager_email', currentApproverEmail)
+      .order('request_date', { ascending: false });
     
     if (statusFilter !== 'all') {
       query = query.eq('status', statusFilter);
