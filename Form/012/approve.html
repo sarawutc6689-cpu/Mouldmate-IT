@@ -30,7 +30,8 @@
     <div class="card login-card">
       <i class="fas fa-lock" style="font-size:48px;color:#1e3a5f"></i>
       <h2>เข้าสู่ระบบผู้จัดการ</h2>
-      <input type="password" id="password" placeholder="กรอกรหัสผ่าน" onkeypress="if(event.key==='Enter')login()">
+      <input type="text" id="username" placeholder="ชื่อผู้ใช้ หรืออีเมล" autocomplete="username" style="margin-bottom:0">
+      <input type="password" id="password" placeholder="รหัสผ่าน" autocomplete="current-password" onkeypress="if(event.key==='Enter')login()">
       <button class="btn btn-primary" onclick="login()" style="width:100%">เข้าสู่ระบบ</button>
       <div id="loginError" style="color:red;margin-top:12px"></div>
     </div>
@@ -40,7 +41,10 @@
     <div class="card flush">
       <div class="card-header">
         <h2><i class="fas fa-list"></i> รายการรออนุมัติ</h2>
-        <div id="managerInfo" style="background:#e2e8f0;padding:6px 16px;border-radius:20px"></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div id="managerInfo" style="background:#e2e8f0;padding:6px 16px;border-radius:20px"></div>
+          <button class="btn btn-light" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+        </div>
       </div>
       <div class="filter-bar" style="align-items:center">
         <span><i class="fas fa-filter"></i> กรอง:</span>
@@ -58,24 +62,38 @@
 <div id="toast"></div>
 
 <script>
-let managerPass = '', allRequests = [];
+let allRequests = [];
 
-function login() {
-  const pass = $('password').value.trim();
-  if (!pass) { $('loginError').innerText = 'กรุณากรอกรหัสผ่าน'; return; }
-  rpc('fom012_manager_login', { p_password: pass }).then(r => {
-    if (!r.success) { $('loginError').innerText = r.message; return; }
-    managerPass = pass;
+async function login() {
+  const id = $('username').value.trim(), pass = $('password').value;
+  if (!id || !pass) { $('loginError').innerText = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'; return; }
+  try {
+    const email = await rpc('fom012_login_email', { p_login: id });
+    const { error } = email ? await sb.auth.signInWithPassword({ email, password: pass }) : { error: true };
+    if (error) throw new Error('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+    await enter();
+  } catch (e) { $('loginError').innerText = e.message; }
+}
+
+// ตรวจสิทธิ์ผู้ล็อกอิน แล้วเปิดหน้ารายการ
+async function enter() {
+  try {
+    const r = await rpc('fom012_whoami');
     $('loginSection').style.display = 'none';
     $('approveSection').style.display = 'block';
     $('managerInfo').innerHTML = `<i class="fas fa-user"></i> ${esc(r.name)} - ${esc(r.section)}`;
     loadRequests();
-  }).catch(e => $('loginError').innerText = 'ระบบผิดพลาด: ' + e.message);
+  } catch (e) { $('loginError').innerText = e.message; }
 }
+
+async function logout() { await sb.auth.signOut(); location.reload(); }
+
+// ถ้าเคยล็อกอินค้างไว้ ข้ามหน้า login
+sb.auth.getSession().then(({ data }) => { if (data.session) enter(); });
 
 function loadRequests() {
   $('tableContainer').innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i> กำลังโหลด...</div>';
-  rpc('fom012_get_pending', { p_password: managerPass }).then(rows => {
+  rpc('fom012_get_pending').then(rows => {
     allRequests = rows || [];
     $('countDisplay').innerText = allRequests.length + ' รายการ';
     filterTable();
@@ -113,7 +131,7 @@ function renderTable(rows) {
 }
 
 function approveRequest(ticketId, status) {
-  rpc('fom012_update_approval', { p_password: managerPass, p_ticket: ticketId, p_status: status })
+  rpc('fom012_update_approval', { p_ticket: ticketId, p_status: status })
     .then(r => { showToast('✅ ' + r.message, 'success'); loadRequests(); })
     .catch(e => showToast('❌ ' + e.message, 'error'));
 }
