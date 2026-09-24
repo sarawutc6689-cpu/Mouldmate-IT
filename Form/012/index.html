@@ -86,7 +86,7 @@ function setType(type) {
   currentType = type;
   document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', (type === 'import') === (i === 0)));
   $('refSection').classList.toggle('show', type === 'export');
-  $('isoLabel').textContent = 'ฟอร์มขอนำเครื่องมือและอุปกรณ์สารสนเทศส่วนตัวเข้า-ออกบริษัท หน้า ' + (type === 'export' ? '2' : '1') + '/2'| พัฒนาโดย Sarawut.C;
+  $('isoLabel').textContent = 'ฟอร์มขอนำเครื่องมือและอุปกรณ์สารสนเทศส่วนตัวเข้า-ออกบริษัท หน้า ' + (type === 'export' ? '2' : '1') + '/2';
   if (type === 'import') {
     ticketValidated = false;
     LOCKED.forEach(f => $(f).disabled = false);
