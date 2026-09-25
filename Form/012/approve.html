@@ -25,7 +25,7 @@
   <p>สำหรับผู้จัดการพิจารณาอนุมัติคำร้อง</p>
 </div>
 
-<div class="container" style="max-width:1200px">
+<div class="container" style="max-width:1500px">
   <div id="loginSection">
     <div class="card login-card">
       <i class="fas fa-lock" style="font-size:48px;color:#1e3a5f"></i>
@@ -110,7 +110,13 @@ function renderTable(rows) {
     $('tableContainer').innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> ไม่มีคำร้องที่รออนุมัติ</div>';
     return;
   }
-  let h = `<table><thead><tr><th>Ticket ID</th><th>วันที่</th><th>แผนก</th><th>ประเภท</th><th>ผู้ยื่น</th><th>อุปกรณ์</th><th>จำนวน</th><th>เหตุผล</th><th>อ้างอิง</th><th>ดำเนินการ</th></tr></thead><tbody>`;
+  let h = `<table>
+    <colgroup>
+      <col style="width:12%"><col style="width:8%"><col style="width:10%"><col style="width:8%">
+      <col style="width:14%"><col style="width:14%"><col style="width:6%"><col style="width:16%">
+      <col style="width:10%"><col style="width:14%">
+    </colgroup>
+    <thead><tr><th>Ticket ID</th><th>วันที่</th><th>แผนก</th><th>ประเภท</th><th>ผู้ยื่น</th><th>อุปกรณ์</th><th>จำนวน</th><th>เหตุผล</th><th>อ้างอิง</th><th>ดำเนินการ</th></tr></thead><tbody>`;
   for (const r of rows) {
     const badge = r.type === 'นำเข้า'
       ? '<span class="badge badge-import"><i class="fas fa-download"></i> นำเข้า</span>'
