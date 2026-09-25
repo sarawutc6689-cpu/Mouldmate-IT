@@ -30,8 +30,8 @@
     <div class="card login-card">
       <i class="fas fa-lock" style="font-size:48px;color:#1e3a5f"></i>
       <h2>เข้าสู่ระบบผู้จัดการ</h2>
-      <input type="text" id="username" placeholder="รหัสพนักงาน" autocomplete="username" style="margin-bottom:0">
-      <input type="password" id="password" placeholder="วันเริ่มงาน" autocomplete="current-password" onkeypress="if(event.key==='Enter')login()">
+      <input type="text" id="username" placeholder="ชื่อผู้ใช้ หรืออีเมล" autocomplete="username" style="margin-bottom:0">
+      <input type="password" id="password" placeholder="รหัสผ่าน" autocomplete="current-password" onkeypress="if(event.key==='Enter')login()">
       <button class="btn btn-primary" onclick="login()" style="width:100%">เข้าสู่ระบบ</button>
       <div id="loginError" style="color:red;margin-top:12px"></div>
     </div>
@@ -110,13 +110,13 @@ function renderTable(rows) {
     $('tableContainer').innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> ไม่มีคำร้องที่รออนุมัติ</div>';
     return;
   }
-  let h = `<table><thead><tr><th>Ticket ID</th><th>วันที่</th><th>ประเภท</th><th>ผู้ยื่น</th><th>อุปกรณ์</th><th>จำนวน</th><th>เหตุผล</th><th>อ้างอิง</th><th>ดำเนินการ</th></tr></thead><tbody>`;
+  let h = `<table><thead><tr><th>Ticket ID</th><th>วันที่</th><th>แผนก</th><th>ประเภท</th><th>ผู้ยื่น</th><th>อุปกรณ์</th><th>จำนวน</th><th>เหตุผล</th><th>อ้างอิง</th><th>ดำเนินการ</th></tr></thead><tbody>`;
   for (const r of rows) {
     const badge = r.type === 'นำเข้า'
       ? '<span class="badge badge-import"><i class="fas fa-download"></i> นำเข้า</span>'
       : '<span class="badge badge-export"><i class="fas fa-upload"></i> นำออก</span>';
     h += `<tr>
-      <td><code>${esc(r.ticketId)}</code></td><td>${fmtDate(r.date)}</td><td>${badge}</td>
+      <td><code>${esc(r.ticketId)}</code></td><td>${fmtDate(r.date)}</td><td>${esc(r.section)}</td><td>${badge}</td>
       <td><strong>${esc(r.name)}</strong><br><small>${esc(r.position)}</small></td>
       <td>${esc(r.device)}<br><small>${esc(r.brand)} ${esc(r.model)}</small></td>
       <td style="text-align:center">${esc(r.qty)}</td>
