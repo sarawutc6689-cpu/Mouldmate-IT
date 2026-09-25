@@ -110,11 +110,11 @@ function renderTable(rows) {
     $('tableContainer').innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> ไม่มีคำร้องที่รออนุมัติ</div>';
     return;
   }
-  let h = `<table>
+  let h = `<table style="min-width:1300px;table-layout:fixed">
     <colgroup>
-      <col style="width:12%"><col style="width:8%"><col style="width:10%"><col style="width:8%">
-      <col style="width:14%"><col style="width:14%"><col style="width:6%"><col style="width:16%">
-      <col style="width:10%"><col style="width:14%">
+      <col style="width:150px"><col style="width:110px"><col style="width:140px"><col style="width:110px">
+      <col style="width:170px"><col style="width:170px"><col style="width:80px"><col style="width:220px">
+      <col style="width:140px"><col style="width:200px">
     </colgroup>
     <thead><tr><th>Ticket ID</th><th>วันที่</th><th>แผนก</th><th>ประเภท</th><th>ผู้ยื่น</th><th>อุปกรณ์</th><th>จำนวน</th><th>เหตุผล</th><th>อ้างอิง</th><th>ดำเนินการ</th></tr></thead><tbody>`;
   for (const r of rows) {
