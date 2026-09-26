@@ -146,8 +146,7 @@
     color: var(--sky);
   }
   .card-title-icon .ic { width: 20px; height: 20px; }
-
-  /* ── TABLES ── */
+   /* ── TABLES ── */
   .table-wrap { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border-soft); }
   table { width: 100%; border-collapse: collapse; font-size: 17px; }
   thead tr { background: var(--navy); }
@@ -180,13 +179,29 @@
     border: 1.5px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 12px 15px;
-    font-size: 17.5px;
+    font-size: 18px !important;
     font-family: var(--font);
     color: var(--text);
     background: var(--surface);
     width: 100%;
     transition: all 0.18s;
   }
+  /* ★ บังคับขนาด option ใน dropdown (Chrome/Edge/Firefox) */
+  select, select option, optgroup {
+    font-size: 18px !important;
+    font-family: var(--font) !important;
+    padding: 10px 12px !important;
+    line-height: 1.6 !important;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--sky);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(91,155,155,0.12);
+  }
+  input[readonly] { background: var(--bg); color: var(--text-mid); cursor: default; }
+  textarea { resize: vertical; min-height: 90px; }
+  
   input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--sky);
@@ -340,9 +355,14 @@
   .card.tight .card-title { flex-wrap: wrap; }
   .card-note { font-size: 15px; font-weight: 400; color: var(--text-muted); margin-left: 4px; }
   .card.tight .search-bar { gap: 9px; }
-  .card.tight .search-bar select, .card.tight .search-bar input { padding: 8px 13px; font-size: 15.5px; width: auto; }
-  .card.tight .search-bar input { width: 240px; }
-  .card.tight .search-bar select { max-width: 320px; }
+    .card.tight .search-bar select, .card.tight .search-bar input { 
+    padding: 10px 14px; 
+    font-size: 17px !important; 
+    width: auto; 
+    height: auto;
+  }
+  .card.tight .search-bar input { width: 260px; }
+  .card.tight .search-bar select { max-width: 340px; }
 
   /* ── FORM GROUP COMPACT (in modal) ── */
   .modal.wide .form-group label { margin-bottom: 2px; font-size: 15.5px; }
