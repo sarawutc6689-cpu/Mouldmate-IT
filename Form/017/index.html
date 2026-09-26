@@ -7,7 +7,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
+  <script src="config-employees.js"></script>
+  <script src="config-assets.js"></script>
   <style>
     :root {
       --primary-main: #2563eb;
@@ -104,7 +105,7 @@
               <div class="card h-100 border-0 shadow-none" style="background:#fefefe;">
                 <div class="card-body px-0 pt-0">
                   <h6 class="fw-semibold mb-3"><i class="fas fa-search me-2 text-primary"></i>ค้นหาทรัพย์สินที่พร้อมใช้งาน</h6>
-                  <input type="text" class="form-control mb-3" id="searchBorrow" placeholder="รหัสทรัพย์สิน / ชื่อ / S/N ...">
+                  <input type="text" class="form-control mb-3" id="searchBorrow" placeholder="ชื่อเครื่อง / Serial ...">
                   <div id="availableAssetsList" style="max-height:460px;overflow-y:auto;">
                     <div class="text-center text-muted py-4"><i class="fas fa-circle-notch fa-spin me-2"></i>กำลังโหลด...</div>
                   </div>
@@ -116,13 +117,14 @@
                 <div class="card-body">
                   <h6 class="fw-semibold mb-3"><i class="fas fa-pen-alt me-2 text-primary"></i>ฟอร์มบันทึกการรับมอบ</h6>
                   <form id="borrowForm" novalidate>
+                    <input type="hidden" id="borrowAssetId">
                     <div class="row g-3 mb-3">
                       <div class="col-md-5">
-                        <label class="form-label fw-medium small">รหัสทรัพย์สิน <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium small">ชื่อเครื่อง <span class="text-danger">*</span></label>
                         <input type="text" class="form-control bg-light" id="borrowAssetCode" readonly placeholder="เลือกจากรายการ">
                       </div>
                       <div class="col-md-7">
-                        <label class="form-label fw-medium small">ชื่อทรัพย์สิน</label>
+                        <label class="form-label fw-medium small">ประเภท/สเปก</label>
                         <input type="text" class="form-control bg-light" id="borrowAssetName" readonly>
                       </div>
                     </div>
@@ -142,6 +144,9 @@
                       <p><i class="fas fa-briefcase me-2 text-primary"></i><strong>ตำแหน่ง:</strong> <span id="ei-position"></span></p>
                     </div>
                     <input type="hidden" id="selectedEmployeeCodeInput">
+                    <input type="hidden" id="selectedEmployeeSection">
+                    <input type="hidden" id="selectedEmployeeDepartment">
+                    <input type="hidden" id="selectedEmployeePosition">
                     <div class="mb-3">
                       <label class="form-label fw-medium small">วันที่รับมอบ <span class="text-danger">*</span></label>
                       <input type="date" class="form-control" id="borrowDate" required>
@@ -168,7 +173,7 @@
               <div class="card h-100 border-0 shadow-none">
                 <div class="card-body px-0 pt-0">
                   <h6 class="fw-semibold mb-3"><i class="fas fa-box-open me-2 text-primary"></i>ทรัพย์สินที่กำลังถูกยืม</h6>
-                  <input type="text" class="form-control mb-3" id="searchReturn" placeholder="ค้นหารหัส / ชื่อ / ผู้ยืม...">
+                  <input type="text" class="form-control mb-3" id="searchReturn" placeholder="ค้นหาชื่อเครื่อง / ผู้ยืม...">
                   <div id="borrowedAssetsList" style="max-height:460px;overflow-y:auto;">
                     <div class="text-center text-muted py-4"><i class="fas fa-circle-notch fa-spin me-2"></i>กำลังโหลด...</div>
                   </div>
@@ -180,13 +185,14 @@
                 <div class="card-body">
                   <h6 class="fw-semibold mb-3"><i class="fas fa-reply-all me-2 text-primary"></i>ฟอร์มบันทึกการส่งคืน</h6>
                   <form id="returnForm" novalidate>
+                    <input type="hidden" id="returnAssetId">
                     <div class="row g-3 mb-3">
                       <div class="col-md-5">
-                        <label class="form-label fw-medium small">รหัสทรัพย์สิน <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium small">ชื่อเครื่อง <span class="text-danger">*</span></label>
                         <input type="text" class="form-control bg-light" id="returnAssetCode" readonly>
                       </div>
                       <div class="col-md-7">
-                        <label class="form-label fw-medium small">ชื่อทรัพย์สิน</label>
+                        <label class="form-label fw-medium small">ประเภท/สเปก</label>
                         <input type="text" class="form-control bg-light" id="returnAssetName" readonly>
                       </div>
                     </div>
@@ -242,14 +248,14 @@
         <!-- รายการทรัพย์สิน -->
         <div class="tab-pane fade" id="list">
           <div class="d-flex flex-wrap gap-2 mb-4">
-            <div class="flex-grow-1"><input type="text" class="form-control" id="globalSearch" placeholder="ค้นหาทรัพย์สิน (รหัส, ชื่อ, Serial, ผู้ใช้)"></div>
+            <div class="flex-grow-1"><input type="text" class="form-control" id="globalSearch" placeholder="ค้นหาทรัพย์สิน (ชื่อเครื่อง, Serial, ผู้ใช้)"></div>
             <button class="btn btn-primary px-4" id="btnSearch"><i class="fas fa-search me-1"></i>ค้นหา</button>
             <button class="btn btn-outline-secondary px-4" id="btnRefresh"><i class="fas fa-sync-alt me-1"></i>รีเฟรช</button>
           </div>
           <div class="table-responsive">
             <table class="table table-hover align-middle" style="font-size:0.85rem;">
-              <thead><tr><th>รหัสทรัพย์สิน</th><th>ชื่อทรัพย์สิน</th><th>ประเภท</th><th>Serial Number</th><th>ยี่ห้อ / รุ่น</th><th>สถานะ</th><th>ผู้ใช้งาน</th><th>วันที่รับมอบ</th><th>กำหนดคืน</th></tr></thead>
-              <tbody id="assetsTableBody"><tr><td colspan="9" class="text-center py-5 text-muted"><i class="fas fa-circle-notch fa-spin me-2"></i>กำลังโหลดข้อมูล...</td></tr></tbody>
+              <thead><tr><th>ชื่อเครื่อง</th><th>ประเภท</th><th>Serial Number</th><th>ยี่ห้อ / รุ่น</th><th>สถานะ</th><th>ผู้ใช้งาน</th><th>วันที่รับมอบ</th></tr></thead>
+              <tbody id="assetsTableBody"><tr><td colspan="7" class="text-center py-5 text-muted"><i class="fas fa-circle-notch fa-spin me-2"></i>กำลังโหลดข้อมูล...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -266,7 +272,7 @@
               </div>
               <div class="table-responsive">
                 <table class="table table-hover align-middle" style="font-size:0.85rem;">
-                  <thead><tr><th>วันที่ทำรายการ</th><th>รหัสทรัพย์สิน</th><th>รายการ</th><th>ชื่อผู้ทำรายการ</th><th>ฝ่าย/แผนก</th><th>รายละเอียด</th></tr></thead>
+                  <thead><tr><th>วันที่ทำรายการ</th><th>ชื่อเครื่อง</th><th>รายการ</th><th>ชื่อผู้ทำรายการ</th><th>ฝ่าย/แผนก</th><th>รายละเอียด</th></tr></thead>
                   <tbody id="reportTableBody"><tr><td colspan="6" class="text-center text-muted py-4">เลือกช่วงวันที่และกดสร้างรายงาน</td></tr></tbody>
                 </table>
               </div>
@@ -287,6 +293,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+// พนักงาน -> โปรเจค A (rpcA) | ทรัพย์สิน/ยืม-คืน/รายงาน -> โปรเจค B (rpcB)
 let availableAssets = [], borrowedAssets = [];
 let searchTimeout = null, returnerSearchTimeout = null;
 
@@ -309,17 +316,17 @@ $(function() {
   $('#searchBorrow').on('input', function() {
     let kw = this.value.toLowerCase();
     renderAvailableAssets(availableAssets.filter(a =>
-      a.AssetCode.toLowerCase().includes(kw) || a.AssetName.toLowerCase().includes(kw) || (a.SerialNumber||'').toLowerCase().includes(kw)
+      a.AssetCode.toLowerCase().includes(kw) || (a.SerialNumber||'').toLowerCase().includes(kw)
     ));
   });
   $('#searchReturn').on('input', function() {
     let kw = this.value.toLowerCase();
     renderBorrowedAssets(borrowedAssets.filter(a =>
-      a.AssetCode.toLowerCase().includes(kw) || a.AssetName.toLowerCase().includes(kw) || (a.User||'').toLowerCase().includes(kw)
+      a.AssetCode.toLowerCase().includes(kw) || (a.User||'').toLowerCase().includes(kw)
     ));
   });
 
-  // Employee search — รับมอบ
+  // Employee search — รับมอบ (โปรเจค A)
   $('#btnSearchEmp').on('click', doSearchEmployee);
   $('#employeeSearch').on('keypress', function(e){ if(e.which===13){ e.preventDefault(); doSearchEmployee(); } });
   $('#employeeSearch').on('input', function() {
@@ -329,7 +336,7 @@ $(function() {
   });
   $('#btnClearEmp').on('click', clearEmployee);
 
-  // Returner search — ส่งคืน
+  // Returner search — ส่งคืน (โปรเจค A)
   $('#btnSearchReturner').on('click', doSearchReturner);
   $('#returnerSearch').on('keypress', function(e){ if(e.which===13){ e.preventDefault(); doSearchReturner(); } });
   $('#returnerSearch').on('input', function() {
@@ -347,8 +354,8 @@ $(function() {
   $('#btnSearch').on('click', function() {
     let kw = $('#globalSearch').val().trim();
     if(!kw){ loadAllAssets(); return; }
-    $('#assetsTableBody').html('<tr><td colspan="9" class="text-center"><i class="fas fa-circle-notch fa-spin me-2"></i>ค้นหา...</td></tr>');
-    rpc('fom017_search_assets', { p_keyword: kw }).then(renderAllAssets).catch(handleError);
+    $('#assetsTableBody').html('<tr><td colspan="7" class="text-center"><i class="fas fa-circle-notch fa-spin me-2"></i>ค้นหา...</td></tr>');
+    rpcB('fom017_search_assets', { p_keyword: kw }).then(renderAllAssets).catch(handleError);
   });
   $('#globalSearch').on('keypress', function(e){ if(e.which===13) $('#btnSearch').click(); });
   $('#btnRefresh').on('click', function(){ $('#globalSearch').val(''); loadAllAssets(); });
@@ -359,23 +366,23 @@ $(function() {
 
 function loadAvailableAssets() {
   $('#availableAssetsList').html('<div class="text-center py-4"><i class="fas fa-circle-notch fa-spin me-2"></i>กำลังโหลด...</div>');
-  rpc('fom017_get_available_assets').then(assets => { availableAssets = assets||[]; renderAvailableAssets(availableAssets); }).catch(handleError);
+  rpcB('fom017_get_available_assets').then(assets => { availableAssets = assets||[]; renderAvailableAssets(availableAssets); }).catch(handleError);
 }
 function loadBorrowedAssets() {
   $('#borrowedAssetsList').html('<div class="text-center py-4"><i class="fas fa-circle-notch fa-spin me-2"></i>กำลังโหลด...</div>');
-  rpc('fom017_get_borrowed_assets').then(assets => { borrowedAssets = assets||[]; renderBorrowedAssets(borrowedAssets); }).catch(handleError);
+  rpcB('fom017_get_borrowed_assets').then(assets => { borrowedAssets = assets||[]; renderBorrowedAssets(borrowedAssets); }).catch(handleError);
 }
 function loadAllAssets() {
-  $('#assetsTableBody').html('<tr><td colspan="9" class="text-center"><i class="fas fa-circle-notch fa-spin me-2"></i>กำลังโหลด...</td></tr>');
-  rpc('fom017_get_all_assets').then(renderAllAssets).catch(handleError);
+  $('#assetsTableBody').html('<tr><td colspan="7" class="text-center"><i class="fas fa-circle-notch fa-spin me-2"></i>กำลังโหลด...</td></tr>');
+  rpcB('fom017_get_all_assets').then(renderAllAssets).catch(handleError);
 }
 
 function renderAvailableAssets(assets) {
   if(!assets.length){ $('#availableAssetsList').html('<div class="alert alert-light text-center"><i class="fas fa-info-circle me-1"></i>ไม่มีทรัพย์สินที่พร้อมรับมอบ</div>'); return; }
   let html = '<div class="list-group list-group-flush">';
   assets.forEach(a => {
-    let sel = ($('#borrowAssetCode').val()===a.AssetCode)?'selected':'';
-    html += '<div class="list-group-item asset-item '+sel+'" onclick="selectForBorrow(\''+escapeAttr(a.AssetCode)+'\',\''+escapeAttr(a.AssetName)+'\')"><div class="d-flex justify-content-between"><div><strong>'+escapeHtml(a.AssetCode)+'</strong><br><small class="text-secondary">'+escapeHtml(a.AssetName)+'</small></div><span class="status-badge status-available">พร้อมใช้</span></div><small class="text-muted"><i class="fas fa-microchip me-1"></i>'+escapeHtml(a.SerialNumber||'-')+' &nbsp; '+escapeHtml(a.Brand||'')+'</small></div>';
+    let sel = ($('#borrowAssetId').val()===a.AssetId)?'selected':'';
+    html += '<div class="list-group-item asset-item '+sel+'" onclick="selectForBorrow(\''+escapeAttr(a.AssetId)+'\',\''+escapeAttr(a.AssetCode)+'\',\''+escapeAttr(a.AssetName)+'\')"><div class="d-flex justify-content-between"><div><strong>'+escapeHtml(a.AssetCode)+'</strong><br><small class="text-secondary">'+escapeHtml(a.AssetName)+'</small></div><span class="status-badge status-available">พร้อมใช้</span></div><small class="text-muted"><i class="fas fa-microchip me-1"></i>'+escapeHtml(a.SerialNumber||'-')+' &nbsp; '+escapeHtml(a.Brand||'')+'</small></div>';
   });
   html += '</div>'; $('#availableAssetsList').html(html);
 }
@@ -384,40 +391,40 @@ function renderBorrowedAssets(assets) {
   if(!assets.length){ $('#borrowedAssetsList').html('<div class="alert alert-light text-center"><i class="fas fa-info-circle me-1"></i>ไม่มีรายการยืมค้าง</div>'); return; }
   let html = '<div class="list-group list-group-flush">';
   assets.forEach(a => {
-    let sel = ($('#returnAssetCode').val()===a.AssetCode)?'selected':'';
-    html += '<div class="list-group-item asset-item '+sel+'" onclick="selectForReturn(\''+escapeAttr(a.AssetCode)+'\',\''+escapeAttr(a.AssetName)+'\',\''+escapeAttr(a.User)+'\')"><div class="d-flex justify-content-between"><div><strong>'+escapeHtml(a.AssetCode)+'</strong><br><small>'+escapeHtml(a.AssetName)+'</small></div><span class="status-badge status-borrowed">กำลังใช้งาน</span></div><small><i class="fas fa-user me-1"></i>'+escapeHtml(a.User||'-')+'</small></div>';
+    let sel = ($('#returnAssetId').val()===a.AssetId)?'selected':'';
+    html += '<div class="list-group-item asset-item '+sel+'" onclick="selectForReturn(\''+escapeAttr(a.AssetId)+'\',\''+escapeAttr(a.AssetCode)+'\',\''+escapeAttr(a.AssetName)+'\',\''+escapeAttr(a.User)+'\')"><div class="d-flex justify-content-between"><div><strong>'+escapeHtml(a.AssetCode)+'</strong><br><small>'+escapeHtml(a.AssetName)+'</small></div><span class="status-badge status-borrowed">กำลังใช้งาน</span></div><small><i class="fas fa-user me-1"></i>'+escapeHtml(a.User||'-')+'</small></div>';
   });
   html += '</div>'; $('#borrowedAssetsList').html(html);
 }
 
 function renderAllAssets(assets) {
-  if(!assets||!assets.length){ $('#assetsTableBody').html('<tr><td colspan="9" class="text-center text-muted">ไม่พบข้อมูลทรัพย์สิน</td></tr>'); return; }
+  if(!assets||!assets.length){ $('#assetsTableBody').html('<tr><td colspan="7" class="text-center text-muted">ไม่พบข้อมูลทรัพย์สิน</td></tr>'); return; }
   let html = '';
   assets.forEach(a => {
-    let cls = a.Status==='พร้อมใช้งาน'?'status-available':'status-borrowed';
-    html += '<tr><td><strong>'+escapeHtml(a.AssetCode)+'</strong></td><td>'+escapeHtml(a.AssetName)+'</td><td>'+escapeHtml(a.AssetType||'-')+'</td><td><small>'+escapeHtml(a.SerialNumber||'-')+'</small></td><td>'+escapeHtml(a.Brand||'-')+' '+escapeHtml(a.Model||'')+'</td><td><span class="status-badge '+cls+'">'+escapeHtml(a.Status)+'</span></td><td><small>'+escapeHtml(a.User||'-')+'</small></td><td>'+escapeHtml(a.BorrowDate||'-')+'</td><td>'+escapeHtml(a.ReturnDate||'-')+'</td></tr>';
+    let cls = a.Status==='ใช้งาน'?'status-available':'status-borrowed';
+    html += '<tr><td><strong>'+escapeHtml(a.AssetCode)+'</strong></td><td>'+escapeHtml(a.AssetName)+'</td><td><small>'+escapeHtml(a.SerialNumber||'-')+'</small></td><td>'+escapeHtml(a.Brand||'-')+' '+escapeHtml(a.Model||'')+'</td><td><span class="status-badge '+cls+'">'+escapeHtml(a.Status)+'</span></td><td><small>'+escapeHtml(a.User||'-')+'</small></td><td>'+escapeHtml(a.BorrowDate||'-')+'</td></tr>';
   });
   $('#assetsTableBody').html(html);
 }
 
-function selectForBorrow(code, name) {
-  $('#borrowAssetCode').val(code); $('#borrowAssetName').val(name);
+function selectForBorrow(id, code, name) {
+  $('#borrowAssetId').val(id); $('#borrowAssetCode').val(code); $('#borrowAssetName').val(name);
   $('.asset-item').removeClass('selected'); event.currentTarget.classList.add('selected');
   checkBorrowReady();
 }
-function selectForReturn(code, name, borrower) {
-  $('#returnAssetCode').val(code); $('#returnAssetName').val(name); $('#borrowerInfo').val(borrower);
+function selectForReturn(id, code, name, borrower) {
+  $('#returnAssetId').val(id); $('#returnAssetCode').val(code); $('#returnAssetName').val(name); $('#borrowerInfo').val(borrower);
   $('.asset-item').removeClass('selected'); event.currentTarget.classList.add('selected');
 }
 function checkBorrowReady() {
-  $('#submitBorrowBtn').prop('disabled', !($('#borrowAssetCode').val() && $('#selectedEmployeeCodeInput').val()));
+  $('#submitBorrowBtn').prop('disabled', !($('#borrowAssetId').val() && $('#selectedEmployeeCodeInput').val()));
 }
 
-// Employee search — รับมอบ
+// Employee search — รับมอบ (โปรเจค A)
 function doSearchEmployee() {
   let kw = $('#employeeSearch').val().trim();
   if(!kw){ hideEmployeeResults(); return; }
-  rpc('fom017_search_employees', { p_keyword: kw }).then(renderEmployeeResults).catch(handleError);
+  rpcA('fom017_search_employees', { p_keyword: kw }).then(renderEmployeeResults).catch(handleError);
 }
 function renderEmployeeResults(users) {
   if(!users||!users.length){ $('#employeeSearchResults').html('<div class="p-3 text-danger"><i class="fas fa-exclamation-triangle me-1"></i>ไม่พบข้อมูลพนักงาน</div>').show(); return; }
@@ -435,6 +442,9 @@ function selectEmployee(code, name, section, department, position) {
   hideEmployeeResults();
   $('#employeeSearch').val(code+' - '+name);
   $('#selectedEmployeeCodeInput').val(code);
+  $('#selectedEmployeeSection').val(section||'');
+  $('#selectedEmployeeDepartment').val(department||'');
+  $('#selectedEmployeePosition').val(position||'');
   $('#ei-code').text(code); $('#ei-name').text(name);
   $('#ei-dept').text((section||'')+(department?' - '+department:''));
   $('#ei-position').text(position||'-');
@@ -442,16 +452,16 @@ function selectEmployee(code, name, section, department, position) {
   checkBorrowReady();
 }
 function clearEmployee() {
-  $('#selectedEmployeeCodeInput,#employeeSearch').val('');
+  $('#selectedEmployeeCodeInput,#employeeSearch,#selectedEmployeeSection,#selectedEmployeeDepartment,#selectedEmployeePosition').val('');
   $('#selectedEmployeeInfo').hide(); $('#btnClearEmp').hide();
   hideEmployeeResults(); checkBorrowReady();
 }
 
-// Returner search — ส่งคืน
+// Returner search — ส่งคืน (โปรเจค A)
 function doSearchReturner() {
   let kw = $('#returnerSearch').val().trim();
   if(!kw){ hideReturnerResults(); return; }
-  rpc('fom017_search_employees', { p_keyword: kw }).then(renderReturnerResults).catch(handleError);
+  rpcA('fom017_search_employees', { p_keyword: kw }).then(renderReturnerResults).catch(handleError);
 }
 function renderReturnerResults(users) {
   if(!users||!users.length){ $('#returnerSearchResults').html('<div class="p-3 text-danger"><i class="fas fa-exclamation-triangle me-1"></i>ไม่พบข้อมูลพนักงาน</div>').show(); return; }
@@ -482,45 +492,45 @@ function clearReturner() {
 
 function submitBorrow(e) {
   e.preventDefault();
-  let assetCode=$('#borrowAssetCode').val(), empCode=$('#selectedEmployeeCodeInput').val(), borrowDate=$('#borrowDate').val();
-  if(!assetCode||!empCode||!borrowDate){ Swal.fire('ข้อมูลไม่ครบ','กรุณาเลือกทรัพย์สินและพนักงานให้ถูกต้อง','warning'); return; }
-  rpc('fom017_get_employee', { p_code: empCode }).then(function(user) {
-    if(!user.found){ Swal.fire('ผิดพลาด','ไม่พบข้อมูลพนักงาน','error'); return; }
-    Swal.fire({
-      title:'ยืนยันการรับมอบ',
-      html:'<div style="text-align:left"><p><strong>ทรัพย์สิน:</strong> '+escapeHtml(assetCode)+' - '+escapeHtml($('#borrowAssetName').val())+'</p><p><strong>ผู้รับมอบ:</strong> '+escapeHtml(user.name)+' ('+escapeHtml(user.code)+')</p><p><strong>วันที่รับมอบ:</strong> '+borrowDate+'</p></div>',
-      icon:'question', showCancelButton:true, confirmButtonText:'ยืนยัน', cancelButtonText:'ยกเลิก'
-    }).then(function(res) {
-      if(!res.isConfirmed) return;
-      Swal.fire({title:'กำลังบันทึก...', allowOutsideClick:false, didOpen:function(){ Swal.showLoading(); }});
-      rpc('fom017_borrow_asset', {
-        p_asset_code: assetCode, p_employee_code: empCode, p_borrow_date: borrowDate,
-        p_return_date: '', p_notes: $('#borrowNotes').val()
-      }).then(function(result) {
-        Swal.fire(result.success?'สำเร็จ':'เกิดข้อผิดพลาด', result.message, result.success?'success':'error');
-        if(result.success){ clearBorrowForm(); loadAvailableAssets(); loadBorrowedAssets(); }
-      }).catch(handleError);
-    });
-  }).catch(handleError);
+  let assetId=$('#borrowAssetId').val(), assetCode=$('#borrowAssetCode').val(),
+      empCode=$('#selectedEmployeeCodeInput').val(), borrowDate=$('#borrowDate').val();
+  if(!assetId||!empCode||!borrowDate){ Swal.fire('ข้อมูลไม่ครบ','กรุณาเลือกทรัพย์สินและพนักงานให้ถูกต้อง','warning'); return; }
+  const empName = $('#employeeSearch').val().split(' - ').slice(1).join(' - ') || empCode;
+  Swal.fire({
+    title:'ยืนยันการรับมอบ',
+    html:'<div style="text-align:left"><p><strong>ทรัพย์สิน:</strong> '+escapeHtml(assetCode)+' - '+escapeHtml($('#borrowAssetName').val())+'</p><p><strong>ผู้รับมอบ:</strong> '+escapeHtml(empName)+' ('+escapeHtml(empCode)+')</p><p><strong>วันที่รับมอบ:</strong> '+borrowDate+'</p></div>',
+    icon:'question', showCancelButton:true, confirmButtonText:'ยืนยัน', cancelButtonText:'ยกเลิก'
+  }).then(function(res) {
+    if(!res.isConfirmed) return;
+    Swal.fire({title:'กำลังบันทึก...', allowOutsideClick:false, didOpen:function(){ Swal.showLoading(); }});
+    rpcB('fom017_borrow_asset', {
+      p_asset_id: assetId, p_emp_code: empCode, p_emp_name: empName,
+      p_section: $('#selectedEmployeeSection').val(), p_department: $('#selectedEmployeeDepartment').val(),
+      p_position: $('#selectedEmployeePosition').val(), p_borrow_date: borrowDate, p_notes: $('#borrowNotes').val()
+    }).then(function(result) {
+      Swal.fire(result.success?'สำเร็จ':'เกิดข้อผิดพลาด', result.message, result.success?'success':'error');
+      if(result.success){ clearBorrowForm(); loadAvailableAssets(); loadBorrowedAssets(); }
+    }).catch(handleError);
+  });
 }
 
 function submitReturn(e) {
   e.preventDefault();
-  let assetCode=$('#returnAssetCode').val(), returner=$('#returnerName').val().trim(),
+  let assetId=$('#returnAssetId').val(), returner=$('#returnerName').val().trim(),
       retDate=$('#returnActualDate').val(), condition=$('#returnCondition').val();
-  if(!assetCode){ Swal.fire('แจ้งเตือน','กรุณาเลือกทรัพย์สิน','warning'); return; }
+  if(!assetId){ Swal.fire('แจ้งเตือน','กรุณาเลือกทรัพย์สิน','warning'); return; }
   if(!returner){ Swal.fire('แจ้งเตือน','กรุณาค้นหาและเลือกผู้ส่งคืน','warning'); return; }
   if(!retDate){ Swal.fire('แจ้งเตือน','กรุณาระบุวันที่ส่งคืน','warning'); return; }
   if(!condition){ Swal.fire('แจ้งเตือน','กรุณาเลือกสภาพทรัพย์สิน','warning'); return; }
   Swal.fire({
     title:'ยืนยันการส่งคืน',
-    html:'<div style="text-align:left"><p><strong>ทรัพย์สิน:</strong> '+escapeHtml(assetCode)+' - '+escapeHtml($('#returnAssetName').val())+'</p><p><strong>ผู้ส่งคืน:</strong> '+escapeHtml($('#ri-name').text()||returner)+'</p><p><strong>วันที่ส่งคืน:</strong> '+retDate+'</p><p><strong>สภาพ:</strong> '+escapeHtml(condition)+'</p></div>',
+    html:'<div style="text-align:left"><p><strong>ทรัพย์สิน:</strong> '+escapeHtml($('#returnAssetCode').val())+' - '+escapeHtml($('#returnAssetName').val())+'</p><p><strong>ผู้ส่งคืน:</strong> '+escapeHtml($('#ri-name').text()||returner)+'</p><p><strong>วันที่ส่งคืน:</strong> '+retDate+'</p><p><strong>สภาพ:</strong> '+escapeHtml(condition)+'</p></div>',
     icon:'question', showCancelButton:true, confirmButtonText:'ยืนยัน', cancelButtonText:'ยกเลิก'
   }).then(function(res) {
     if(!res.isConfirmed) return;
     Swal.fire({title:'กำลังดำเนินการ...', allowOutsideClick:false, didOpen:function(){ Swal.showLoading(); }});
-    rpc('fom017_return_asset', {
-      p_asset_code: assetCode, p_returner_name: returner, p_return_date: retDate,
+    rpcB('fom017_return_asset', {
+      p_asset_id: assetId, p_returner_name: returner, p_return_date: retDate,
       p_condition: condition, p_notes: $('#returnNotes').val()
     }).then(function(result) {
       Swal.fire(result.success?'สำเร็จ':'ผิดพลาด', result.message, result.success?'success':'error');
@@ -534,7 +544,7 @@ function doGenerateReport() {
   if(!start||!end){ Swal.fire('กรุณาเลือกช่วงวันที่','','warning'); return; }
   if(end<start){ Swal.fire('วันที่สิ้นสุดต้องไม่น้อยกว่าวันเริ่ม','','error'); return; }
   $('#reportTableBody').html('<tr><td colspan="6" class="text-center"><i class="fas fa-spinner fa-pulse me-2"></i>กำลังสร้างรายงาน...</td></tr>');
-  rpc('fom017_generate_report', { p_start: start, p_end: end }).then(function(reports) {
+  rpcB('fom017_generate_report', { p_start: start, p_end: end }).then(function(reports) {
     if(!reports||!reports.length){ $('#reportTableBody').html('<tr><td colspan="6" class="text-center text-muted">ไม่มีข้อมูลในช่วงเวลานี้</td></tr>'); return; }
     let html = '';
     reports.forEach(function(r) {
@@ -546,12 +556,12 @@ function doGenerateReport() {
 }
 
 function clearBorrowForm() {
-  $('#borrowAssetCode,#borrowAssetName,#borrowNotes').val('');
+  $('#borrowAssetId,#borrowAssetCode,#borrowAssetName,#borrowNotes').val('');
   $('#borrowDate').val(new Date().toISOString().split('T')[0]);
   clearEmployee(); $('#submitBorrowBtn').prop('disabled',true); $('.asset-item').removeClass('selected');
 }
 function clearReturnForm() {
-  $('#returnAssetCode,#returnAssetName,#borrowerInfo,#returnNotes').val('');
+  $('#returnAssetId,#returnAssetCode,#returnAssetName,#borrowerInfo,#returnNotes').val('');
   $('#returnCondition').val('');
   $('#returnActualDate').val(new Date().toISOString().split('T')[0]);
   clearReturner(); $('.asset-item').removeClass('selected');
