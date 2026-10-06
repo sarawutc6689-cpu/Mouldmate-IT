@@ -282,12 +282,13 @@
                     <span class="req-badge ${STATUS_BADGE[r.status]}">${r.status}</span>
                 </div>
                 <div class="req-body">
-                    <div><span class="label">พนักงานที่ขอ:</span> <span class="value">${r.name_thai || '-'} (${r.employees_code})</span></div>
-                    <div><span class="label">ผู้ยื่นคำขอ:</span> <span class="value">${requesterNameMap[r.requester_code] || r.requester_code}</span></div>
-                    <div><span class="label">แผนก:</span> <span class="value">${r.department || '-'}</span></div>
-                    <div><span class="label">ตำแหน่ง:</span> <span class="value">${r.position || '-'}</span></div>
-                    <div><span class="label">เบอร์โทร:</span> <span class="value">${r.telephone || '-'}</span></div>
-                    <div><span class="label">ประเภท:</span> <span class="value">${r.email_type ? 'ขอใช้อีเมล (' + emailTypeLabel(r.email_type) + ')' : 'Username/Password'}</span></div>
+                   <div><span class="label">พนักงานที่ขอ:</span> <span class="value">${r.name_thai || '-'} (${r.employees_code})</span></div>
+                   <div><span class="label">ผู้ยื่นคำขอ:</span> <span class="value">${requesterNameMap[r.requester_code] || r.requester_code}</span></div>
+                   <div><span class="label">ชื่ออังกฤษ:</span> <span class="value">${r.name_eng || '-'}</span></div>
+                   <div><span class="label">แผนก:</span> <span class="value">${r.department || '-'}</span></div>
+                   <div><span class="label">ตำแหน่ง:</span> <span class="value">${r.position || '-'}</span></div>
+                   <div><span class="label">เบอร์โทร:</span> <span class="value">${r.telephone || '-'}</span></div>
+                   <div><span class="label">ประเภท:</span> <span class="value">${r.email_type ? 'ขอใช้อีเมล (' + emailTypeLabel(r.email_type) + ')' : 'Username/Password'}</span></div>
                 </div>
                 <div class="req-objective">
                     <strong>วัตถุประสงค์:</strong> ${r.email_type ? (r.email_reason || '-') : (r.objective || '-')}
