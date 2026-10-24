@@ -1586,13 +1586,35 @@ async function doExportPdf(mode) {
 
       /* ── Page footer ── */
       var pageCount = doc.internal.getNumberOfPages();
+      var pageW = doc.internal.pageSize.getWidth();
+      var WM_TEXT = 'TOKAISOLIDTIRE', WM_ANGLE = 30, WM_SIZE = 60;
       for (var p = 1; p <= pageCount; p++) {
         doc.setPage(p);
+
+        /* ── ลายน้ำสีฟ้าจาง (แนวทแยง กึ่งกลางหน้า) ── */
+        doc.saveGraphicsState();
+        doc.setGState(new doc.GState({ opacity: 0.15 }));
+        doc.setFont(F_BOLD, F_STYLE_BOLD);
+        doc.setFontSize(WM_SIZE);
+        doc.setTextColor(60, 140, 220);
+        var rad = WM_ANGLE * Math.PI / 180;
+        var wmW = doc.getTextWidth(WM_TEXT);
+        var cx = pageW / 2, cy = pageH / 2;
+        doc.text(WM_TEXT,
+          cx - (wmW / 2) * Math.cos(rad) + 7 * Math.sin(rad),
+          cy + (wmW / 2) * Math.sin(rad) + 7 * Math.cos(rad),
+          { angle: WM_ANGLE });
+        doc.restoreGraphicsState();
+
+        /* ── Footer ── */
+        doc.setDrawColor(226, 234, 241);
+        doc.setLineWidth(0.3);
+        doc.line(10, 196, pageW - 10, 196);
         doc.setFont(F_NORMAL, 'normal');
-        doc.setFontSize(7);
-        doc.setTextColor(150, 160, 175);
-        doc.text('หน้า ' + p + ' / ' + pageCount, 283, 200, { align: 'right' });
-        doc.text('รายงานตรวจสอบกล้องวงจรปิดประจำวัน — เอกสารภายในองค์กร พัฒนาโดย Sarawut.C', 10, 200);
+        doc.setFontSize(8);
+        doc.setTextColor(120, 135, 155);
+        doc.text('รายงานกล้องวงจรปิด | ใช้ภายในบริษัทเท่านั้น | พัฒนาโดย Sarawut.C', 10, 201);
+        doc.text('หน้า ' + p + ' / ' + pageCount, pageW - 10, 201, { align: 'right' });
       }
 
       var pdfFilename = (isDay ? 'CCTV_Daily_' + ym : 'CCTV_Checklist_' + ym) + shiftSuffix(sv) + '.pdf';
