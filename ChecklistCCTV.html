@@ -431,6 +431,70 @@ body {
   .shift-status { margin-left:0; }
 }
 
+/* ── แก้ไขวัน/เวลาที่แก้ไขเสร็จ ── */
+var _fixTimeIdx = null;
+
+function bkkNowLocal(){
+  var o = {};
+  new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit',
+    hour:'2-digit',minute:'2-digit',hourCycle:'h23'})
+    .formatToParts(new Date()).forEach(function(p){ o[p.type]=p.value; });
+  return o.year+'-'+o.month+'-'+o.day+'T'+o.hour+':'+o.minute;
+}
+/* 'dd/MM/yyyy HH:mm:ss' -> 'yyyy-MM-ddTHH:mm' */
+function dmyToLocal(s){
+  var m = String(s||'').match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/);
+  return m ? m[3]+'-'+m[2]+'-'+m[1]+'T'+m[4]+':'+m[5] : '';
+}
+
+function openFixTime(idx){
+  var r = histRows[idx];
+  if(!r) return;
+  _fixTimeIdx = idx;
+  var inp = document.getElementById('fixTimeInput');
+  document.getElementById('fixTimeCam').textContent = r.name + ' — ' + r.location;
+  inp.min   = dmyToLocal(r.date);
+  inp.max   = bkkNowLocal();
+  inp.value = dmyToLocal(r.fixAt) || bkkNowLocal();
+  document.getElementById('fixTimeErr').textContent = '';
+  document.getElementById('fixTimeModal').classList.add('open');
+}
+function closeFixTime(){ document.getElementById('fixTimeModal').classList.remove('open'); }
+
+function submitFixTime(){
+  var r = histRows[_fixTimeIdx];
+  var inp = document.getElementById('fixTimeInput');
+  var err = document.getElementById('fixTimeErr');
+  var v = inp.value;
+  if(!r) return;
+  if(!v){ err.textContent = '⚠️ กรุณาเลือกวัน/เวลา'; return; }
+  if(v < inp.min || v > bkkNowLocal()){
+    err.textContent = '⚠️ ต้องไม่ก่อนเวลาที่ตรวจ (' + r.date + ') และไม่เกินเวลาปัจจุบัน';
+    return;
+  }
+  closeFixTime();
+  saveFixTime(r, v);
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('fixTimeModal').addEventListener('click', function(e){
+    if(e.target===this) closeFixTime();
+  });
+});
+
+function saveFixTime(r, v){
+  showOverlay('กำลังอัปเดตเวลา '+r.name+'...');
+  sb.from('checks').update({fix_at: v+':00+07:00'}).eq('id', r.rowNum).select().single()
+    .then(function(res){
+      hideOverlay();
+      if(res.error){ showToast('❌ แก้เวลาล้มเหลว: '+res.error.message,'error'); return; }
+      var u = toRow(res.data);
+      r.fixAt = u.fixAt; r.fixedBy = u.fixedBy;
+      renderHistory({rows:histRows});
+      showToast('✅ แก้เวลา '+r.name+' เป็น '+r.fixAt,'ok');
+    });
+}
+
 /* ── Custom Confirm Modal ── */
 .modal-backdrop {
   display:none;
@@ -898,6 +962,28 @@ footer p { margin-bottom:8px; }
   </div>
 </div>
 
+<!-- EDIT FIX TIME MODAL -->
+<div class="modal-backdrop" id="fixTimeModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-header-icon">🕒</div>
+      <div class="modal-header-text">
+        <div class="modal-title">แก้ไขวัน/เวลาที่แก้ไขเสร็จ</div>
+        <div class="modal-subtitle" id="fixTimeCam">-</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <label class="pwd-field-label" for="fixTimeInput">วัน/เวลา</label>
+      <input type="datetime-local" id="fixTimeInput" class="month-picker" style="width:100%">
+      <div class="pwd-error-msg" id="fixTimeErr"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeFixTime()">ยกเลิก</button>
+      <button class="btn-modal-confirm" onclick="submitFixTime()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
 <!-- CONFIRM MODAL -->
 <div class="modal-backdrop" id="confirmModal">
   <div class="modal-card">
@@ -1161,7 +1247,9 @@ function fixBadge(r){
 function fixButton(r, idx){
   if(!hasIssue(r) && !r.fixStatus) return '';          /* กล้องปกติ ไม่ต้องมีปุ่ม */
   if(r.fixStatus==='แก้ไขแล้ว')
-    return '<button class="btn-fix undo" onclick="requestFix('+idx+')">↩ ย้อนกลับ</button>';
+    return '<div style="display:flex;gap:6px;flex-wrap:wrap">'
+      +'<button class="btn-fix" onclick="openFixTime('+idx+')">🕒 แก้เวลา</button>'
+      +'<button class="btn-fix undo" onclick="requestFix('+idx+')">↩ ย้อนกลับ</button></div>';
   return '<button class="btn-fix done" onclick="requestFix('+idx+')">✔ แก้ไขแล้ว</button>';
 }
 
