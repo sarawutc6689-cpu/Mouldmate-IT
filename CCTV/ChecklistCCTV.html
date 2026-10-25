@@ -1591,7 +1591,22 @@ async function doExportPdf(mode) {
       doc.setTextColor(60, 80, 100);
       doc.text(sumLines, 14, endY + 13);
 
-      
+      /* ── ช่องลงชื่อ ── */
+      var signY = endY + boxH + 22;
+      if (signY > pageH - 25) { doc.addPage(); signY = 40; }
+      doc.setDrawColor(120, 140, 160);
+      doc.setLineWidth(0.3);
+      doc.line(30,  signY, 90,  signY);
+      doc.line(120, signY, 180, signY);
+      doc.line(210, signY, 270, signY);
+      doc.setFontSize(9);
+      doc.setTextColor(60, 80, 100);
+      doc.text('ผู้ตรวจสอบ', 60,  signY + 6, { align: 'center' });
+      doc.text('หัวหน้างาน', 150, signY + 6, { align: 'center' });
+      doc.text('ผู้อนุมัติ',   240, signY + 6, { align: 'center' });
+      doc.text('วันที่ ........../........../..........', 60,  signY + 12, { align: 'center' });
+      doc.text('วันที่ ........../........../..........', 150, signY + 12, { align: 'center' });
+      doc.text('วันที่ ........../........../..........', 240, signY + 12, { align: 'center' });
 
       /* ── Page footer ── */
       var pageCount = doc.internal.getNumberOfPages();
@@ -1872,9 +1887,13 @@ async function doLogin(){
   btn.disabled = false;
   if(r.error){ err.textContent = '❌ อีเมลหรือรหัสผ่านไม่ถูกต้อง'; return; }
   document.getElementById('loginPwd').value = '';
+  sb.rpc('log_event', {p_action:'LOGIN'});      /* บันทึก log เข้าสู่ระบบ */
 }
 
-function doLogout(){ sb.auth.signOut(); }
+async function doLogout(){
+  try { await sb.rpc('log_event', {p_action:'LOGOUT'}); } catch(e) {}   /* บันทึก log ออกจากระบบ */
+  sb.auth.signOut();
+}
 
 /* ── ถ้าช่วงนี้บันทึกไปแล้ววันนี้ ให้ถามยืนยันก่อนบันทึกซ้ำ ── */
 function saveWithShiftCheck() {
