@@ -674,7 +674,8 @@ footer {
 footer p { margin-bottom:8px; }
 
 /* ── Login / user ── */
-.login-screen { position:fixed; inset:0; background:#F4F7FC; z-index:2000; display:flex; align-items:center; justify-content:center; }
+.login-screen { position:fixed; inset:0; background:#F4F7FC; z-index:2000; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; overflow-y:auto; }
+.login-footer { text-align:center; color:#6B8CAA; font-size:12px; margin-top:22px; line-height:1.6; }
 .login-screen.hide { display:none; }
 .login-field { letter-spacing:0; padding-right:14px; margin-bottom:14px; }
 .user-box { display:flex; align-items:center; gap:10px; font-size:12px; color:#4C6E8C; }
@@ -895,6 +896,10 @@ footer p { margin-bottom:8px; }
     <div class="pwd-modal-footer">
       <button class="btn-pwd-confirm" id="btnLogin" onclick="doLogin()">🔓 เข้าสู่ระบบ</button>
     </div>
+  </div>
+  <div class="login-footer">
+    <p>ระบบตรวจสอบกล้องวงจรปิดประจำวัน © 2026 | พัฒนาโดย Sarawut.C</p>
+    <p>สำหรับใช้ภายในองค์กรเท่านั้น</p>
   </div>
 </div>
 
@@ -1591,22 +1596,7 @@ async function doExportPdf(mode) {
       doc.setTextColor(60, 80, 100);
       doc.text(sumLines, 14, endY + 13);
 
-      /* ── ช่องลงชื่อ ── */
-      var signY = endY + boxH + 22;
-      if (signY > pageH - 25) { doc.addPage(); signY = 40; }
-      doc.setDrawColor(120, 140, 160);
-      doc.setLineWidth(0.3);
-      doc.line(30,  signY, 90,  signY);
-      doc.line(120, signY, 180, signY);
-      doc.line(210, signY, 270, signY);
-      doc.setFontSize(9);
-      doc.setTextColor(60, 80, 100);
-      doc.text('ผู้ตรวจสอบ', 60,  signY + 6, { align: 'center' });
-      doc.text('หัวหน้างาน', 150, signY + 6, { align: 'center' });
-      doc.text('ผู้อนุมัติ',   240, signY + 6, { align: 'center' });
-      doc.text('วันที่ ........../........../..........', 60,  signY + 12, { align: 'center' });
-      doc.text('วันที่ ........../........../..........', 150, signY + 12, { align: 'center' });
-      doc.text('วันที่ ........../........../..........', 240, signY + 12, { align: 'center' });
+    
 
       /* ── Page footer ── */
       var pageCount = doc.internal.getNumberOfPages();
