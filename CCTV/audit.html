@@ -38,6 +38,7 @@ tr:last-child td { border-bottom:none; }
 .badge { display:inline-block; padding:3px 10px; border-radius:30px; font-size:11px; font-weight:600; white-space:nowrap; }
 .b-LOGIN { background:#E1F5EE; color:#1F6E55; }
 .b-LOGOUT { background:#EEF3F9; color:#5F7C9A; }
+.b-RESUME { background:#E3F1FB; color:#2C6E9E; }
 .b-SAVE_CHECK { background:#E6E9FA; color:#3A4A9E; }
 .b-FIX_STATUS { background:#FFF1E0; color:#C97D2E; }
 .b-FIX_TIME { background:#FFF4DC; color:#A86A0B; }
@@ -70,8 +71,8 @@ tr:last-child td { border-bottom:none; }
 <div class="login" id="loginScreen">
   <div class="box">
     <h2>🔐 เข้าสู่ระบบ (เฉพาะผู้ดูแล)</h2>
-    <input id="loginEmail" type="email" placeholder="อีเมล" autocomplete="username">
-    <input id="loginPwd" type="password" placeholder="รหัสผ่าน" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <input id="loginEmail" type="email" placeholder="กรุณากรอกอีเมลของคุณ" autocomplete="username">
+    <input id="loginPwd" type="password" placeholder="กรุณากรอกวันเริ่มงาน" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     <div class="err" id="loginErr"></div>
     <button class="btn btn-primary" id="btnLogin" style="width:100%;justify-content:center" onclick="doLogin()">เข้าสู่ระบบ</button>
   </div>
@@ -92,6 +93,7 @@ tr:last-child td { border-bottom:none; }
       <select id="fAction">
         <option value="">ทั้งหมด</option>
         <option value="LOGIN">🔓 เข้าสู่ระบบ</option>
+        <option value="RESUME">🔄 เปิดระบบ (เซสชันเดิม)</option>
         <option value="LOGOUT">🚪 ออกจากระบบ</option>
         <option value="SAVE_CHECK">💾 บันทึกการตรวจ</option>
         <option value="FIX_STATUS">🔧 เปลี่ยนสถานะแก้ไข</option>
@@ -117,7 +119,7 @@ var PAGE = 500;
 var rows = [], offset = 0, hasMore = false, _uid = null;
 
 var ACTION_LABEL = {
-  LOGIN:'🔓 เข้าสู่ระบบ', LOGOUT:'🚪 ออกจากระบบ', SAVE_CHECK:'💾 บันทึกการตรวจ',
+  LOGIN:'🔓 เข้าสู่ระบบ', RESUME:'🔄 เปิดระบบ (เซสชันเดิม)', LOGOUT:'🚪 ออกจากระบบ', SAVE_CHECK:'💾 บันทึกการตรวจ',
   FIX_STATUS:'🔧 เปลี่ยนสถานะแก้ไข', FIX_TIME:'🕒 แก้เวลาแก้ไข'
 };
 
@@ -146,6 +148,15 @@ document.getElementById('fTo').value   = bkkDate(0);
 sb.auth.getSession().then(function(r){ onSession(r.data.session); });
 sb.auth.onAuthStateChange(function(ev, session){ setTimeout(function(){ onSession(session); }, 0); });
 
+/* บันทึก RESUME 1 ครั้งต่อแท็บ เมื่อเปิดระบบด้วยเซสชันเดิม (ไม่ได้กรอกรหัสผ่าน) */
+function logResumeOnce(){
+  try{
+    if(sessionStorage.getItem('cctv_log')) return;
+    sessionStorage.setItem('cctv_log','1');
+  }catch(e){ return; }
+  sb.rpc('log_event', {p_action:'RESUME'}).then(function(){}, function(){});
+}
+
 async function onSession(session){
   var login = document.getElementById('loginScreen');
   if(!session){
@@ -159,6 +170,7 @@ async function onSession(session){
   document.getElementById('userEmail').textContent = session.user.email || '';
   if(_uid === session.user.id) return;
   _uid = session.user.id;
+  logResumeOnce();
   var r = await sb.rpc('is_admin');
   if(r.error || !r.data){
     document.getElementById('denied').style.display  = 'block';
@@ -181,10 +193,12 @@ async function doLogin(){
   btn.disabled = false;
   if(r.error){ err.textContent = '❌ อีเมลหรือรหัสผ่านไม่ถูกต้อง'; return; }
   document.getElementById('loginPwd').value = '';
-  sb.rpc('log_event', {p_action:'LOGIN'});
+  try{ sessionStorage.setItem('cctv_log','1'); }catch(e){}
+  try { await sb.rpc('log_event', {p_action:'LOGIN'}); } catch(e) {}
 }
 async function doLogout(){
   try { await sb.rpc('log_event', {p_action:'LOGOUT'}); } catch(e) {}
+  try{ sessionStorage.removeItem('cctv_log'); }catch(e){}
   sb.auth.signOut();
 }
 
@@ -247,7 +261,7 @@ function render(){
   rows.forEach(function(r){
     h += '<tr>'
       + '<td class="time">'+esc(fmtDT(r.at))+'</td>'
-      + '<td>'+esc(r.user_email||'ระบบ')+'</td>'
+      + '<td>'+esc(r.user_email||'ระบบ')+(r.session_id?'<div class="muted">เซสชัน …'+esc(String(r.session_id).slice(-6))+'</div>':'')+'</td>'
       + '<td><span class="badge b-'+esc(r.action)+'">'+esc(ACTION_LABEL[r.action]||r.action)+'</span></td>'
       + '<td>'+esc(r.target||'–')+'</td>'
       + '<td>'+describe(r)+'</td>'
@@ -275,9 +289,9 @@ async function exportCsv(){
   btn.disabled = false;
   if(!all.length){ alert('ไม่มีข้อมูลให้ Export'); return; }
   function q(v){ return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'; }
-  var csv = '\uFEFF' + ['วัน/เวลา','ผู้ใช้','การกระทำ','กล้อง','รายละเอียด','IP'].map(q).join(',') + '\r\n';
+  var csv = '\uFEFF' + ['วัน/เวลา','ผู้ใช้','เซสชัน','การกระทำ','กล้อง','รายละเอียด','IP'].map(q).join(',') + '\r\n';
   all.forEach(function(r){
-    csv += [fmtDT(r.at), r.user_email||'ระบบ', ACTION_LABEL[r.action]||r.action, r.target||'', describeText(r), r.ip||''].map(q).join(',') + '\r\n';
+    csv += [fmtDT(r.at), r.user_email||'ระบบ', r.session_id?String(r.session_id).slice(-6):'', ACTION_LABEL[r.action]||r.action, r.target||'', describeText(r), r.ip||''].map(q).join(',') + '\r\n';
   });
   var url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
   var a = document.createElement('a');
