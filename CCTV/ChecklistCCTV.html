@@ -1521,19 +1521,21 @@ async function doExportPdf(mode) {
           fontStyle: F_STYLE_BOLD,
           fillColor: [30, 58, 95],
           textColor: 255,
-          fontSize: 8.5
+          fontSize: 8,
+          cellPadding: 2.5,
+          overflow: 'visible'      /* หัวตารางไม่ตัดบรรทัด */
         },
         alternateRowStyles: { fillColor: [249, 252, 254] },
         columnStyles: {
           0: { cellWidth: 24 },
           1: { cellWidth: 28 },
           2: { cellWidth: 32 },
-          3: { cellWidth: 16, halign: 'center' },
+          3: { cellWidth: 20, halign: 'center' },
           4: { cellWidth: 18, halign: 'center' },
-          5: { cellWidth: 20, halign: 'center' },
-          6: { cellWidth: 20, halign: 'center' },
-          7: { cellWidth: 32, halign: 'center' },
-          8: { cellWidth: 24, halign: 'center' },
+          5: { cellWidth: 24, halign: 'center' },
+          6: { cellWidth: 22, halign: 'center' },
+          7: { cellWidth: 30, halign: 'center' },
+          8: { cellWidth: 26, halign: 'center' },
           9: { cellWidth: 'auto' }
         },
         didParseCell: function (data) {
@@ -1596,7 +1598,22 @@ async function doExportPdf(mode) {
       doc.setTextColor(60, 80, 100);
       doc.text(sumLines, 14, endY + 13);
 
-    
+      /* ── ช่องลงชื่อ ── */
+      var signY = endY + boxH + 22;
+      if (signY > pageH - 25) { doc.addPage(); signY = 40; }
+      doc.setDrawColor(120, 140, 160);
+      doc.setLineWidth(0.3);
+      doc.line(30,  signY, 90,  signY);
+      doc.line(120, signY, 180, signY);
+      doc.line(210, signY, 270, signY);
+      doc.setFontSize(9);
+      doc.setTextColor(60, 80, 100);
+      doc.text('ผู้ตรวจสอบ', 60,  signY + 6, { align: 'center' });
+      doc.text('หัวหน้างาน', 150, signY + 6, { align: 'center' });
+      doc.text('ผู้อนุมัติ',   240, signY + 6, { align: 'center' });
+      doc.text('วันที่ ........../........../..........', 60,  signY + 12, { align: 'center' });
+      doc.text('วันที่ ........../........../..........', 150, signY + 12, { align: 'center' });
+      doc.text('วันที่ ........../........../..........', 240, signY + 12, { align: 'center' });
 
       /* ── Page footer ── */
       var pageCount = doc.internal.getNumberOfPages();
